@@ -26,7 +26,12 @@ void generateChunk(Chunk* chunk, int16_t x, int16_t y, int16_t z)
             {
                 uint8_t pos = j + (y * CHUNK_SIZE);
 
-                if(pos == height - 1)
+                //TODO
+                if(pos == height && (i + j + k) % 3 == 0)
+                {
+                    CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_FLOWER;
+                }
+                else if(pos == height - 1)
                 {
                     CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_GRASS;
                 }

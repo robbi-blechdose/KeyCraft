@@ -7,8 +7,6 @@
 
 #define VIEW_DISTANCE 5
 
-#define WORLD_HEIGHT 5
-
 typedef struct {
     int16_t x;
     int16_t y;

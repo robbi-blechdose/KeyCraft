@@ -31,10 +31,21 @@ void initWorld()
     chunkPos = (ChunkPos) {0, 0, 0};
 }
 
-void swapChunks(uint8_t side, uint8_t direction)
+typedef enum {
+    SWP_FB,
+    SWP_LR,
+    SWP_TB
+} SwapSide;
+
+typedef enum {
+    SWP_FORE,
+    SWP_BACK
+} SwapDir;
+
+void swapChunks(SwapSide side, SwapDir direction)
 {
     uint8_t out, in;
-    if(direction)
+    if(direction == SWP_FORE)
     {
         out = 0;
         in = VIEW_DISTANCE - 1;
@@ -51,11 +62,11 @@ void swapChunks(uint8_t side, uint8_t direction)
         {
             //Destroy chunk "behind" the player
             Chunk* toDestroy;
-            if(side == 0)
+            if(side == SWP_FB)
             {
                 toDestroy = WORLD_CHUNK(out, i, j);
             }
-            else if(side == 1)
+            else if(side == SWP_LR)
             {
                 toDestroy = WORLD_CHUNK(i, out, j);
             }
@@ -67,15 +78,15 @@ void swapChunks(uint8_t side, uint8_t direction)
             free(toDestroy);
 
             //Shift other chunks
-            if(direction)
+            if(direction == SWP_FORE)
             {
                 for(uint8_t k = 0; k < VIEW_DISTANCE - 1; k++)
                 {
-                    if(side == 0)
+                    if(side == SWP_FB)
                     {
                         WORLD_CHUNK(k, i, j) = WORLD_CHUNK(k + 1, i, j);
                     }
-                    else if(side == 1)
+                    else if(side == SWP_LR)
                     {
                         WORLD_CHUNK(i, k, j) = WORLD_CHUNK(i, k + 1, j);
                     }
@@ -89,11 +100,11 @@ void swapChunks(uint8_t side, uint8_t direction)
             {
                 for(uint8_t k = VIEW_DISTANCE - 1; k > 0; k--)
                 {
-                    if(side == 0)
+                    if(side == SWP_FB)
                     {
                         WORLD_CHUNK(k, i, j) = WORLD_CHUNK(k - 1, i, j);
                     }
-                    else if(side == 1)
+                    else if(side == SWP_LR)
                     {
                         WORLD_CHUNK(i, k, j) = WORLD_CHUNK(i, k - 1, j);
                     }
@@ -106,15 +117,15 @@ void swapChunks(uint8_t side, uint8_t direction)
 
             //Load new chunk "in front of" player
             Chunk* newChunk = calloc(1, sizeof(Chunk));
-            if(side == 0)
+            if(side == SWP_FB)
             {
                 WORLD_CHUNK(in, i, j) = newChunk;
                 generateChunk(newChunk, chunkPos.x + in, chunkPos.y + j, chunkPos.z + i);
             }
-            else if(side == 1)
+            else if(side == SWP_LR)
             {
                 WORLD_CHUNK(i, in, j) = newChunk;
-                generateChunk(newChunk, chunkPos.x + i, chunkPos.y + in, chunkPos.z + j);
+                generateChunk(newChunk, chunkPos.x + i, chunkPos.y + j, chunkPos.z + in);
             }
             else
             {
@@ -139,42 +150,25 @@ void calcWorld(vec3* playerPos, uint32_t ticks)
         if(playerChunkPos.x > chunkPos.x)
         {
             chunkPos.x++;
-            swapChunks(0, 1);
-            /**
-            for(uint8_t j = 0; j < VIEW_DISTANCE; j++)
-            {
-                for(uint8_t k = 0; k < VIEW_DISTANCE; k++)
-                {
-                    destroyChunk(WORLD_CHUNK(0, j, k));
-                    free(WORLD_CHUNK(0, j, k));
-                    for(uint8_t i = 0; i < VIEW_DISTANCE - 1; i++)
-                    {
-                        WORLD_CHUNK(i, j, k) = WORLD_CHUNK(i + 1, j, k);
-                    }
-                    WORLD_CHUNK(VIEW_DISTANCE - 1, j, k) = calloc(1, sizeof(Chunk));
-                    generateChunk(WORLD_CHUNK(VIEW_DISTANCE - 1, j, k), chunkPos.x + VIEW_DISTANCE - 1, chunkPos.y + k, chunkPos.z + j);
-                }
-            }**/
+            swapChunks(SWP_FB, SWP_FORE);
         }
         else
         {
             chunkPos.x--;
-            swapChunks(0, 0);
-            /**
-            for(uint8_t j = 0; j < VIEW_DISTANCE; j++)
-            {
-                for(uint8_t k = 0; k < VIEW_DISTANCE; k++)
-                {
-                    destroyChunk(WORLD_CHUNK(VIEW_DISTANCE - 1, j, k));
-                    free(WORLD_CHUNK(VIEW_DISTANCE - 1, j, k));
-                    for(uint8_t i = VIEW_DISTANCE - 1; i > 0; i--)
-                    {
-                        WORLD_CHUNK(i, j, k) = WORLD_CHUNK(i - 1, j, k);
-                    }
-                    WORLD_CHUNK(0, j, k) = calloc(1, sizeof(Chunk));
-                    generateChunk(WORLD_CHUNK(0, j, k), chunkPos.x + 0, chunkPos.y + k, chunkPos.z + j);
-                }
-            }**/
+            swapChunks(SWP_FB, SWP_BACK);
+        }
+    }
+    if(playerChunkPos.z - chunkPos.z != 0)
+    {
+        if(playerChunkPos.z > chunkPos.z)
+        {
+            chunkPos.z++;
+            swapChunks(SWP_LR, SWP_FORE);
+        }
+        else
+        {
+            chunkPos.z--;
+            swapChunks(SWP_LR, SWP_BACK);
         }
     }
 
