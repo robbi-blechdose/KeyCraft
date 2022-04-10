@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=KeyCraft
+Comment=Voxel building game
+Exec=main.elf
+Icon=res/icon
+Terminal=false
+Categories=games;
