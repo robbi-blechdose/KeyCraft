@@ -21,7 +21,19 @@ typedef enum {
 
 typedef struct {
     uint8_t type;
+    uint8_t data;
 } Block;
+
+//TODO
+/**
+ * Block data has the following format:
+ * XXXX XXPP
+ * P = Power state
+ **/
+
+/** ---------- Block data definitions ---------- **/
+//TODO
+/** -------------------------------------------- **/
 
 typedef enum {
     BS_FRONT  = 0b00000001,

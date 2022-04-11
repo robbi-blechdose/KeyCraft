@@ -55,6 +55,7 @@ void calcChunk(Chunk* chunk, uint32_t ticks)
     if(chunk->modified)
     {
         chunk->modified = 0;
+        //TODO
         //glDeleteList(chunk->drawList);
         generateDrawData(chunk);
     }

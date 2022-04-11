@@ -8,6 +8,13 @@
 #define CHUNK_SIZE 8
 
 typedef struct {
+    int16_t x;
+    int16_t y;
+    int16_t z;
+} ChunkPos;
+
+typedef struct {
+    ChunkPos position;
     Block blocks[CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE];
     uint8_t modified;
     GLuint drawList;

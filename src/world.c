@@ -14,7 +14,7 @@ GLuint terrainTexture;
 
 void initWorld()
 {
-    initWorldgen();
+    initWorldgen(0);
     terrainTexture = loadRGBTexture("res/tex/terrain.png");
 
     for(uint8_t i = 0; i < VIEW_DISTANCE; i++)
@@ -24,7 +24,8 @@ void initWorld()
             for(uint8_t k = 0; k < VIEW_DISTANCE; k++)
             {
                 WORLD_CHUNK(i, j, k) = calloc(1, sizeof(Chunk));
-                generateChunk(WORLD_CHUNK(i, j, k), i, k, j);
+                WORLD_CHUNK(i, j, k)->position = (ChunkPos) {i, k, j};
+                generateChunk(WORLD_CHUNK(i, j, k));
             }
         }
     }
@@ -119,19 +120,20 @@ void swapChunks(SwapSide side, SwapDir direction)
             Chunk* newChunk = calloc(1, sizeof(Chunk));
             if(side == SWP_FB)
             {
+                newChunk->position = (ChunkPos) {chunkPos.x + in, chunkPos.y + j, chunkPos.z + i};
                 WORLD_CHUNK(in, i, j) = newChunk;
-                generateChunk(newChunk, chunkPos.x + in, chunkPos.y + j, chunkPos.z + i);
             }
             else if(side == SWP_LR)
             {
+                newChunk->position = (ChunkPos) {chunkPos.x + i, chunkPos.y + j, chunkPos.z + in};
                 WORLD_CHUNK(i, in, j) = newChunk;
-                generateChunk(newChunk, chunkPos.x + i, chunkPos.y + j, chunkPos.z + in);
             }
             else
             {
+                newChunk->position = (ChunkPos) {chunkPos.x + i, chunkPos.y + j, chunkPos.z + in};
                 WORLD_CHUNK(i, j, in) = newChunk;
-                generateChunk(newChunk, chunkPos.x + i, chunkPos.y + j, chunkPos.z + in);
             }
+            generateChunk(newChunk);
         }
     }
 }

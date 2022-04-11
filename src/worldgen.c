@@ -1,20 +1,31 @@
 #include "worldgen.h"
 
+#include <stdlib.h>
+
 #define FNL_IMPL
 #include "engine/includes/FastNoiseLite.h"
+#include "engine/util.h"
 
 fnl_state noise;
 
-void initWorldgen()
+void initWorldgen(uint32_t seed)
 {
+    //Init FastNoiseListe
     noise = fnlCreateState();
     noise.noise_type = FNL_NOISE_PERLIN;
     noise.fractal_type = FNL_FRACTAL_NONE;
-    noise.seed = 0;
+    noise.seed = seed;
+    //Init random
+    srand(seed);
 }
 
-void generateChunk(Chunk* chunk, int16_t x, int16_t y, int16_t z)
+void generateChunk(Chunk* chunk)
 {
+    //Chunk position
+    int16_t x = chunk->position.x;
+    int16_t y = chunk->position.y;
+    int16_t z = chunk->position.z;
+
     for(uint8_t i = 0; i < CHUNK_SIZE; i++)
     {
         for(uint8_t k = 0; k < CHUNK_SIZE; k++)
@@ -26,8 +37,7 @@ void generateChunk(Chunk* chunk, int16_t x, int16_t y, int16_t z)
             {
                 uint8_t pos = j + (y * CHUNK_SIZE);
 
-                //TODO
-                if(pos == height && (i + j + k) % 3 == 0)
+                if(pos == height && randr(128) == 0)
                 {
                     CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_FLOWER;
                 }
