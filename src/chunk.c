@@ -1,7 +1,10 @@
 #include "chunk.h"
 
+#include "engine/savegame.h"
+
 void generateDrawData(Chunk* chunk)
 {
+    chunk->isEmpty = 1;
     chunk->drawList = glGenLists(1);
 	glNewList(chunk->drawList, GL_COMPILE);
 	glBegin(GL_QUADS);
@@ -14,6 +17,8 @@ void generateDrawData(Chunk* chunk)
             {
                 if(CHUNK_BLOCK(chunk, i, j, k).type != BLOCK_AIR)
                 {
+                    chunk->isEmpty = 0;
+
                     //Simple block occlusion check
                     uint8_t occlusion = 0;
                     if((k + 1 < CHUNK_SIZE) && isFullBlock(CHUNK_BLOCK(chunk, i, j, k + 1).type))
@@ -36,7 +41,8 @@ void generateDrawData(Chunk* chunk)
                     {
                         occlusion |= BS_TOP;
                     }
-                    if((j > 0) && isFullBlock(CHUNK_BLOCK(chunk, i, j - 1, k).type))
+                    if(((j > 0) && isFullBlock(CHUNK_BLOCK(chunk, i, j - 1, k).type)) ||
+                        (chunk->position.y == 0 && j == 0)) //Special case: The bottom of the bottom block of the bottom chunk (bedrock) will never be seen
                     {
                         occlusion |= BS_BOTTOM;
                     }
@@ -70,4 +76,9 @@ void drawChunk(Chunk* chunk)
 void destroyChunk(Chunk* chunk)
 {
     glDeleteList(chunk->drawList);
+}
+
+uint8_t intersectsRayChunk(vec3* playerPos, vec3* playerRot, uint8_t* hit)
+{
+    //TODO
 }

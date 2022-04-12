@@ -62,6 +62,17 @@ void calcFrame(uint32_t ticks)
     playerLook(&player, dirX, dirY, ticks);
     calcPlayer(&player, ticks);
 
+    //Place block
+    if(keyUp(B_A))
+    {
+        //TODO
+    }
+    //Remove block
+    else if(keyUp(B_B))
+    {
+        //TODO
+    }
+
     calcWorld(&player.position, ticks);
 }
 
@@ -82,7 +93,7 @@ void drawFrame()
 int main(int argc, char **argv)
 {
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
-    initVideo((vec4) {.d = {0.2f, 0.6f, 0.8f, 1.0f}}, (vec4) {.d = {0, 0, WINX, WINY}}, 70, 1, 512);
+    initVideo((vec4) {.d = {0, 0.8f, 1.0f, 1.0f}}, (vec4) {.d = {0, 0, WINX, WINY}}, 70, 1, 512);
     initAudio(MIX_MAX_VOLUME, 2, 2);
 
     player.position = (vec3) {0, 5.0f, 0};

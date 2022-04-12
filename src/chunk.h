@@ -3,6 +3,8 @@
 
 #include <GL/gl.h>
 
+#include "engine/includes/3dMath.h"
+
 #include "block.h"
 
 #define CHUNK_SIZE 8
@@ -16,6 +18,7 @@ typedef struct {
 typedef struct {
     ChunkPos position;
     Block blocks[CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE];
+    uint8_t isEmpty;
     uint8_t modified;
     GLuint drawList;
 } Chunk;
@@ -26,5 +29,7 @@ void calcChunk(Chunk* chunk, uint32_t ticks);
 void drawChunk(Chunk* chunk);
 
 void destroyChunk(Chunk* chunk);
+
+uint8_t intersectsRayChunk(vec3* playerPos, vec3* playerRot, uint8_t* hit);
 
 #endif

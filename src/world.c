@@ -32,6 +32,11 @@ void initWorld()
     chunkPos = (ChunkPos) {0, 0, 0};
 }
 
+void quitWorld()
+{
+    //TODO
+}
+
 typedef enum {
     SWP_FB,
     SWP_LR,
@@ -173,6 +178,7 @@ void calcWorld(vec3* playerPos, uint32_t ticks)
             swapChunks(SWP_LR, SWP_BACK);
         }
     }
+    //TODO: Z
 
     //printf("P: %d %d %d\n", playerChunkPos.x, playerChunkPos.y, playerChunkPos.z);
     //printf("W: %d %d %d\n", chunkPos.x, chunkPos.y, chunkPos.z);
@@ -206,18 +212,38 @@ void drawWorld()
         {
             for(uint8_t k = 0; k < VIEW_DISTANCE; k++)
             {
-                glPushMatrix();
-                glTranslatef((i + chunkPos.x) * CHUNK_SIZE - VIEW_TRANSLATION,
-                             (k + chunkPos.y) * CHUNK_SIZE - VIEW_TRANSLATION,
-                             (j + chunkPos.z) * CHUNK_SIZE - VIEW_TRANSLATION);
-                drawChunk(WORLD_CHUNK(i, j, k));
-                glPopMatrix();
+                //Discard empty chunks
+                if(!WORLD_CHUNK(i, j, k)->isEmpty)
+                {
+                    glPushMatrix();
+                    glTranslatef((i + chunkPos.x) * CHUNK_SIZE - VIEW_TRANSLATION,
+                                (k + chunkPos.y) * CHUNK_SIZE - VIEW_TRANSLATION,
+                                (j + chunkPos.z) * CHUNK_SIZE - VIEW_TRANSLATION);
+                    drawChunk(WORLD_CHUNK(i, j, k));
+                    glPopMatrix();
+                }
             }
         }
     }
 }
 
-void quitWorld()
+uint8_t intersectsRayWorld(vec3* playerPos, vec3* playerRot, uint8_t* hit)
 {
-    //TODO
+    for(uint8_t i = 0; i < VIEW_DISTANCE; i++)
+    {
+        for(uint8_t j = 0; j < VIEW_DISTANCE; j++)
+        {
+            for(uint8_t k = 0; k < VIEW_DISTANCE; k++)
+            {
+                //Discard empty chunks
+                if(!WORLD_CHUNK(i, j, k)->isEmpty)
+                {
+                    if(intersectsRayChunk(playerPos, playerRot, hit))
+                    {
+                        return 1;
+                    }
+                }
+            }
+        }
+    }
 }
