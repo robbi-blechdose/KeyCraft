@@ -2,8 +2,8 @@
 
 #include "engine/util.h"
 
-#define ACCELERATION (1.0f / 125.0f)
-#define MAX_TURN_SPEED 5
+#define ACCELERATION (1.0f / 75.0f)
+#define MAX_TURN_SPEED 4
 #define MAX_SPEED 10
 
 void calcAcceleration(float* var, int8_t dir, uint32_t ticks)
@@ -31,8 +31,6 @@ void calcAcceleration(float* var, int8_t dir, uint32_t ticks)
 
 void playerMove(Player* player, int8_t dir, uint32_t ticks)
 {
-    //calcAcceleration(&player->speed, dir, ticks);
-    //player->speed = clampf(player->speed, 0, MAX_SPEED);
     player->speed = MAX_SPEED * dir;
 }
 
@@ -50,7 +48,7 @@ void calcPlayer(Player* player, uint32_t ticks)
     player->rotation.x += (player->turnSpeedX * ticks) / 1000.0f;
     player->rotation.y += (player->turnSpeedY * ticks) / 1000.0f;
     //Keep rotation in bounds
-    clampAngle(&player->rotation.x);
+    player->rotation.x = clampf(player->rotation.x, -M_PI_2, M_PI_2);
     clampAngle(&player->rotation.y);
 
     //Apply movement to position
