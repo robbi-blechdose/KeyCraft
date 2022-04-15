@@ -2,6 +2,8 @@
 
 #include "engine/savegame.h"
 
+#include "block.h"
+
 void generateDrawData(Chunk* chunk)
 {
     chunk->isEmpty = 1;
@@ -78,7 +80,60 @@ void destroyChunk(Chunk* chunk)
     glDeleteList(chunk->drawList);
 }
 
-uint8_t intersectsRayChunk(vec3* playerPos, vec3* playerRot, uint8_t* hit)
+void calcChunkAABB(Chunk* chunk)
 {
-    //TODO
+    chunk->aabb.min.x = chunk->position.x * CHUNK_SIZE;
+    chunk->aabb.min.y = chunk->position.y * CHUNK_SIZE;
+    chunk->aabb.min.z = chunk->position.z * CHUNK_SIZE;
+    chunk->aabb.max.x = chunk->position.x * CHUNK_SIZE + CHUNK_SIZE;
+    chunk->aabb.max.y = chunk->position.y * CHUNK_SIZE + CHUNK_SIZE;
+    chunk->aabb.max.z = chunk->position.z * CHUNK_SIZE + CHUNK_SIZE;
+}
+
+uint8_t intersectsRayChunk(Chunk* chunk, vec3* origin, vec3* direction, float* hit)
+{
+    if(chunk->isEmpty)
+    {
+        return 0;
+    }
+
+    //Check against chunk AABB
+    calcChunkAABB(chunk); //TODO: Possibly move to chunk creation?
+    if(!aabbIntersectsRay(&chunk->aabb, origin, direction, hit))
+    {
+        return 0;
+    }
+
+    uint8_t found = 0;
+    float minDistance = 512;
+
+    //TODO: Fix
+    //Check against individual block AABBs
+    for(uint8_t i = 0; i < CHUNK_SIZE; i++)
+    {
+        for(uint8_t j = 0; j < CHUNK_SIZE; j++)
+        {
+            for(uint8_t k = 0; k < CHUNK_SIZE; k++)
+            {
+                if(CHUNK_BLOCK(chunk, i, j, k).type != BLOCK_AIR)
+                {
+                    //TODO: Create AABB by block type
+                    vec3 min = {chunk->aabb.min.x + i, chunk->aabb.min.y + j, chunk->aabb.min.z + k};
+                    AABB blockAABB = {.min = min, .max = (vec3) {min.x + BLOCK_SIZE, min.y + BLOCK_SIZE, min.z + BLOCK_SIZE}};
+                    if(aabbIntersectsRay(&blockAABB, origin, direction, hit))
+                    {
+                        found = 1;
+                        printf("%f | ", *hit);
+                        if(*hit < minDistance)
+                        {
+                            minDistance = *hit;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    *hit = minDistance;
+    return found;
 }

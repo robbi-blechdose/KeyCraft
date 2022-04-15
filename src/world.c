@@ -210,25 +210,32 @@ void drawWorld()
     {
         for(uint8_t j = 0; j < VIEW_DISTANCE; j++)
         {
+            //Translating here and then adding to it in the inner loop saves a few push/pops
+            glPushMatrix();
+            glTranslatef((i + chunkPos.x) * CHUNK_SIZE - VIEW_TRANSLATION,
+                        chunkPos.y * CHUNK_SIZE - VIEW_TRANSLATION,
+                        (j + chunkPos.z) * CHUNK_SIZE - VIEW_TRANSLATION);
+
             for(uint8_t k = 0; k < VIEW_DISTANCE; k++)
             {
+                glTranslatef(0, CHUNK_SIZE, 0);
                 //Discard empty chunks
                 if(!WORLD_CHUNK(i, j, k)->isEmpty)
                 {
-                    glPushMatrix();
-                    glTranslatef((i + chunkPos.x) * CHUNK_SIZE - VIEW_TRANSLATION,
-                                (k + chunkPos.y) * CHUNK_SIZE - VIEW_TRANSLATION,
-                                (j + chunkPos.z) * CHUNK_SIZE - VIEW_TRANSLATION);
                     drawChunk(WORLD_CHUNK(i, j, k));
-                    glPopMatrix();
                 }
             }
+            glPopMatrix();
         }
     }
 }
 
-uint8_t intersectsRayWorld(vec3* playerPos, vec3* playerRot, uint8_t* hit)
+uint8_t intersectsRayWorld(vec3* origin, vec3* direction, float* hit)
 {
+    uint8_t found = 0;
+    float minDistance = 512;
+
+    //Exclude outer chunks
     for(uint8_t i = 0; i < VIEW_DISTANCE; i++)
     {
         for(uint8_t j = 0; j < VIEW_DISTANCE; j++)
@@ -238,12 +245,19 @@ uint8_t intersectsRayWorld(vec3* playerPos, vec3* playerRot, uint8_t* hit)
                 //Discard empty chunks
                 if(!WORLD_CHUNK(i, j, k)->isEmpty)
                 {
-                    if(intersectsRayChunk(playerPos, playerRot, hit))
+                    if(intersectsRayChunk(WORLD_CHUNK(i, j, k), origin, direction, hit))
                     {
-                        return 1;
+                        found = 1;
+                        if(*hit < minDistance)
+                        {
+                            minDistance = *hit;
+                        }
                     }
                 }
             }
         }
     }
+
+    *hit = minDistance;
+    return found;
 }

@@ -11,6 +11,6 @@ void initWorld();
 void calcWorld(vec3* playerPos, uint32_t ticks);
 void drawWorld();
 
-uint8_t intersectsRayWorld(vec3* playerPos, vec3* playerRot, uint8_t* hit);
+uint8_t intersectsRayWorld(vec3* origin, vec3* direction, float* hit);
 
 #endif

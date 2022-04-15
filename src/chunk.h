@@ -6,6 +6,7 @@
 #include "engine/includes/3dMath.h"
 
 #include "block.h"
+#include "aabb.h"
 
 #define CHUNK_SIZE 8
 
@@ -16,6 +17,7 @@ typedef struct {
 } ChunkPos;
 
 typedef struct {
+    AABB aabb;
     ChunkPos position;
     Block blocks[CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE];
     uint8_t isEmpty;
@@ -30,6 +32,6 @@ void drawChunk(Chunk* chunk);
 
 void destroyChunk(Chunk* chunk);
 
-uint8_t intersectsRayChunk(vec3* playerPos, vec3* playerRot, uint8_t* hit);
+uint8_t intersectsRayChunk(Chunk* chunk, vec3* origin, vec3* direction, float* hit);
 
 #endif

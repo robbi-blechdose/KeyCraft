@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+#define BLOCK_SIZE 1.0f
+
 typedef enum {
     BLOCK_AIR = 0,
     BLOCK_STONE,

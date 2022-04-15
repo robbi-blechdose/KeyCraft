@@ -5,13 +5,12 @@
 #include "engine/includes/3dMath.h"
 #include "engine/util.h"
 
-#define BLOCK_SIZE 1.0f
 //Add 0.5 because OpenGL samples textures at the texel center, but we want the top-left corner (to get the entire pixel)
 #define PTC(X) (((X) - 0.5f) / 255.0f)
 
 #define glVectorV3(vec) glVertex3f((vec).x, (vec).y, (vec).z)
 
-vec2 textures[16 * 16] = {
+const vec2 textures[16 * 16] = {
     {8, 0}, //Stone
     {16, 0}, //Dirt
     {24, 0}, //Grass Side
@@ -21,18 +20,18 @@ vec2 textures[16 * 16] = {
     {64, 16} //Grass top
 };
 
-uint8_t normalBlockTextures[] = {
+const uint8_t normalBlockTextures[] = {
     [BLOCK_STONE] = 0,
     [BLOCK_DIRT] = 1,
     [BLOCK_PLANKS] = 3,
     [BLOCK_BEDROCK] = 5
 };
 
-uint8_t orientedBlockTextures[][6] = {
+const uint8_t orientedBlockTextures[][6] = {
     [BLOCK_GRASS] = {2, 2, 2, 2, 6, 1}
 };
 
-uint8_t xBlockTextures[] = {
+const uint8_t xBlockTextures[] = {
     [BLOCK_FLOWER] = 4
 };
 
