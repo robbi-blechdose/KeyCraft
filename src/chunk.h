@@ -7,14 +7,9 @@
 
 #include "block.h"
 #include "aabb.h"
+#include "blockutils.h"
 
 #define CHUNK_SIZE 8
-
-typedef struct {
-    int16_t x;
-    int16_t y;
-    int16_t z;
-} ChunkPos;
 
 typedef struct {
     AABB aabb;
@@ -32,6 +27,7 @@ void drawChunk(Chunk* chunk);
 
 void destroyChunk(Chunk* chunk);
 
-uint8_t intersectsRayChunk(Chunk* chunk, vec3* origin, vec3* direction, float* hit);
+void calcChunkAABB(Chunk* chunk);
+uint8_t intersectsRayChunk(Chunk* chunk, vec3* origin, vec3* direction, BlockPos* block, float* distance);
 
 #endif

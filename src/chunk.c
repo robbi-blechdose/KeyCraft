@@ -90,23 +90,22 @@ void calcChunkAABB(Chunk* chunk)
     chunk->aabb.max.z = chunk->position.z * CHUNK_SIZE + CHUNK_SIZE;
 }
 
-uint8_t intersectsRayChunk(Chunk* chunk, vec3* origin, vec3* direction, float* hit)
+uint8_t intersectsRayChunk(Chunk* chunk, vec3* origin, vec3* direction, BlockPos* block, float* distance)
 {
     if(chunk->isEmpty)
     {
         return 0;
     }
 
-    float distance;
-
     //Check against chunk AABB
-    calcChunkAABB(chunk); //TODO: Possibly move to chunk creation?
-    if(!aabbIntersectsRay(&chunk->aabb, origin, direction, &distance))
+    if(!aabbIntersectsRay(&chunk->aabb, origin, direction, distance))
     {
         return 0;
     }
 
     uint8_t found = 0;
+    BlockPos minBlock;
+    minBlock.chunk = chunk->position;
     float minDistance = 512;
 
     //Check against individual block AABBs
@@ -122,12 +121,15 @@ uint8_t intersectsRayChunk(Chunk* chunk, vec3* origin, vec3* direction, float* h
                     vec3 min = {chunk->aabb.min.x + i, chunk->aabb.min.y + j, chunk->aabb.min.z + k};
                     AABB blockAABB = {.min = min, .max = (vec3) {min.x + BLOCK_SIZE, min.y + BLOCK_SIZE, min.z + BLOCK_SIZE}};
                     
-                    if(aabbIntersectsRay(&blockAABB, origin, direction, &distance))
+                    if(aabbIntersectsRay(&blockAABB, origin, direction, distance))
                     {
                         found = 1;
-                        if(distance < minDistance)
+                        if(*distance < minDistance)
                         {
-                            minDistance = distance;
+                            minBlock.x = i;
+                            minBlock.y = j;
+                            minBlock.z = k;
+                            minDistance = *distance;
                         }
                     }
                 }
@@ -135,6 +137,7 @@ uint8_t intersectsRayChunk(Chunk* chunk, vec3* origin, vec3* direction, float* h
         }
     }
 
-    *hit = minDistance;
+    *block = minBlock;
+    *distance = minDistance;
     return found;
 }

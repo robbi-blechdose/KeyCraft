@@ -64,4 +64,7 @@ void generateChunk(Chunk* chunk)
         }
     }
     chunk->modified = 1;
+
+    //Calculate basic AABB
+    calcChunkAABB(chunk);
 }

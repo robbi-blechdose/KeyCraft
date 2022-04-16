@@ -48,7 +48,6 @@ typedef enum {
     SWP_BACK
 } SwapDir;
 
-//TODO: Redo
 void swapChunks(SwapSide side, SwapDir direction)
 {
     uint8_t out, in;
@@ -231,9 +230,21 @@ void drawWorld()
     }
 }
 
-uint8_t intersectsRayWorld(vec3* origin, vec3* direction, float* hit)
+Block* getWorldBlock(BlockPos* pos)
+{
+    return &CHUNK_BLOCK(WORLD_CHUNK(pos->chunk.x, pos->chunk.y, pos->chunk.z), pos->x, pos->y, pos->z);
+}
+
+void setWorldBlock(BlockPos* pos, uint8_t type)
+{
+    CHUNK_BLOCK(WORLD_CHUNK(pos->chunk.x, pos->chunk.y, pos->chunk.z), pos->x, pos->y, pos->z).type = type;
+    WORLD_CHUNK(pos->chunk.x, pos->chunk.y, pos->chunk.z)->modified = 1;
+}
+
+uint8_t intersectsRayWorld(vec3* origin, vec3* direction, BlockPos* block, float* distance)
 {
     uint8_t found = 0;
+    BlockPos minBlock;
     float minDistance = 512;
 
     //Exclude outer chunks
@@ -246,12 +257,13 @@ uint8_t intersectsRayWorld(vec3* origin, vec3* direction, float* hit)
                 //Discard empty chunks
                 if(!WORLD_CHUNK(i, j, k)->isEmpty)
                 {
-                    if(intersectsRayChunk(WORLD_CHUNK(i, j, k), origin, direction, hit))
+                    if(intersectsRayChunk(WORLD_CHUNK(i, j, k), origin, direction, block, distance))
                     {
                         found = 1;
-                        if(*hit < minDistance)
+                        if(*distance < minDistance)
                         {
-                            minDistance = *hit;
+                            minBlock = *block;
+                            minDistance = *distance;
                         }
                     }
                 }
@@ -259,6 +271,7 @@ uint8_t intersectsRayWorld(vec3* origin, vec3* direction, float* hit)
         }
     }
 
-    *hit = minDistance;
+    *block = minBlock;
+    *distance = minDistance;
     return found;
 }

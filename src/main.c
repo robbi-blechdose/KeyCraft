@@ -8,6 +8,8 @@
 
 #include "player.h"
 #include "world.h"
+#include "blockutils.h"
+#include "block.h"
 
 #define DEBUG
 
@@ -67,27 +69,40 @@ void calcFrame(uint32_t ticks)
     //Place block
     if(keyUp(B_A))
     {
-        float hit;
-        vec3 rayDir = anglesToDirection(&player.rotation);
-        //Player position in world space
-        vec3 posWorld = player.position;
-        posWorld.x += 20;
-        posWorld.y += 20;
-        posWorld.z += 20;
-        uint8_t result = intersectsRayWorld(&posWorld, &rayDir, &hit);
-        printf("%d | %f\n", result, hit);
-        rayA.x = player.position.x;
-        rayA.y = player.position.y;
-        rayA.z = player.position.z;
-        rayB.x = rayA.x + rayDir.x * hit;
-        rayB.y = rayA.y + rayDir.y * hit;
-        rayB.z = rayA.z + rayDir.z * hit;
         //TODO
     }
     //Remove block
     else if(keyUp(B_B))
     {
         //TODO
+
+        vec3 rayDir = anglesToDirection(&player.rotation);
+        //Player position in world space
+        vec3 posWorld = player.position;
+        posWorld.x += 20;
+        posWorld.y += 20;
+        posWorld.z += 20;
+
+        BlockPos block;
+        float distance;
+        uint8_t result = intersectsRayWorld(&posWorld, &rayDir, &block, &distance);
+
+        if(result)
+        {
+            /**
+            printf("%d | %f\n", result, distance);
+            rayA.x = player.position.x;
+            rayA.y = player.position.y;
+            rayA.z = player.position.z;
+            rayB.x = rayA.x + rayDir.x * distance;
+            rayB.y = rayA.y + rayDir.y * distance;
+            rayB.z = rayA.z + rayDir.z * distance;**/
+
+            if(getWorldBlock(&block)->type != BLOCK_BEDROCK)
+            {
+                setWorldBlock(&block, BLOCK_AIR);
+            }
+        }
     }
 
     calcWorld(&player.position, ticks);
