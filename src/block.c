@@ -35,26 +35,31 @@ const uint8_t xBlockTextures[] = {
     [BLOCK_FLOWER] = 4
 };
 
+void calcBlockCorners(vec3 list[8], uint8_t x, uint8_t y, uint8_t z)
+{
+    list[0] = (vec3) {x, y, z + BLOCK_SIZE};
+    list[1] = (vec3) {x + BLOCK_SIZE, y, z + BLOCK_SIZE};
+    list[2] = (vec3) {x + BLOCK_SIZE, y + BLOCK_SIZE, z + BLOCK_SIZE};
+    list[3] = (vec3) {x, y + BLOCK_SIZE, z + BLOCK_SIZE};
+
+    list[4] = (vec3) {x + BLOCK_SIZE, y, z};
+    list[5] = (vec3) {x, y, z};
+    list[6] = (vec3) {x, y + BLOCK_SIZE, z};
+    list[7] = (vec3) {x + BLOCK_SIZE, y + BLOCK_SIZE, z};
+}
+
 void drawNormalBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
 {
-    //Precalculate all 8 vertices
-    vec3 v1 = {x, y, z + BLOCK_SIZE};
-    vec3 v2 = {x + BLOCK_SIZE, y, z + BLOCK_SIZE};
-    vec3 v3 = {x + BLOCK_SIZE, y + BLOCK_SIZE, z + BLOCK_SIZE};
-    vec3 v4 = {x, y + BLOCK_SIZE, z + BLOCK_SIZE};
-
-    vec3 v5 = {x + BLOCK_SIZE, y, z};
-    vec3 v6 = {x, y, z};
-    vec3 v7 = {x, y + BLOCK_SIZE, z};
-    vec3 v8 = {x + BLOCK_SIZE, y + BLOCK_SIZE, z};
+    vec3 v[8];
+    calcBlockCorners(v, x, y, z);
 
     vec3* faces[6][4] = {
-        {&v1, &v2, &v3, &v4},
-        {&v5, &v6, &v7, &v8},
-        {&v6, &v1, &v4, &v7},
-        {&v2, &v5, &v8, &v3},
-        {&v4, &v3, &v8, &v7},
-        {&v6, &v5, &v2, &v1}
+        {&v[0], &v[1], &v[2], &v[3]},
+        {&v[4], &v[5], &v[6], &v[7]},
+        {&v[5], &v[0], &v[3], &v[6]},
+        {&v[1], &v[4], &v[7], &v[2]},
+        {&v[3], &v[2], &v[7], &v[6]},
+        {&v[5], &v[4], &v[1], &v[0]}
     };
 
     //Get texture position
@@ -89,24 +94,16 @@ void drawNormalBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occl
 //TODO: Rename
 void drawOrientedBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
 {
-    //Precalculate all 8 vertices
-    vec3 v1 = {x, y, z + BLOCK_SIZE};
-    vec3 v2 = {x + BLOCK_SIZE, y, z + BLOCK_SIZE};
-    vec3 v3 = {x + BLOCK_SIZE, y + BLOCK_SIZE, z + BLOCK_SIZE};
-    vec3 v4 = {x, y + BLOCK_SIZE, z + BLOCK_SIZE};
-
-    vec3 v5 = {x + BLOCK_SIZE, y, z};
-    vec3 v6 = {x, y, z};
-    vec3 v7 = {x, y + BLOCK_SIZE, z};
-    vec3 v8 = {x + BLOCK_SIZE, y + BLOCK_SIZE, z};
+    vec3 v[8];
+    calcBlockCorners(v, x, y, z);
 
     vec3* faces[6][4] = {
-        {&v1, &v2, &v3, &v4},
-        {&v5, &v6, &v7, &v8},
-        {&v6, &v1, &v4, &v7},
-        {&v2, &v5, &v8, &v3},
-        {&v4, &v3, &v8, &v7},
-        {&v6, &v5, &v2, &v1}
+        {&v[0], &v[1], &v[2], &v[3]},
+        {&v[4], &v[5], &v[6], &v[7]},
+        {&v[5], &v[0], &v[3], &v[6]},
+        {&v[1], &v[4], &v[7], &v[2]},
+        {&v[3], &v[2], &v[7], &v[6]},
+        {&v[5], &v[4], &v[1], &v[0]}
     };
 
     //Get texture positions
@@ -145,20 +142,12 @@ void drawXBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion
         return;
     }
 
-    //Precalculate all 8 vertices
-    vec3 v1 = {x, y, z + BLOCK_SIZE};
-    vec3 v2 = {x + BLOCK_SIZE, y, z + BLOCK_SIZE};
-    vec3 v3 = {x + BLOCK_SIZE, y + BLOCK_SIZE, z + BLOCK_SIZE};
-    vec3 v4 = {x, y + BLOCK_SIZE, z + BLOCK_SIZE};
-
-    vec3 v5 = {x + BLOCK_SIZE, y, z};
-    vec3 v6 = {x, y, z};
-    vec3 v7 = {x, y + BLOCK_SIZE, z};
-    vec3 v8 = {x + BLOCK_SIZE, y + BLOCK_SIZE, z};
+    vec3 v[8];
+    calcBlockCorners(v, x, y, z);
 
     vec3* faces[6][4] = {
-        {&v1, &v5, &v8, &v4},
-        {&v6, &v2, &v3, &v7},
+        {&v[0], &v[4], &v[7], &v[3]},
+        {&v[5], &v[1], &v[2], &v[6]},
     };
 
     //Get texture position
@@ -185,19 +174,6 @@ void drawXBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion
 
 void drawBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
 {
-    //Precalculate corner vertices (all 8 corners of a cube)
-    vec3 cornerVerts[8] = {
-        {x, y, z + BLOCK_SIZE},
-        {x + BLOCK_SIZE, y, z + BLOCK_SIZE},
-        {x + BLOCK_SIZE, y + BLOCK_SIZE, z + BLOCK_SIZE},
-        {x, y + BLOCK_SIZE, z + BLOCK_SIZE},
-
-        {x + BLOCK_SIZE, y, z},
-        {x, y, z},
-        {x, y + BLOCK_SIZE, z},
-        {x + BLOCK_SIZE, y + BLOCK_SIZE, z}
-    };
-
     switch(block->type)
     {
         case BLOCK_GRASS:
