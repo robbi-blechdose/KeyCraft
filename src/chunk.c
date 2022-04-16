@@ -97,9 +97,11 @@ uint8_t intersectsRayChunk(Chunk* chunk, vec3* origin, vec3* direction, float* h
         return 0;
     }
 
+    float distance;
+
     //Check against chunk AABB
     calcChunkAABB(chunk); //TODO: Possibly move to chunk creation?
-    if(!aabbIntersectsRay(&chunk->aabb, origin, direction, hit))
+    if(!aabbIntersectsRay(&chunk->aabb, origin, direction, &distance))
     {
         return 0;
     }
@@ -107,7 +109,6 @@ uint8_t intersectsRayChunk(Chunk* chunk, vec3* origin, vec3* direction, float* h
     uint8_t found = 0;
     float minDistance = 512;
 
-    //TODO: Fix
     //Check against individual block AABBs
     for(uint8_t i = 0; i < CHUNK_SIZE; i++)
     {
@@ -120,13 +121,13 @@ uint8_t intersectsRayChunk(Chunk* chunk, vec3* origin, vec3* direction, float* h
                     //TODO: Create AABB by block type
                     vec3 min = {chunk->aabb.min.x + i, chunk->aabb.min.y + j, chunk->aabb.min.z + k};
                     AABB blockAABB = {.min = min, .max = (vec3) {min.x + BLOCK_SIZE, min.y + BLOCK_SIZE, min.z + BLOCK_SIZE}};
-                    if(aabbIntersectsRay(&blockAABB, origin, direction, hit))
+                    
+                    if(aabbIntersectsRay(&blockAABB, origin, direction, &distance))
                     {
                         found = 1;
-                        printf("%f | ", *hit);
-                        if(*hit < minDistance)
+                        if(distance < minDistance)
                         {
-                            minDistance = *hit;
+                            minDistance = distance;
                         }
                     }
                 }

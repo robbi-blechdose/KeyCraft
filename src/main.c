@@ -120,7 +120,7 @@ int main(int argc, char **argv)
     initVideo((vec4) {.d = {0, 0.8f, 1.0f, 1.0f}}, (vec4) {.d = {0, 0, WINX, WINY}}, 70, 1, 512);
     initAudio(MIX_MAX_VOLUME, 2, 2);
 
-    player.position = (vec3) {0, 5.0f, 0};
+    player.position = (vec3) {0, -5.0f, 0};
 
     initWorld();
 

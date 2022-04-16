@@ -24,7 +24,7 @@ void initWorld()
             for(uint8_t k = 0; k < VIEW_DISTANCE; k++)
             {
                 WORLD_CHUNK(i, j, k) = calloc(1, sizeof(Chunk));
-                WORLD_CHUNK(i, j, k)->position = (ChunkPos) {i, k, j};
+                WORLD_CHUNK(i, j, k)->position = (ChunkPos) {i, j, k};
                 generateChunk(WORLD_CHUNK(i, j, k));
             }
         }
@@ -48,6 +48,7 @@ typedef enum {
     SWP_BACK
 } SwapDir;
 
+//TODO: Redo
 void swapChunks(SwapSide side, SwapDir direction)
 {
     uint8_t out, in;
@@ -74,7 +75,7 @@ void swapChunks(SwapSide side, SwapDir direction)
             }
             else if(side == SWP_LR)
             {
-                toDestroy = WORLD_CHUNK(i, out, j);
+                toDestroy = WORLD_CHUNK(i, j, out);
             }
             else
             {
@@ -94,7 +95,7 @@ void swapChunks(SwapSide side, SwapDir direction)
                     }
                     else if(side == SWP_LR)
                     {
-                        WORLD_CHUNK(i, k, j) = WORLD_CHUNK(i, k + 1, j);
+                        WORLD_CHUNK(i, j, k) = WORLD_CHUNK(i, j, k + 1);
                     }
                     else
                     {
@@ -112,7 +113,7 @@ void swapChunks(SwapSide side, SwapDir direction)
                     }
                     else if(side == SWP_LR)
                     {
-                        WORLD_CHUNK(i, k, j) = WORLD_CHUNK(i, k - 1, j);
+                        WORLD_CHUNK(i, j, k) = WORLD_CHUNK(i, j, k - 1);
                     }
                     else
                     {
@@ -125,13 +126,13 @@ void swapChunks(SwapSide side, SwapDir direction)
             Chunk* newChunk = calloc(1, sizeof(Chunk));
             if(side == SWP_FB)
             {
-                newChunk->position = (ChunkPos) {chunkPos.x + in, chunkPos.y + j, chunkPos.z + i};
+                newChunk->position = (ChunkPos) {chunkPos.x + in, chunkPos.y + i, chunkPos.z + j};
                 WORLD_CHUNK(in, i, j) = newChunk;
             }
             else if(side == SWP_LR)
             {
                 newChunk->position = (ChunkPos) {chunkPos.x + i, chunkPos.y + j, chunkPos.z + in};
-                WORLD_CHUNK(i, in, j) = newChunk;
+                WORLD_CHUNK(i, j, in) = newChunk;
             }
             else
             {
@@ -208,22 +209,22 @@ void drawWorld()
     //Draw visible chunks
     for(uint8_t i = 0; i < VIEW_DISTANCE; i++)
     {
-        for(uint8_t j = 0; j < VIEW_DISTANCE; j++)
+        for(uint8_t k = 0; k < VIEW_DISTANCE; k++)
         {
             //Translating here and then adding to it in the inner loop saves a few push/pops
             glPushMatrix();
             glTranslatef((i + chunkPos.x) * CHUNK_SIZE - VIEW_TRANSLATION,
                         chunkPos.y * CHUNK_SIZE - VIEW_TRANSLATION,
-                        (j + chunkPos.z) * CHUNK_SIZE - VIEW_TRANSLATION);
+                        (k + chunkPos.z) * CHUNK_SIZE - VIEW_TRANSLATION);
 
-            for(uint8_t k = 0; k < VIEW_DISTANCE; k++)
+            for(uint8_t j = 0; j < VIEW_DISTANCE; j++)
             {
-                glTranslatef(0, CHUNK_SIZE, 0);
                 //Discard empty chunks
                 if(!WORLD_CHUNK(i, j, k)->isEmpty)
                 {
                     drawChunk(WORLD_CHUNK(i, j, k));
                 }
+                glTranslatef(0, CHUNK_SIZE, 0);
             }
             glPopMatrix();
         }

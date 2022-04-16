@@ -17,15 +17,19 @@ uint8_t aabbIntersectsAABB(AABB* box1, AABB* box2)
 //Based on this: https://gdbooks.gitbooks.io/3dcollisions/content/Chapter3/raycast_aabb.html
 uint8_t aabbIntersectsRay(AABB* box, vec3* origin, vec3* direction, float* hit)
 {
-    float tx1 = (box->min.x - origin->x) / direction->x;
-    float tx2 = (box->max.x - origin->x) / direction->x;
-    float ty1 = (box->min.y - origin->y) / direction->y;
-    float ty2 = (box->max.y - origin->y) / direction->y;
-    float tz1 = (box->min.z - origin->z) / direction->z;
-    float tz2 = (box->max.z - origin->z) / direction->z;
+    vec3 t1 = {
+        (box->min.x - origin->x) / direction->x,
+        (box->min.y - origin->y) / direction->y,
+        (box->min.z - origin->z) / direction->z
+    };
+    vec3 t2 = {
+        (box->max.x - origin->x) / direction->x,
+        (box->max.y - origin->y) / direction->y,
+        (box->max.z - origin->z) / direction->z
+    };
 
-    float tMin = fmax(fmax(fmin(tx1, tx2), fmin(ty1, ty2)), fmin(tz1, tz2));
-    float tMax = fmin(fmin(fmax(tx1, tx2), fmax(ty1, ty2)), fmax(tz1, tz2));
+    float tMin = fmax(fmax(fmin(t1.x, t2.x), fmin(t1.y, t2.y)), fmin(t1.z, t2.z));
+    float tMax = fmin(fmin(fmax(t1.x, t2.x), fmax(t1.y, t2.y)), fmax(t1.z, t2.z));
 
     //Ray intersects AABB behind us || ray doesn't intersect
     if(tMax < 0 || tMin > tMax)
