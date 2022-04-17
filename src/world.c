@@ -5,7 +5,8 @@
 #include "chunk.h"
 #include "worldgen.h"
 
-#define WORLD_CHUNK(i, j, k) chunks[(i) + ((j) * VIEW_DISTANCE) + ((k) * VIEW_DISTANCE * VIEW_DISTANCE)]
+#define VIEW_CHUNK(i, j, k) chunks[(i) + ((j) * VIEW_DISTANCE) + ((k) * VIEW_DISTANCE * VIEW_DISTANCE)]
+#define WORLD_CHUNK(i, j, k) VIEW_CHUNK((i) - chunkPos.x, (j) - chunkPos.y, (k) - chunkPos.z)
 
 ChunkPos chunkPos;
 Chunk* chunks[VIEW_DISTANCE * VIEW_DISTANCE * VIEW_DISTANCE];
@@ -23,9 +24,9 @@ void initWorld()
         {
             for(uint8_t k = 0; k < VIEW_DISTANCE; k++)
             {
-                WORLD_CHUNK(i, j, k) = calloc(1, sizeof(Chunk));
-                WORLD_CHUNK(i, j, k)->position = (ChunkPos) {i, j, k};
-                generateChunk(WORLD_CHUNK(i, j, k));
+                VIEW_CHUNK(i, j, k) = calloc(1, sizeof(Chunk));
+                VIEW_CHUNK(i, j, k)->position = (ChunkPos) {i, j, k};
+                generateChunk(VIEW_CHUNK(i, j, k));
             }
         }
     }
@@ -70,15 +71,15 @@ void swapChunks(SwapSide side, SwapDir direction)
             Chunk* toDestroy;
             if(side == SWP_FB)
             {
-                toDestroy = WORLD_CHUNK(out, i, j);
+                toDestroy = VIEW_CHUNK(out, i, j);
             }
             else if(side == SWP_LR)
             {
-                toDestroy = WORLD_CHUNK(i, j, out);
+                toDestroy = VIEW_CHUNK(i, j, out);
             }
             else
             {
-                toDestroy = WORLD_CHUNK(i, j, out);
+                toDestroy = VIEW_CHUNK(i, j, out);
             }
             destroyChunk(toDestroy);
             free(toDestroy);
@@ -90,15 +91,15 @@ void swapChunks(SwapSide side, SwapDir direction)
                 {
                     if(side == SWP_FB)
                     {
-                        WORLD_CHUNK(k, i, j) = WORLD_CHUNK(k + 1, i, j);
+                        VIEW_CHUNK(k, i, j) = VIEW_CHUNK(k + 1, i, j);
                     }
                     else if(side == SWP_LR)
                     {
-                        WORLD_CHUNK(i, j, k) = WORLD_CHUNK(i, j, k + 1);
+                        VIEW_CHUNK(i, j, k) = VIEW_CHUNK(i, j, k + 1);
                     }
                     else
                     {
-                        WORLD_CHUNK(i, j, k) = WORLD_CHUNK(i, j, k + 1);
+                        VIEW_CHUNK(i, j, k) = VIEW_CHUNK(i, j, k + 1);
                     }
                 }
             }
@@ -108,15 +109,15 @@ void swapChunks(SwapSide side, SwapDir direction)
                 {
                     if(side == SWP_FB)
                     {
-                        WORLD_CHUNK(k, i, j) = WORLD_CHUNK(k - 1, i, j);
+                        VIEW_CHUNK(k, i, j) = VIEW_CHUNK(k - 1, i, j);
                     }
                     else if(side == SWP_LR)
                     {
-                        WORLD_CHUNK(i, j, k) = WORLD_CHUNK(i, j, k - 1);
+                        VIEW_CHUNK(i, j, k) = VIEW_CHUNK(i, j, k - 1);
                     }
                     else
                     {
-                        WORLD_CHUNK(i, j, k) = WORLD_CHUNK(i, j, k - 1);
+                        VIEW_CHUNK(i, j, k) = VIEW_CHUNK(i, j, k - 1);
                     }
                 }
             }
@@ -126,17 +127,17 @@ void swapChunks(SwapSide side, SwapDir direction)
             if(side == SWP_FB)
             {
                 newChunk->position = (ChunkPos) {chunkPos.x + in, chunkPos.y + i, chunkPos.z + j};
-                WORLD_CHUNK(in, i, j) = newChunk;
+                VIEW_CHUNK(in, i, j) = newChunk;
             }
             else if(side == SWP_LR)
             {
                 newChunk->position = (ChunkPos) {chunkPos.x + i, chunkPos.y + j, chunkPos.z + in};
-                WORLD_CHUNK(i, j, in) = newChunk;
+                VIEW_CHUNK(i, j, in) = newChunk;
             }
             else
             {
                 newChunk->position = (ChunkPos) {chunkPos.x + i, chunkPos.y + j, chunkPos.z + in};
-                WORLD_CHUNK(i, j, in) = newChunk;
+                VIEW_CHUNK(i, j, in) = newChunk;
             }
             generateChunk(newChunk);
         }
@@ -192,7 +193,7 @@ void calcWorld(vec3* playerPos, uint32_t ticks)
         {
             for(uint8_t k = 0; k < VIEW_DISTANCE; k++)
             {
-                calcChunk(WORLD_CHUNK(i, j, k), ticks);
+                calcChunk(VIEW_CHUNK(i, j, k), ticks);
             }
         }
     }
@@ -219,9 +220,9 @@ void drawWorld()
             for(uint8_t j = 0; j < VIEW_DISTANCE; j++)
             {
                 //Discard empty chunks
-                if(!WORLD_CHUNK(i, j, k)->isEmpty)
+                if(!VIEW_CHUNK(i, j, k)->isEmpty)
                 {
-                    drawChunk(WORLD_CHUNK(i, j, k));
+                    drawChunk(VIEW_CHUNK(i, j, k));
                 }
                 glTranslatef(0, CHUNK_SIZE, 0);
             }
@@ -255,9 +256,9 @@ uint8_t intersectsRayWorld(vec3* origin, vec3* direction, BlockPos* block, float
             for(uint8_t k = 0; k < VIEW_DISTANCE; k++)
             {
                 //Discard empty chunks
-                if(!WORLD_CHUNK(i, j, k)->isEmpty)
+                if(!VIEW_CHUNK(i, j, k)->isEmpty)
                 {
-                    if(intersectsRayChunk(WORLD_CHUNK(i, j, k), origin, direction, block, distance))
+                    if(intersectsRayChunk(VIEW_CHUNK(i, j, k), origin, direction, block, distance))
                     {
                         found = 1;
                         if(*distance < minDistance)
