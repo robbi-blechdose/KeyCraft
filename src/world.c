@@ -231,20 +231,58 @@ void drawWorld()
     }
 }
 
+void normalizeBlockPos(BlockPos* pos)
+{
+    if(pos->x < 0)
+    {
+        pos->x += CHUNK_SIZE;
+        pos->chunk.x--;
+    }
+    else if(pos->x >= CHUNK_SIZE)
+    {
+        pos->x -= CHUNK_SIZE;
+        pos->chunk.x++;
+    }
+
+    if(pos->y < 0)
+    {
+        pos->y += CHUNK_SIZE;
+        pos->chunk.y--;
+    }
+    else if(pos->y >= CHUNK_SIZE)
+    {
+        pos->y -= CHUNK_SIZE;
+        pos->chunk.y++;
+    }
+
+    if(pos->z < 0)
+    {
+        pos->z += CHUNK_SIZE;
+        pos->chunk.z--;
+    }
+    else if(pos->z >= CHUNK_SIZE)
+    {
+        pos->z -= CHUNK_SIZE;
+        pos->chunk.z++;
+    }
+}
+
 Block* getWorldBlock(BlockPos* pos)
 {
+    normalizeBlockPos(pos);
     return &CHUNK_BLOCK(WORLD_CHUNK(pos->chunk.x, pos->chunk.y, pos->chunk.z), pos->x, pos->y, pos->z);
 }
 
 void setWorldBlock(BlockPos* pos, uint8_t type)
 {
+    normalizeBlockPos(pos);
     CHUNK_BLOCK(WORLD_CHUNK(pos->chunk.x, pos->chunk.y, pos->chunk.z), pos->x, pos->y, pos->z).type = type;
     WORLD_CHUNK(pos->chunk.x, pos->chunk.y, pos->chunk.z)->modified = 1;
 }
 
-uint8_t intersectsRayWorld(vec3* origin, vec3* direction, BlockPos* block, float* distance)
+AABBSide intersectsRayWorld(vec3* origin, vec3* direction, BlockPos* block, float* distance)
 {
-    uint8_t found = 0;
+    AABBSide minSide = AABB_NONE;
     BlockPos minBlock;
     float minDistance = 512;
 
@@ -258,11 +296,12 @@ uint8_t intersectsRayWorld(vec3* origin, vec3* direction, BlockPos* block, float
                 //Discard empty chunks
                 if(!VIEW_CHUNK(i, j, k)->isEmpty)
                 {
-                    if(intersectsRayChunk(VIEW_CHUNK(i, j, k), origin, direction, block, distance))
+                    AABBSide result = intersectsRayChunk(VIEW_CHUNK(i, j, k), origin, direction, block, distance);
+                    if(result != AABB_NONE)
                     {
-                        found = 1;
                         if(*distance < minDistance)
                         {
+                            minSide = result;
                             minBlock = *block;
                             minDistance = *distance;
                         }
@@ -274,5 +313,5 @@ uint8_t intersectsRayWorld(vec3* origin, vec3* direction, BlockPos* block, float
 
     *block = minBlock;
     *distance = minDistance;
-    return found;
+    return minSide;
 }

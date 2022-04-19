@@ -28,6 +28,6 @@ void drawChunk(Chunk* chunk);
 void destroyChunk(Chunk* chunk);
 
 void calcChunkAABB(Chunk* chunk);
-uint8_t intersectsRayChunk(Chunk* chunk, vec3* origin, vec3* direction, BlockPos* block, float* distance);
+AABBSide intersectsRayChunk(Chunk* chunk, vec3* origin, vec3* direction, BlockPos* block, float* distance);
 
 #endif

@@ -7,6 +7,7 @@
 
 #include "blockutils.h"
 #include "block.h"
+#include "aabb.h"
 
 #define VIEW_DISTANCE 5
 
@@ -17,6 +18,6 @@ void drawWorld();
 Block* getWorldBlock(BlockPos* pos);
 void setWorldBlock(BlockPos* pos, uint8_t type);
 
-uint8_t intersectsRayWorld(vec3* origin, vec3* direction, BlockPos* block, float* distance);
+AABBSide intersectsRayWorld(vec3* origin, vec3* direction, BlockPos* block, float* distance);
 
 #endif

@@ -15,7 +15,7 @@ uint8_t aabbIntersectsAABB(AABB* box1, AABB* box2)
 }
 
 //Based on this: https://gdbooks.gitbooks.io/3dcollisions/content/Chapter3/raycast_aabb.html
-uint8_t aabbIntersectsRay(AABB* box, vec3* origin, vec3* direction, float* hit)
+AABBSide aabbIntersectsRay(AABB* box, vec3* origin, vec3* direction, float* distance)
 {
     vec3 t1 = {
         (box->min.x - origin->x) / direction->x,
@@ -34,16 +34,24 @@ uint8_t aabbIntersectsRay(AABB* box, vec3* origin, vec3* direction, float* hit)
     //Ray intersects AABB behind us || ray doesn't intersect
     if(tMax < 0 || tMin > tMax)
     {
-        return 0;
+        return AABB_NONE;
     }
 
     if(tMin < 0)
     {
-        *hit = tMax;
+        *distance = tMax;
     }
     else
     {
-        *hit = tMin;
+        *distance = tMin;
     }
-    return 1;
+
+    if(tMin == t1.x || tMin == t2.x)
+        return direction->x < 0 ? AABB_RIGHT : AABB_LEFT;
+
+    if(tMin == t1.y || tMin == t2.y)
+        return direction->y < 0 ? AABB_TOP : AABB_BOTTOM;
+
+    //if(tMin == t1.z || tMin == t2.z)
+        return direction->z < 0 ? AABB_BACK : AABB_FRONT;
 }

@@ -10,8 +10,18 @@ typedef struct {
     vec3 max;
 } AABB;
 
+typedef enum {
+    AABB_NONE = 0,
+    AABB_FRONT,
+    AABB_BACK,
+    AABB_LEFT,
+    AABB_RIGHT,
+    AABB_TOP,
+    AABB_BOTTOM
+} AABBSide;
+
 uint8_t aabbIntersectsPoint(AABB* box, vec3* point);
 uint8_t aabbIntersectsAABB(AABB* box1, AABB* box2);
-uint8_t aabbIntersectsRay(AABB* box, vec3* origin, vec3* direction, float* hit);
+AABBSide aabbIntersectsRay(AABB* box, vec3* origin, vec3* direction, float* distance);
 
 #endif

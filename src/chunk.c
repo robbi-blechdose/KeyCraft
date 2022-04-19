@@ -90,7 +90,7 @@ void calcChunkAABB(Chunk* chunk)
     chunk->aabb.max.z = chunk->position.z * CHUNK_SIZE + CHUNK_SIZE;
 }
 
-uint8_t intersectsRayChunk(Chunk* chunk, vec3* origin, vec3* direction, BlockPos* block, float* distance)
+AABBSide intersectsRayChunk(Chunk* chunk, vec3* origin, vec3* direction, BlockPos* block, float* distance)
 {
     if(chunk->isEmpty)
     {
@@ -103,7 +103,7 @@ uint8_t intersectsRayChunk(Chunk* chunk, vec3* origin, vec3* direction, BlockPos
         return 0;
     }
 
-    uint8_t found = 0;
+    AABBSide minSide = AABB_NONE;
     BlockPos minBlock;
     minBlock.chunk = chunk->position;
     float minDistance = 512;
@@ -120,12 +120,13 @@ uint8_t intersectsRayChunk(Chunk* chunk, vec3* origin, vec3* direction, BlockPos
                     //TODO: Create AABB by block type
                     vec3 min = {chunk->aabb.min.x + i, chunk->aabb.min.y + j, chunk->aabb.min.z + k};
                     AABB blockAABB = {.min = min, .max = (vec3) {min.x + BLOCK_SIZE, min.y + BLOCK_SIZE, min.z + BLOCK_SIZE}};
-                    
-                    if(aabbIntersectsRay(&blockAABB, origin, direction, distance))
+                    AABBSide result = aabbIntersectsRay(&blockAABB, origin, direction, distance);
+
+                    if(result != AABB_NONE)
                     {
-                        found = 1;
                         if(*distance < minDistance)
                         {
+                            minSide = result;
                             minBlock.x = i;
                             minBlock.y = j;
                             minBlock.z = k;
@@ -139,5 +140,5 @@ uint8_t intersectsRayChunk(Chunk* chunk, vec3* origin, vec3* direction, BlockPos
 
     *block = minBlock;
     *distance = minDistance;
-    return found;
+    return minSide;
 }

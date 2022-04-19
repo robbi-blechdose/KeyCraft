@@ -34,8 +34,6 @@ void drawFPS(uint16_t fps)
 }
 #endif
 
-vec3 rayA, rayB;
-
 void calcFrame(uint32_t ticks)
 {
     //Player movement + look
@@ -66,42 +64,68 @@ void calcFrame(uint32_t ticks)
     playerLook(&player, dirX, dirY, ticks);
     calcPlayer(&player, ticks);
 
+    //Cast ray
+    vec3 rayDir = anglesToDirection(&player.rotation);
+    //Player position in world space
+    vec3 posWorld = player.position;
+    posWorld.x += 20;
+    posWorld.y += 20;
+    posWorld.z += 20;
+
+    BlockPos block;
+    float distance;
+    AABBSide result = intersectsRayWorld(&posWorld, &rayDir, &block, &distance);
+
     //Place block
-    if(keyUp(B_A))
+    if(keyUp(B_A) && result)
     {
-        //TODO
+        //Calc position
+        switch(result)
+        {
+            case AABB_FRONT:
+            {
+                block.z -= BLOCK_SIZE;
+                break;
+            }
+            case AABB_BACK:
+            {
+                block.z += BLOCK_SIZE;
+                break;
+            }
+            case AABB_LEFT:
+            {
+                block.x -= BLOCK_SIZE;
+                break;
+            }
+            case AABB_RIGHT:
+            {
+                block.x += BLOCK_SIZE;
+                break;
+            }
+            case AABB_BOTTOM:
+            {
+                block.y -= BLOCK_SIZE;
+                break;
+            }
+            case AABB_TOP:
+            {
+                block.y += BLOCK_SIZE;
+                break;
+            }
+        }
+
+        //Place new block
+        if(getWorldBlock(&block) == BLOCK_AIR)
+        {
+            setWorldBlock(&block, BLOCK_DIRT);
+        }
     }
     //Remove block
-    else if(keyUp(B_B))
+    else if(keyUp(B_B) && result)
     {
-        //TODO
-
-        vec3 rayDir = anglesToDirection(&player.rotation);
-        //Player position in world space
-        vec3 posWorld = player.position;
-        posWorld.x += 20;
-        posWorld.y += 20;
-        posWorld.z += 20;
-
-        BlockPos block;
-        float distance;
-        uint8_t result = intersectsRayWorld(&posWorld, &rayDir, &block, &distance);
-
-        if(result)
+        if(getWorldBlock(&block)->type != BLOCK_BEDROCK)
         {
-            /**
-            printf("%d | %f\n", result, distance);
-            rayA.x = player.position.x;
-            rayA.y = player.position.y;
-            rayA.z = player.position.z;
-            rayB.x = rayA.x + rayDir.x * distance;
-            rayB.y = rayA.y + rayDir.y * distance;
-            rayB.z = rayA.z + rayDir.z * distance;**/
-
-            if(getWorldBlock(&block)->type != BLOCK_BEDROCK)
-            {
-                setWorldBlock(&block, BLOCK_AIR);
-            }
+            setWorldBlock(&block, BLOCK_AIR);
         }
     }
 
@@ -116,11 +140,6 @@ void drawFrame()
     glPushMatrix();
     drawWorld();
     glPopMatrix();
-
-    glBegin(GL_LINES);
-    glVertex3f(rayA.x, rayA.y, rayA.z);
-    glVertex3f(rayB.x, rayB.y, rayB.z);
-    glEnd();
 
     #ifdef DEBUG
     drawFPS(fps);
