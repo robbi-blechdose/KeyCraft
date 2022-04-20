@@ -23,32 +23,36 @@ void generateDrawData(Chunk* chunk)
 
                     //Simple block occlusion check
                     uint8_t occlusion = 0;
-                    if((k + 1 < CHUNK_SIZE) && isFullBlock(CHUNK_BLOCK(chunk, i, j, k + 1).type))
+                    if((k + 1 < CHUNK_SIZE) && isOpaqueBlock(CHUNK_BLOCK(chunk, i, j, k + 1).type))
                     {
                         occlusion |= BS_FRONT;
                     }
-                    if((k > 0) && isFullBlock(CHUNK_BLOCK(chunk, i, j, k - 1).type))
+                    if((k > 0) && isOpaqueBlock(CHUNK_BLOCK(chunk, i, j, k - 1).type))
                     {
                         occlusion |= BS_BACK;
                     }
-                    if((i + 1 < CHUNK_SIZE) && isFullBlock(CHUNK_BLOCK(chunk, i + 1, j, k).type))
+                    if((i + 1 < CHUNK_SIZE) && isOpaqueBlock(CHUNK_BLOCK(chunk, i + 1, j, k).type))
                     {
                         occlusion |= BS_RIGHT;
                     }
-                    if((i > 0) && isFullBlock(CHUNK_BLOCK(chunk, i - 1, j, k).type))
+                    if((i > 0) && isOpaqueBlock(CHUNK_BLOCK(chunk, i - 1, j, k).type))
                     {
                         occlusion |= BS_LEFT;
                     }
-                    if((j + 1 < CHUNK_SIZE) && isFullBlock(CHUNK_BLOCK(chunk, i, j + 1, k).type))
+                    if((j + 1 < CHUNK_SIZE) && isOpaqueBlock(CHUNK_BLOCK(chunk, i, j + 1, k).type))
                     {
                         occlusion |= BS_TOP;
                     }
-                    if(((j > 0) && isFullBlock(CHUNK_BLOCK(chunk, i, j - 1, k).type)) ||
+                    if(((j > 0) && isOpaqueBlock(CHUNK_BLOCK(chunk, i, j - 1, k).type)) ||
                         (chunk->position.y == 0 && j == 0)) //Special case: The bottom of the bottom block of the bottom chunk (bedrock) will never be seen
                     {
                         occlusion |= BS_BOTTOM;
                     }
-                    drawBlock(&CHUNK_BLOCK(chunk, i, j, k), i, j, k, occlusion);
+
+                    if(occlusion != BS_ALL)
+                    {
+                        drawBlock(&CHUNK_BLOCK(chunk, i, j, k), i, j, k, occlusion);
+                    }
                 }
             }
         }

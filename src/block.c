@@ -11,28 +11,52 @@
 #define glVectorV3(vec) glVertex3f((vec).x, (vec).y, (vec).z)
 
 const vec2 textures[16 * 16] = {
-    {8, 0}, //Stone
-    {16, 0}, //Dirt
-    {24, 0}, //Grass Side
-    {32, 0}, //Planks
-    {96, 0}, //Red flowers
-    {0, 8}, //Bedrock
-    {64, 16} //Grass top
+    { 0, 0}, //Bedrock
+    { 8, 0}, //Stone
+    {16, 0}, //Sand
+    {24, 0}, //Dirt
+    {32, 0}, //Grass side
+    {40, 0}, //Grass top
+    {48, 0}, //Wood side
+    {56, 0}, //Wood top
+
+    { 0, 8}, //Planks
+    { 8, 8}, //Coal ore
+    {16, 8}, //Iron ore
+    {24, 8}, //Gold ore
+    {32, 8}, //Redstone ore
+    {40, 8}, //Diamond ore
+    {48, 8}, //Red flower
+    {56, 8}, //Yellow flower
+
+    {0, 16}, //Tall grass
+    {8, 16}, //Glass
+    {16, 16}, //Leaves
 };
 
 const uint8_t normalBlockTextures[] = {
-    [BLOCK_STONE] = 0,
-    [BLOCK_DIRT] = 1,
-    [BLOCK_PLANKS] = 3,
-    [BLOCK_BEDROCK] = 5
+    [BLOCK_BEDROCK] = 0,
+    [BLOCK_STONE] = 1,
+    [BLOCK_SAND] = 2,
+    [BLOCK_DIRT] = 3,
+    [BLOCK_PLANKS] = 8,
+    [BLOCK_COAL_ORE] = 9,
+    [BLOCK_IRON_ORE] = 10,
+    [BLOCK_GOLD_ORE] = 11,
+    [BLOCK_REDSTONE_ORE] = 12,
+    [BLOCK_DIAMOND_ORE] = 13,
+    [BLOCK_GLASS] = 17,
+    [BLOCK_LEAVES] = 18
 };
 
 const uint8_t orientedBlockTextures[][6] = {
-    [BLOCK_GRASS] = {2, 2, 2, 2, 6, 1}
+    [BLOCK_GRASS] = {4, 4, 4, 4, 5, 3},
+    [BLOCK_WOOD] = {6, 6, 6, 6, 7, 7}
 };
 
 const uint8_t xBlockTextures[] = {
-    [BLOCK_FLOWER] = 4
+    [BLOCK_FLOWER] = 14,
+    [BLOCK_TALL_GRASS] = 16
 };
 
 void calcBlockCorners(vec3 list[8], uint8_t x, uint8_t y, uint8_t z)
@@ -137,11 +161,6 @@ void drawOrientedBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t oc
 
 void drawXBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
 {
-    if(occlusion & BS_ALL)
-    {
-        return;
-    }
-
     vec3 v[8];
     calcBlockCorners(v, x, y, z);
 
@@ -177,11 +196,13 @@ void drawBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
     switch(block->type)
     {
         case BLOCK_GRASS:
+        case BLOCK_WOOD:
         {
             drawOrientedBlock(block, x, y, z, occlusion);
             break;
         }
         case BLOCK_FLOWER:
+        case BLOCK_TALL_GRASS:
         {
             drawXBlock(block, x, y, z, occlusion);
             break;
@@ -195,12 +216,14 @@ void drawBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
     }
 }
 
-uint8_t isFullBlock(BlockType type)
+uint8_t isOpaqueBlock(BlockType type)
 {
     switch(type)
     {
         case BLOCK_AIR:
         case BLOCK_FLOWER:
+        case BLOCK_TALL_GRASS:
+        case BLOCK_GLASS:
         {
             return 0;
         }

@@ -7,42 +7,25 @@
 
 typedef enum {
     BLOCK_AIR = 0,
+    BLOCK_BEDROCK,
     BLOCK_STONE,
+    BLOCK_SAND,
     BLOCK_DIRT,
     BLOCK_GRASS,
-    BLOCK_PLANKS,
-    //TODO
-    BLOCK_BRICKS,
-    //TODO
-    BLOCK_FLOWER,
-    BLOCK_MUSHROOM,
-    BLOCK_TALL_GRASS,
-    //TODO
-    BLOCK_COBBLESTONE,
-    BLOCK_BEDROCK,
-    BLOCK_SAND,
-    //TODO
     BLOCK_WOOD,
-    //TODO
-    BLOCK_GOLD_ORE,
-    BLOCK_IRON_ORE,
+
+    BLOCK_PLANKS,
     BLOCK_COAL_ORE,
-    BLOCK_DIAMOND_ORE,
+    BLOCK_IRON_ORE,
+    BLOCK_GOLD_ORE,
     BLOCK_REDSTONE_ORE,
-    //TODO
-    BLOCK_CRAFTING_TABLE,
-    BLOCK_FURNACE,
-    //TODO
-    BLOCK_DOOR,
-    BLOCK_REDSTONE_TORCH,
-    BLOCK_REDSTONE_WIRE,
-    BLOCK_REDSTONE_REPEATER,
-    //TODO
-    BLOCK_LAMP,
-    //TODO
-    BLOCK_WATER,
-    BLOCK_LAVA,
-    //TODO
+    BLOCK_DIAMOND_ORE,
+    BLOCK_FLOWER,
+
+    BLOCK_TALL_GRASS,
+    BLOCK_GLASS,
+    BLOCK_LEAVES,
+
     BLOCK_LAST
 } BlockType;
 
@@ -75,6 +58,6 @@ typedef enum {
 } BlockSide;
 
 void drawBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion);
-uint8_t isFullBlock(BlockType type);
+uint8_t isOpaqueBlock(BlockType type);
 
 #endif

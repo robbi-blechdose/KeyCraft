@@ -10,6 +10,7 @@
 #include "world.h"
 #include "blockutils.h"
 #include "block.h"
+#include "inventory.h"
 
 #define DEBUG
 
@@ -115,9 +116,9 @@ void calcFrame(uint32_t ticks)
         }
 
         //Place new block
-        if(getWorldBlock(&block) == BLOCK_AIR)
+        if(getWorldBlock(&block)->type == BLOCK_AIR)
         {
-            setWorldBlock(&block, BLOCK_DIRT);
+            setWorldBlock(&block, getHotbarSelection());
         }
     }
     //Remove block
@@ -127,6 +128,11 @@ void calcFrame(uint32_t ticks)
         {
             setWorldBlock(&block, BLOCK_AIR);
         }
+    }
+
+    if(keyUp(B_SELECT))
+    {
+        scrollHotbar();
     }
 
     calcWorld(&player.position, ticks);
