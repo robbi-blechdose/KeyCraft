@@ -12,4 +12,7 @@ void quitVideo();
 void clearFrame();
 void flipFrame();
 
+void setOrtho();
+void setPerspective();
+
 #endif

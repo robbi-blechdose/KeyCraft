@@ -16,7 +16,7 @@ void calcWorld(vec3* playerPos, uint32_t ticks);
 void drawWorld();
 
 Block* getWorldBlock(BlockPos* pos);
-void setWorldBlock(BlockPos* pos, uint8_t type);
+void setWorldBlock(BlockPos* pos, Block block);
 
 AABBSide intersectsRayWorld(vec3* origin, vec3* direction, BlockPos* block, float* distance);
 

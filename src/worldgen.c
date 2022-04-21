@@ -83,11 +83,16 @@ void generateChunk(Chunk* chunk)
 
                 if(pos == height)
                 {
-                    if(getNoiseRand(x, z, i, k) < 0.01f)
+                    float rand = getNoiseRand(x, z, i, k);
+                    if(rand < 0.005f)
                     {
                         CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_FLOWER;
+                        if(rand < 0.0025f)
+                        {
+                            CHUNK_BLOCK(chunk, i, j, k).data = BLOCK_DATA_TYPE;
+                        }
                     }
-                    else if(getNoiseRand(x, z, i, k) < 0.02f)
+                    else if(rand > 0.5f)
                     {
                         CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_TALL_GRASS;
                     }

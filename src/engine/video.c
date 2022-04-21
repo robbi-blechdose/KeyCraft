@@ -8,6 +8,35 @@
 SDL_Surface* screen;
 ZBuffer* frameBuffer = NULL;
 
+mat4 mPerspective;
+mat4 mOrtho;
+
+mat4 ortho(float b, float t, float l, float r, float n, float f)
+{ 
+    mat4 matrix;
+    matrix.d[0] = 2 / (r - l); 
+    matrix.d[1] = 0; 
+    matrix.d[2] = 0; 
+    matrix.d[3] = 0; 
+ 
+    matrix.d[4] = 0; 
+    matrix.d[5] = 2 / (t - b); 
+    matrix.d[6] = 0; 
+    matrix.d[7] = 0; 
+ 
+    matrix.d[8] = 0; 
+    matrix.d[9] = 0; 
+    matrix.d[10] = -2 / (f - n); 
+    matrix.d[11] = 0; 
+ 
+    matrix.d[12] = -(r + l) / (r - l); 
+    matrix.d[13] = -(t + b) / (t - b); 
+    matrix.d[14] = -(f + n) / (f - n); 
+    matrix.d[15] = 1;
+    
+    return matrix;
+}
+
 void initVideo(vec4 clearColor, vec4 viewport, float fov, float near, float far)
 {
     screen = SDL_SetVideoMode(WINX, WINY, 16, SDL_SWSURFACE);
@@ -27,12 +56,9 @@ void initVideo(vec4 clearColor, vec4 viewport, float fov, float near, float far)
 	glTextSize(GL_TEXT_SIZE8x8);
 	glEnable(GL_TEXTURE_2D);
 	
-	//Initialize projection matrix
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-    mat4 mPerspective = perspective(fov, (float) WINX / (float) WINY, near, far);
-	glLoadMatrixf(mPerspective.d);
-	glMatrixMode(GL_MODELVIEW);
+	//Initialize projection matrices
+    mPerspective = perspective(fov, (float) WINX / (float) WINY, near, far);
+	mOrtho = ortho(0, WINX, 0, WINY, -16, 0);
 }
 
 void clearFrame()
@@ -60,4 +86,20 @@ void quitVideo()
 	glClose();
 
     SDL_Quit();
+}
+
+void setOrtho()
+{
+    glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glLoadMatrixf(mOrtho.d);
+	glMatrixMode(GL_MODELVIEW);
+}
+
+void setPerspective()
+{
+    glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glLoadMatrixf(mPerspective.d);
+	glMatrixMode(GL_MODELVIEW);
 }

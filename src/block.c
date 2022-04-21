@@ -4,11 +4,17 @@
 
 #include "engine/includes/3dMath.h"
 #include "engine/util.h"
-
-//Add 0.5 because OpenGL samples textures at the texel center, but we want the top-left corner (to get the entire pixel)
-#define PTC(X) (((X) - 0.5f) / 255.0f)
+#include "engine/image.h"
 
 #define glVectorV3(vec) glVertex3f((vec).x, (vec).y, (vec).z)
+
+/**
+ * PTCL - Pointer to texture Low - "lower" corner
+ * PTCH - Pointer to texture High - "higher" corner
+ * Adds a small offset to prevent bleeding in the texture atlas
+ **/
+#define PTCL(X) PTC(X) + 0.001f
+#define PTCH(X) PTC(X) - 0.001f
 
 const vec2 textures[16 * 16] = {
     { 0, 0}, //Bedrock
@@ -88,10 +94,10 @@ void drawNormalBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occl
 
     //Get texture position
     vec2 tex = textures[normalBlockTextures[block->type]];
-    float texX1 = PTC(tex.x);
-    float texX2 = PTC(tex.x + 8);
-    float texY1 = PTC(tex.y);
-    float texY2 = PTC(tex.y + 8);
+    float texX1 = PTCL(tex.x);
+    float texX2 = PTCH(tex.x + 8);
+    float texY1 = PTCL(tex.y);
+    float texY2 = PTCH(tex.y + 8);
 
     uint8_t occlusionCheck = BS_FRONT;
     for(uint8_t i = 0; i < 6; i++)
@@ -146,13 +152,13 @@ void drawOrientedBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t oc
             continue;
         }
 
-        glTexCoord2f(PTC(tex[i].x + 8), PTC(tex[i].y + 8));
+        glTexCoord2f(PTCH(tex[i].x + 8), PTCH(tex[i].y + 8));
         glVectorV3(*(faces[i][0]));
-        glTexCoord2f(PTC(tex[i].x), PTC(tex[i].y + 8));
+        glTexCoord2f(PTCL(tex[i].x), PTCH(tex[i].y + 8));
         glVectorV3(*(faces[i][1]));
-        glTexCoord2f(PTC(tex[i].x), PTC(tex[i].y));
+        glTexCoord2f(PTCL(tex[i].x), PTCL(tex[i].y));
         glVectorV3(*(faces[i][2]));
-        glTexCoord2f(PTC(tex[i].x + 8), PTC(tex[i].y));
+        glTexCoord2f(PTCH(tex[i].x + 8), PTCL(tex[i].y));
         glVectorV3(*(faces[i][3]));
 
         occlusionCheck <<= 1;
@@ -170,11 +176,11 @@ void drawXBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion
     };
 
     //Get texture position
-    vec2 tex = textures[xBlockTextures[block->type]];
-    float texX1 = PTC(tex.x);
-    float texX2 = PTC(tex.x + 8);
-    float texY1 = PTC(tex.y);
-    float texY2 = PTC(tex.y + 8);
+    vec2 tex = textures[xBlockTextures[block->type] + (block->data & BLOCK_DATA_TYPE)];
+    float texX1 = PTCL(tex.x);
+    float texX2 = PTCH(tex.x + 8);
+    float texY1 = PTCL(tex.y);
+    float texY2 = PTCH(tex.y + 8);
 
     glDisable(GL_CULL_FACE);
     for(uint8_t i = 0; i < 2; i++)

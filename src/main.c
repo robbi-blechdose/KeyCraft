@@ -118,7 +118,7 @@ void calcFrame(uint32_t ticks)
         //Place new block
         if(getWorldBlock(&block)->type == BLOCK_AIR)
         {
-            setWorldBlock(&block, getHotbarSelection());
+            setWorldBlock(&block, (Block) {getHotbarSelection(), 0});
         }
     }
     //Remove block
@@ -126,7 +126,7 @@ void calcFrame(uint32_t ticks)
     {
         if(getWorldBlock(&block)->type != BLOCK_BEDROCK)
         {
-            setWorldBlock(&block, BLOCK_AIR);
+            setWorldBlock(&block, (Block) {BLOCK_AIR, 0});
         }
     }
 
@@ -141,11 +141,20 @@ void calcFrame(uint32_t ticks)
 void drawFrame()
 {
     clearFrame();
+
+    //3d drawing
+    setPerspective();
+
     drawCamera(&player.position, &player.rotation);
 
-    glPushMatrix();
     drawWorld();
-    glPopMatrix();
+
+    //GUI drawing
+    setOrtho();
+    glLoadIdentity();
+    glBegin(GL_QUADS);
+    drawHotbar();
+    glEnd();
 
     #ifdef DEBUG
     drawFPS(fps);
@@ -157,7 +166,7 @@ void drawFrame()
 int main(int argc, char **argv)
 {
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
-    initVideo((vec4) {.d = {0, 0.8f, 1.0f, 1.0f}}, (vec4) {.d = {0, 0, WINX, WINY}}, 70, 1, 512);
+    initVideo((vec4) {.d = {0, 0.8f, 1.0f, 1.0f}}, (vec4) {.d = {0, 0, WINX, WINY}}, 70, 0.5f, 256);
     initAudio(MIX_MAX_VOLUME, 2, 2);
 
     player.position = (vec3) {0, -5.0f, 0};

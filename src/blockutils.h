@@ -11,9 +11,9 @@ typedef struct {
 
 typedef struct {
     ChunkPos chunk;
-    uint8_t x;
-    uint8_t y;
-    uint8_t z;
+    int8_t x;
+    int8_t y;
+    int8_t z;
 } BlockPos;
 
 #endif

@@ -39,11 +39,12 @@ typedef struct {
 //TODO
 /**
  * Block data has the following format:
- * XXXX XXPP
- * P = Power state
+ * XXXX XXXT
+ * T = Type, if set block uses a different texture (normal texture + 1). Ignored if block has no secondary type
  **/
 
 /** ---------- Block data definitions ---------- **/
+#define BLOCK_DATA_TYPE 0b00000001
 //TODO
 /** -------------------------------------------- **/
 

@@ -6,6 +6,8 @@
 #define HOTBAR_SIZE 3
 #define HOTBAR_INITIAL {BLOCK_PLANKS, BLOCK_GLASS, BLOCK_SAND}
 
+void drawHotbar();
+
 void scrollHotbar();
 uint8_t getHotbarSelection();
 

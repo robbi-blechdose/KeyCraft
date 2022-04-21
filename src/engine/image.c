@@ -45,8 +45,15 @@ void deleteRGBTexture(GLuint texture)
     glDeleteTextures(1, &texture);
 }
 
-void blitSurface(SDL_Surface* target, SDL_Surface* source, uint8_t x, uint8_t y)
+void drawTexQuad(float posX, float posY, float sizeX, float sizeY, float z,
+					float texX1, float texY1, float texX2, float texY2)
 {
-    SDL_Rect dst = {.x = x, .y = y};
-    SDL_BlitSurface(source, NULL, target, &dst);
+    glTexCoord2f(texX1, texY2);
+    glVertex3f(posX, posY, z);
+    glTexCoord2f(texX2, texY2);
+    glVertex3f(posX + sizeX - 1, posY, z);
+    glTexCoord2f(texX2, texY1);
+    glVertex3f(posX + sizeX - 1, posY + sizeY - 1, z);
+    glTexCoord2f(texX1, texY1);
+    glVertex3f(posX, posY + sizeY - 1, z);
 }

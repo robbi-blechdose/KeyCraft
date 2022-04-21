@@ -3,6 +3,97 @@
 #include "engine/savegame.h"
 
 #include "block.h"
+#include "world.h"
+
+uint8_t isWorldBlockOpaque(Chunk* chunk, uint8_t i, uint8_t j, uint8_t k)
+{
+    BlockPos testPos = {.chunk = chunk->position, .x = i, .y = j, .z = k};
+    Block* testBlock = getWorldBlock(&testPos);
+    if(testBlock != NULL && isOpaqueBlock(testBlock->type))
+    {
+        return 1;
+    }
+    return 0;
+}
+
+uint8_t getOcclusionForBlock(Chunk* chunk, uint8_t i, uint8_t j, uint8_t k)
+{
+    uint8_t occlusion = 0;
+
+    if((k + 1 < CHUNK_SIZE))
+    {
+        if(isOpaqueBlock(CHUNK_BLOCK(chunk, i, j, k + 1).type))
+        {
+            occlusion |= BS_FRONT;
+        }
+    }
+    else if(isWorldBlockOpaque(chunk, i, j, k + 1))
+    {
+        occlusion |= BS_FRONT;
+    }
+
+    if((k > 0))
+    {
+        if(isOpaqueBlock(CHUNK_BLOCK(chunk, i, j, k - 1).type))
+        {
+            occlusion |= BS_BACK;
+        }
+    }
+    else if(isWorldBlockOpaque(chunk, i, j, k - 1))
+    {
+        occlusion |= BS_BACK;
+    }
+
+    if((i + 1 < CHUNK_SIZE))
+    {
+        if(isOpaqueBlock(CHUNK_BLOCK(chunk, i + 1, j, k).type))
+        {
+            occlusion |= BS_RIGHT;
+        }
+    }
+    else if(isWorldBlockOpaque(chunk, i + 1, j, k))
+    {
+        occlusion |= BS_RIGHT;
+    }
+
+    if((i > 0))
+    {
+        if(isOpaqueBlock(CHUNK_BLOCK(chunk, i - 1, j, k).type))
+        {
+            occlusion |= BS_LEFT;
+        }
+    }
+    else if(isWorldBlockOpaque(chunk, i - 1, j, k))
+    {
+        occlusion |= BS_LEFT;
+    }
+
+    if((j + 1 < CHUNK_SIZE))
+    {
+        if(isOpaqueBlock(CHUNK_BLOCK(chunk, i, j + 1, k).type))
+        {
+            occlusion |= BS_TOP;
+        }
+    }
+    else if(isWorldBlockOpaque(chunk, i, j + 1, k))
+    {
+        occlusion |= BS_TOP;
+    }
+
+    if(j > 0)
+    {
+        if(isOpaqueBlock(CHUNK_BLOCK(chunk, i, j - 1, k).type))
+        {
+            occlusion |= BS_BOTTOM;
+        }
+    }
+    else if(isWorldBlockOpaque(chunk, i, j - 1, k))
+    {
+        occlusion |= BS_BOTTOM;
+    }
+
+    return occlusion;
+}
 
 void generateDrawData(Chunk* chunk)
 {
@@ -21,33 +112,7 @@ void generateDrawData(Chunk* chunk)
                 {
                     chunk->isEmpty = 0;
 
-                    //Simple block occlusion check
-                    uint8_t occlusion = 0;
-                    if((k + 1 < CHUNK_SIZE) && isOpaqueBlock(CHUNK_BLOCK(chunk, i, j, k + 1).type))
-                    {
-                        occlusion |= BS_FRONT;
-                    }
-                    if((k > 0) && isOpaqueBlock(CHUNK_BLOCK(chunk, i, j, k - 1).type))
-                    {
-                        occlusion |= BS_BACK;
-                    }
-                    if((i + 1 < CHUNK_SIZE) && isOpaqueBlock(CHUNK_BLOCK(chunk, i + 1, j, k).type))
-                    {
-                        occlusion |= BS_RIGHT;
-                    }
-                    if((i > 0) && isOpaqueBlock(CHUNK_BLOCK(chunk, i - 1, j, k).type))
-                    {
-                        occlusion |= BS_LEFT;
-                    }
-                    if((j + 1 < CHUNK_SIZE) && isOpaqueBlock(CHUNK_BLOCK(chunk, i, j + 1, k).type))
-                    {
-                        occlusion |= BS_TOP;
-                    }
-                    if(((j > 0) && isOpaqueBlock(CHUNK_BLOCK(chunk, i, j - 1, k).type)) ||
-                        (chunk->position.y == 0 && j == 0)) //Special case: The bottom of the bottom block of the bottom chunk (bedrock) will never be seen
-                    {
-                        occlusion |= BS_BOTTOM;
-                    }
+                    uint8_t occlusion = getOcclusionForBlock(chunk, i, j, k);
 
                     if(occlusion != BS_ALL)
                     {

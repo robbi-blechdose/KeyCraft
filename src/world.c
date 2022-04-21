@@ -184,8 +184,6 @@ void calcWorld(vec3* playerPos, uint32_t ticks)
     //printf("P: %d %d %d\n", playerChunkPos.x, playerChunkPos.y, playerChunkPos.z);
     //printf("W: %d %d %d\n", chunkPos.x, chunkPos.y, chunkPos.z);
     
-    //TODO
-
     //Calculate visible chunks
     for(uint8_t i = 0; i < VIEW_DISTANCE; i++)
     {
@@ -270,14 +268,62 @@ void normalizeBlockPos(BlockPos* pos)
 Block* getWorldBlock(BlockPos* pos)
 {
     normalizeBlockPos(pos);
+    //Bounds check
+    if(pos->chunk.x >= chunkPos.x + VIEW_DISTANCE||
+        pos->chunk.x  < chunkPos.x ||
+        pos->chunk.y >= chunkPos.y + VIEW_DISTANCE ||
+        pos->chunk.y  < chunkPos.y ||
+        pos->chunk.z >= chunkPos.z + VIEW_DISTANCE ||
+        pos->chunk.z  < chunkPos.z)
+    {
+        return NULL;
+    }
     return &CHUNK_BLOCK(WORLD_CHUNK(pos->chunk.x, pos->chunk.y, pos->chunk.z), pos->x, pos->y, pos->z);
 }
 
-void setWorldBlock(BlockPos* pos, uint8_t type)
+void setWorldBlock(BlockPos* pos, Block block)
 {
     normalizeBlockPos(pos);
-    CHUNK_BLOCK(WORLD_CHUNK(pos->chunk.x, pos->chunk.y, pos->chunk.z), pos->x, pos->y, pos->z).type = type;
+    //Bounds check
+    if(pos->chunk.x >= chunkPos.x + VIEW_DISTANCE||
+        pos->chunk.x  < chunkPos.x ||
+        pos->chunk.y >= chunkPos.y + VIEW_DISTANCE ||
+        pos->chunk.y  < chunkPos.y ||
+        pos->chunk.z >= chunkPos.z + VIEW_DISTANCE ||
+        pos->chunk.z  < chunkPos.z)
+    {
+        return;
+    }
+
+    //Place block and mark chunk as modified
+    CHUNK_BLOCK(WORLD_CHUNK(pos->chunk.x, pos->chunk.y, pos->chunk.z), pos->x, pos->y, pos->z) = block;
     WORLD_CHUNK(pos->chunk.x, pos->chunk.y, pos->chunk.z)->modified = 1;
+
+    //Mark adjacent chunks as modified if necessary
+    if(pos->x == 0 && pos->chunk.x >= chunkPos.x)
+    {
+        WORLD_CHUNK(pos->chunk.x - 1, pos->chunk.y, pos->chunk.z)->modified = 1;
+    }
+    else if(pos->x == CHUNK_SIZE - 1 && pos->chunk.x < chunkPos.x + VIEW_DISTANCE)
+    {
+        WORLD_CHUNK(pos->chunk.x + 1, pos->chunk.y, pos->chunk.z)->modified = 1;
+    }
+    if(pos->y == 0 && pos->chunk.y >= chunkPos.y)
+    {
+        WORLD_CHUNK(pos->chunk.x, pos->chunk.y - 1, pos->chunk.z)->modified = 1;
+    }
+    else if(pos->y == CHUNK_SIZE - 1 && pos->chunk.y < chunkPos.y + VIEW_DISTANCE)
+    {
+        WORLD_CHUNK(pos->chunk.x, pos->chunk.y + 1, pos->chunk.z)->modified = 1;
+    }
+    if(pos->z == 0 && pos->chunk.z >= chunkPos.z)
+    {
+        WORLD_CHUNK(pos->chunk.x, pos->chunk.y, pos->chunk.z - 1)->modified = 1;
+    }
+    else if(pos->z == CHUNK_SIZE - 1 && pos->chunk.z < chunkPos.z + VIEW_DISTANCE)
+    {
+        WORLD_CHUNK(pos->chunk.x, pos->chunk.y, pos->chunk.z + 1)->modified = 1;
+    }
 }
 
 AABBSide intersectsRayWorld(vec3* origin, vec3* direction, BlockPos* block, float* distance)
