@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 #include "engine/includes/3dMath.h"
+#include "aabb.h"
 
 typedef struct {
     vec3 position;

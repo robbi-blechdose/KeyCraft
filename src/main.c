@@ -64,7 +64,7 @@ void calcFrame(uint32_t ticks)
     }
     playerLook(&player, dirX, dirY, ticks);
     calcPlayer(&player, ticks);
-
+    
     //Cast ray
     vec3 rayDir = anglesToDirection(&player.rotation);
     //Player position in world space
@@ -152,7 +152,7 @@ void drawFrame()
 
     drawCamera(&player.position, &player.rotation);
 
-    drawWorld(&player.rotation);
+    drawWorld(&player.position, &player.rotation);
 
     //GUI drawing
     setOrtho();

@@ -15,7 +15,7 @@
 
 void initWorld();
 void calcWorld(vec3* playerPos, uint32_t ticks);
-void drawWorld(vec3* playerRotation);
+void drawWorld(vec3* playerPosition, vec3* playerRotation);
 
 Block* getWorldBlock(BlockPos* pos);
 void setWorldBlock(BlockPos* pos, Block block);

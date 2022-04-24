@@ -154,9 +154,9 @@ void calcWorld(vec3* playerPos, uint32_t ticks)
 {
     //Load chunks around the player in/out
     ChunkPos playerChunkPos = {
-        (playerPos->x + (CHUNK_SIZE / 2)) / CHUNK_SIZE,
-        (playerPos->y + (CHUNK_SIZE / 2)) / CHUNK_SIZE,
-        (playerPos->z + (CHUNK_SIZE / 2)) / CHUNK_SIZE
+        (playerPos->x) / CHUNK_SIZE,
+        (playerPos->y) / CHUNK_SIZE,
+        (playerPos->z) / CHUNK_SIZE
     };
 
     if(playerChunkPos.x - chunkPos.x != 0)
@@ -225,29 +225,30 @@ void calcWorld(vec3* playerPos, uint32_t ticks)
 #define VIEW_TRANSLATION ((VIEW_DISTANCE * CHUNK_SIZE) / 2.0f)
 
 //TODO: Skip chunks left or right of the screen player as well
-void drawWorld(vec3* playerRotation)
+void drawWorld(vec3* playerPosition, vec3* playerRotation)
 {
-    vec3 chunkCenter;
-    chunkCenter.y = 0; //We ignore the height for culling
-    vec3 chunkCenterRot;
-    chunkCenterRot.y = 0;
+    //y stays 0, we ignore the height for chunk culling
+    vec3 chunkCenter = {0, 0, 0};
+    vec3 chunkCenterRot = {0, 0, 0};
 
     //Draw visible chunks
     for(uint8_t i = 0; i < VIEW_DISTANCE; i++)
     {
         //Calculate X in outer loop
-        chunkCenter.x = i * CHUNK_SIZE - VIEW_TRANSLATION + (CHUNK_SIZE / 2);
+        chunkCenter.x = i * CHUNK_SIZE + (chunkPos.x * CHUNK_SIZE - playerPosition->x) - CHUNK_SIZE * 2;
 
         for(uint8_t k = 0; k < VIEW_DISTANCE; k++)
         {
             //Calculate Z in inner loop
-            chunkCenter.z = k * CHUNK_SIZE - VIEW_TRANSLATION + (CHUNK_SIZE / 2);
+            chunkCenter.z = k * CHUNK_SIZE + (chunkPos.z * CHUNK_SIZE - playerPosition->z) - CHUNK_SIZE * 2;
+
             //Calculate "rotated" position (so that z is always in the camera direction)
             //chunkCenterRot.x = chunkCenter.x * cosf(-playerRotation->y + M_PI) - chunkCenter.z * sinf(-playerRotation->y + M_PI);
             chunkCenterRot.z = chunkCenter.x * sinf(-playerRotation->y + M_PI) + chunkCenter.z * cosf(-playerRotation->y + M_PI);
             //vec3 chunkCenterRot = rotatev3(chunkCenter, (vec3) {.x = 0, .y = 1, .z = 0}, playerRotation->y - M_PI);
-            //printf("%f %f %f\n", chunkCenter.x, chunkCenter.y, chunkCenter.z);
-            if(chunkCenterRot.z < 0)
+
+            //Skip drawing chunks behind the camera
+            if(chunkCenterRot.z < -CHUNK_SIZE)
             {
                 continue;
             }
