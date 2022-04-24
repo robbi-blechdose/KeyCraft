@@ -14,11 +14,11 @@ void drawHotbar()
     {
         if(i == hotbarCursor)
         {
-            drawTexQuad(WINX / 2 - (32 * 1.5f) + (i * 32), 8, 32, 32, UIBH, PTC(72), PTC(32), PTC(72 + 31), PTC(63));
+            drawTexQuad(WINX / 2 - (32 * 1.5f) + (i * 32), 8, 32, 32, UIBH, PTC(224), PTC(32), PTC(224 + 31), PTC(63));
         }
         else
         {
-            drawTexQuad(WINX / 2 - (32 * 1.5f) + (i * 32), 8, 32, 32, UIBH, PTC(72), PTC(0), PTC(72 + 31), PTC(31));
+            drawTexQuad(WINX / 2 - (32 * 1.5f) + (i * 32), 8, 32, 32, UIBH, PTC(224), PTC(0), PTC(224 + 31), PTC(31));
         }
     }
     //TODO: Draw blocks

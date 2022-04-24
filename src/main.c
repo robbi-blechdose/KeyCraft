@@ -118,7 +118,12 @@ void calcFrame(uint32_t ticks)
         //Place new block
         if(getWorldBlock(&block)->type == BLOCK_AIR)
         {
-            setWorldBlock(&block, (Block) {getHotbarSelection(), 0});
+            BlockPos below = block;
+            below.y -= BLOCK_SIZE;
+            if(canPlaceBlock(getHotbarSelection(), getWorldBlock(&below)->type))
+            {
+                setWorldBlock(&block, (Block) {getHotbarSelection(), 0});
+            }
         }
     }
     //Remove block
@@ -147,7 +152,7 @@ void drawFrame()
 
     drawCamera(&player.position, &player.rotation);
 
-    drawWorld();
+    drawWorld(&player.rotation);
 
     //GUI drawing
     setOrtho();
@@ -166,7 +171,7 @@ void drawFrame()
 int main(int argc, char **argv)
 {
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
-    initVideo((vec4) {.d = {0, 0.8f, 1.0f, 1.0f}}, (vec4) {.d = {0, 0, WINX, WINY}}, 70, 0.5f, 256);
+    initVideo((vec4) {.d = {0, 0.8f, 1.0f, 1.0f}}, (vec4) {.d = {0, 0, WINX, WINY}}, 70, 0.5f, 8 * VIEW_DISTANCE);
     initAudio(MIX_MAX_VOLUME, 2, 2);
 
     player.position = (vec3) {0, -5.0f, 0};

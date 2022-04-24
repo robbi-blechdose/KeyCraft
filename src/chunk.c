@@ -127,20 +127,21 @@ void generateDrawData(Chunk* chunk)
 	glEndList();
 }
 
-void calcChunk(Chunk* chunk, uint32_t ticks)
+void calcChunk(Chunk* chunk)
 {
     if(chunk->modified)
     {
-        chunk->modified = 0;
-        //TODO
-        //glDeleteList(chunk->drawList);
+        if(!chunk->modified & CHUNK_MODIFIED_INITIAL)
+        {
+            glDeleteList(chunk->drawList);
+        }
         generateDrawData(chunk);
+        chunk->modified = 0;
     }
 }
 
 void drawChunk(Chunk* chunk)
 {
-    //TODO: Translate in world space?
     glCallList(chunk->drawList);
 }
 

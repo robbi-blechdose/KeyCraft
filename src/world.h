@@ -11,9 +11,11 @@
 
 #define VIEW_DISTANCE 5
 
+#define TICK_RATE 500
+
 void initWorld();
 void calcWorld(vec3* playerPos, uint32_t ticks);
-void drawWorld();
+void drawWorld(vec3* playerRotation);
 
 Block* getWorldBlock(BlockPos* pos);
 void setWorldBlock(BlockPos* pos, Block block);

@@ -4,6 +4,7 @@
 
 #include "chunk.h"
 #include "worldgen.h"
+#include "blocklogic/blocklogic.h"
 
 #define VIEW_CHUNK(i, j, k) chunks[(i) + ((j) * VIEW_DISTANCE) + ((k) * VIEW_DISTANCE * VIEW_DISTANCE)]
 #define WORLD_CHUNK(i, j, k) VIEW_CHUNK((i) - chunkPos.x, (j) - chunkPos.y, (k) - chunkPos.z)
@@ -12,6 +13,8 @@ ChunkPos chunkPos;
 Chunk* chunks[VIEW_DISTANCE * VIEW_DISTANCE * VIEW_DISTANCE];
 
 GLuint terrainTexture;
+
+uint32_t worldTicks;
 
 void initWorld()
 {
@@ -31,6 +34,9 @@ void initWorld()
         }
     }
     chunkPos = (ChunkPos) {0, 0, 0};
+
+    worldTicks = 0;
+    glBindTexture(GL_TEXTURE_2D, terrainTexture);
 }
 
 void quitWorld()
@@ -183,7 +189,7 @@ void calcWorld(vec3* playerPos, uint32_t ticks)
 
     //printf("P: %d %d %d\n", playerChunkPos.x, playerChunkPos.y, playerChunkPos.z);
     //printf("W: %d %d %d\n", chunkPos.x, chunkPos.y, chunkPos.z);
-    
+
     //Calculate visible chunks
     for(uint8_t i = 0; i < VIEW_DISTANCE; i++)
     {
@@ -191,7 +197,25 @@ void calcWorld(vec3* playerPos, uint32_t ticks)
         {
             for(uint8_t k = 0; k < VIEW_DISTANCE; k++)
             {
-                calcChunk(VIEW_CHUNK(i, j, k), ticks);
+                calcChunk(VIEW_CHUNK(i, j, k));
+            }
+        }
+    }
+
+    //Tick visible chunks
+    worldTicks += ticks;
+    if(worldTicks > TICK_RATE)
+    {
+        worldTicks = 0;
+
+        for(uint8_t i = 0; i < VIEW_DISTANCE; i++)
+        {
+            for(uint8_t j = 0; j < VIEW_DISTANCE; j++)
+            {
+                for(uint8_t k = 0; k < VIEW_DISTANCE; k++)
+                {
+                    tickChunk(VIEW_CHUNK(i, j, k));
+                }
             }
         }
     }
@@ -200,15 +224,34 @@ void calcWorld(vec3* playerPos, uint32_t ticks)
 //Translation to make handling chunk indices easier (0 - VIEW_DISTANCE) while centering the player
 #define VIEW_TRANSLATION ((VIEW_DISTANCE * CHUNK_SIZE) / 2.0f)
 
-void drawWorld()
+//TODO: Skip chunks left or right of the screen player as well
+void drawWorld(vec3* playerRotation)
 {
-    glBindTexture(GL_TEXTURE_2D, terrainTexture);
+    vec3 chunkCenter;
+    chunkCenter.y = 0; //We ignore the height for culling
+    vec3 chunkCenterRot;
+    chunkCenterRot.y = 0;
 
     //Draw visible chunks
     for(uint8_t i = 0; i < VIEW_DISTANCE; i++)
     {
+        //Calculate X in outer loop
+        chunkCenter.x = i * CHUNK_SIZE - VIEW_TRANSLATION + (CHUNK_SIZE / 2);
+
         for(uint8_t k = 0; k < VIEW_DISTANCE; k++)
         {
+            //Calculate Z in inner loop
+            chunkCenter.z = k * CHUNK_SIZE - VIEW_TRANSLATION + (CHUNK_SIZE / 2);
+            //Calculate "rotated" position (so that z is always in the camera direction)
+            //chunkCenterRot.x = chunkCenter.x * cosf(-playerRotation->y + M_PI) - chunkCenter.z * sinf(-playerRotation->y + M_PI);
+            chunkCenterRot.z = chunkCenter.x * sinf(-playerRotation->y + M_PI) + chunkCenter.z * cosf(-playerRotation->y + M_PI);
+            //vec3 chunkCenterRot = rotatev3(chunkCenter, (vec3) {.x = 0, .y = 1, .z = 0}, playerRotation->y - M_PI);
+            //printf("%f %f %f\n", chunkCenter.x, chunkCenter.y, chunkCenter.z);
+            if(chunkCenterRot.z < 0)
+            {
+                continue;
+            }
+
             //Translating here and then adding to it in the inner loop saves a few push/pops
             glPushMatrix();
             glTranslatef((i + chunkPos.x) * CHUNK_SIZE - VIEW_TRANSLATION,

@@ -22,7 +22,10 @@ typedef struct {
 
 #define CHUNK_BLOCK(chunk, i, j, k) chunk->blocks[(i) + ((j) * CHUNK_SIZE) + ((k) * CHUNK_SIZE * CHUNK_SIZE)]
 
-void calcChunk(Chunk* chunk, uint32_t ticks);
+#define CHUNK_MODIFIED_INITIAL 0b10000000
+
+void calcChunk(Chunk* chunk);
+
 void drawChunk(Chunk* chunk);
 
 void destroyChunk(Chunk* chunk);

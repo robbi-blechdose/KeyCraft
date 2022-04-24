@@ -89,7 +89,7 @@ void generateChunk(Chunk* chunk)
                         CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_FLOWER;
                         if(rand < 0.0025f)
                         {
-                            CHUNK_BLOCK(chunk, i, j, k).data = BLOCK_DATA_TYPE;
+                            CHUNK_BLOCK(chunk, i, j, k).data = BLOCK_DATA_TEXTURE1;
                         }
                     }
                     else if(rand > 0.5f)
@@ -142,7 +142,7 @@ void generateChunk(Chunk* chunk)
     }
 
     //Mark chunk geometry to be built
-    chunk->modified = 1;
+    chunk->modified = CHUNK_MODIFIED_INITIAL;
 
     //Calculate basic AABB
     calcChunkAABB(chunk);

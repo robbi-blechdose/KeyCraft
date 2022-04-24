@@ -16,7 +16,8 @@
 #define PTCL(X) PTC(X) + 0.001f
 #define PTCH(X) PTC(X) - 0.001f
 
-const vec2 textures[16 * 16] = {
+//Texture atlas
+const vec2 textures[] = {
     { 0, 0}, //Bedrock
     { 8, 0}, //Stone
     {16, 0}, //Sand
@@ -35,9 +36,16 @@ const vec2 textures[16 * 16] = {
     {48, 8}, //Red flower
     {56, 8}, //Yellow flower
 
-    {0, 16}, //Tall grass
-    {8, 16}, //Glass
+    { 0, 16}, //Tall grass
+    { 8, 16}, //Glass
     {16, 16}, //Leaves
+    {24, 16}, //Bookshelf
+    {32, 16}, //Wheat 0
+    {40, 16}, //Wheat 1
+    {48, 16}, //Wheat 2
+    {56, 16}, //Wheat 3
+
+    {0, 24} //Redstone lamp off
 };
 
 const uint8_t normalBlockTextures[] = {
@@ -57,12 +65,14 @@ const uint8_t normalBlockTextures[] = {
 
 const uint8_t orientedBlockTextures[][6] = {
     [BLOCK_GRASS] = {4, 4, 4, 4, 5, 3},
-    [BLOCK_WOOD] = {6, 6, 6, 6, 7, 7}
+    [BLOCK_WOOD] = {6, 6, 6, 6, 7, 7},
+    [BLOCK_BOOKSHELF] = {19, 19, 19, 19, 8, 8}
 };
 
 const uint8_t xBlockTextures[] = {
     [BLOCK_FLOWER] = 14,
-    [BLOCK_TALL_GRASS] = 16
+    [BLOCK_TALL_GRASS] = 16,
+    [BLOCK_WHEAT] = 20
 };
 
 void calcBlockCorners(vec3 list[8], uint8_t x, uint8_t y, uint8_t z)
@@ -176,7 +186,7 @@ void drawXBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion
     };
 
     //Get texture position
-    vec2 tex = textures[xBlockTextures[block->type] + (block->data & BLOCK_DATA_TYPE)];
+    vec2 tex = textures[xBlockTextures[block->type] + (block->data & BLOCK_DATA_TEXTURE)];
     float texX1 = PTCL(tex.x);
     float texX2 = PTCH(tex.x + 8);
     float texY1 = PTCL(tex.y);
@@ -203,12 +213,14 @@ void drawBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
     {
         case BLOCK_GRASS:
         case BLOCK_WOOD:
+        case BLOCK_BOOKSHELF:
         {
             drawOrientedBlock(block, x, y, z, occlusion);
             break;
         }
         case BLOCK_FLOWER:
         case BLOCK_TALL_GRASS:
+        case BLOCK_WHEAT:
         {
             drawXBlock(block, x, y, z, occlusion);
             break;
@@ -218,7 +230,6 @@ void drawBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
             drawNormalBlock(block, x, y, z, occlusion);
             break;
         }
-        //TODO: Special types
     }
 }
 
@@ -230,8 +241,26 @@ uint8_t isOpaqueBlock(BlockType type)
         case BLOCK_FLOWER:
         case BLOCK_TALL_GRASS:
         case BLOCK_GLASS:
+        case BLOCK_WHEAT:
         {
             return 0;
+        }
+        default:
+        {
+            return 1;
+        }
+    }
+}
+
+uint8_t canPlaceBlock(BlockType toPlace, BlockType below)
+{
+    switch(toPlace)
+    {
+        case BLOCK_WHEAT:
+        case BLOCK_FLOWER:
+        case BLOCK_TALL_GRASS:
+        {
+            return (below == BLOCK_DIRT || below == BLOCK_GRASS);
         }
         default:
         {

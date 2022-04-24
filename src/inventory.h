@@ -4,7 +4,7 @@
 #include "block.h"
 
 #define HOTBAR_SIZE 3
-#define HOTBAR_INITIAL {BLOCK_PLANKS, BLOCK_GLASS, BLOCK_SAND}
+#define HOTBAR_INITIAL {BLOCK_PLANKS, BLOCK_GLASS, BLOCK_WHEAT}
 
 void drawHotbar();
 
