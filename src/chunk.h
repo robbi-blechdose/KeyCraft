@@ -32,5 +32,6 @@ void destroyChunk(Chunk* chunk);
 
 void calcChunkAABB(Chunk* chunk);
 AABBSide intersectsRayChunk(Chunk* chunk, vec3* origin, vec3* direction, BlockPos* block, float* distance);
+uint8_t intersectsAABBChunk(Chunk* chunk, AABB* aabb);
 
 #endif

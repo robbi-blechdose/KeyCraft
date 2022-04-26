@@ -212,3 +212,45 @@ AABBSide intersectsRayChunk(Chunk* chunk, vec3* origin, vec3* direction, BlockPo
     *distance = minDistance;
     return minSide;
 }
+
+//TODO: exclude non-colliding blocks (grass, flowers, ...)
+uint8_t intersectsAABBChunk(Chunk* chunk, AABB* aabb)
+{
+    if(chunk->isEmpty)
+    {
+        return 0;
+    }
+
+    //printf("%f %f %f\n", chunk->aabb.min.x, chunk->aabb.min.y, chunk->aabb.min.z);
+    //printf("%f %f %f\n", aabb->max.x, aabb->max.y, aabb->max.z);
+
+    //Check against chunk AABB
+    if(!aabbIntersectsAABB(&chunk->aabb, aabb))
+    {
+        return 0;
+    }
+
+    //Check against individual block AABBs
+    for(uint8_t i = 0; i < CHUNK_SIZE; i++)
+    {
+        for(uint8_t j = 0; j < CHUNK_SIZE; j++)
+        {
+            for(uint8_t k = 0; k < CHUNK_SIZE; k++)
+            {
+                if(CHUNK_BLOCK(chunk, i, j, k).type != BLOCK_AIR)
+                {
+                    //TODO: Create AABB by block type
+                    vec3 min = {chunk->aabb.min.x + i, chunk->aabb.min.y + j, chunk->aabb.min.z + k};
+                    AABB blockAABB = {.min = min, .max = (vec3) {min.x + BLOCK_SIZE, min.y + BLOCK_SIZE, min.z + BLOCK_SIZE}};
+
+                    if(aabbIntersectsAABB(&blockAABB, aabb))
+                    {
+                        return 1;
+                    }
+                }
+            }
+        }
+    }
+
+    return 0;
+}

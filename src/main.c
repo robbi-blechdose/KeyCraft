@@ -63,8 +63,12 @@ void calcFrame(uint32_t ticks)
         dirY = 1;
     }
     playerLook(&player, dirX, dirY, ticks);
+    if(keyUp(B_Y) && !player.jumping) //TODO: Check block above player, also figure out if we're still in the air (because we shouldn't be able to jump then)
+    {
+        player.jumping = JUMP_TIME;
+    }
     calcPlayer(&player, ticks);
-    
+
     //Cast ray
     vec3 rayDir = anglesToDirection(&player.rotation);
     //Player position in world space
@@ -174,7 +178,7 @@ int main(int argc, char **argv)
     initVideo((vec4) {.d = {0, 0.8f, 1.0f, 1.0f}}, (vec4) {.d = {0, 0, WINX, WINY}}, 70, 0.5f, 8 * VIEW_DISTANCE);
     initAudio(MIX_MAX_VOLUME, 2, 2);
 
-    player.position = (vec3) {0, -5.0f, 0};
+    player.position = (vec3) {0, 0, 0};
 
     initWorld();
 
