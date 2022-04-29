@@ -12,6 +12,8 @@
 
 #define VIEW_DISTANCE 5
 
+#define MAX_RAY_DISTANCE 5
+
 #define TICK_RATE 250
 
 void initWorld();
@@ -23,7 +25,5 @@ void setWorldBlock(BlockPos* pos, Block block);
 
 AABBSide intersectsRayWorld(vec3* origin, vec3* direction, BlockPos* block, float* distance);
 uint8_t intersectsAABBWorld(AABB* aabb);
-
-Chunk* getPlayerChunk(vec3* playerPos);
 
 #endif

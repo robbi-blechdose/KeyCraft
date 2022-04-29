@@ -401,20 +401,14 @@ AABBSide intersectsRayWorld(vec3* origin, vec3* direction, BlockPos* block, floa
         }
     }
 
+    if(minDistance > MAX_RAY_DISTANCE)
+    {
+        return AABB_NONE;
+    }
+
     *block = minBlock;
     *distance = minDistance;
     return minSide;
-}
-
-Chunk* getPlayerChunk(vec3* playerPos)
-{
-    ChunkPos playerChunkPos = {
-        (playerPos->x + 20) / CHUNK_SIZE,
-        (playerPos->y + 20) / CHUNK_SIZE,
-        (playerPos->z + 20) / CHUNK_SIZE
-    };
-
-    return WORLD_CHUNK(playerChunkPos.x, playerChunkPos.y, playerChunkPos.z);
 }
 
 uint8_t intersectsAABBWorld(AABB* aabb)

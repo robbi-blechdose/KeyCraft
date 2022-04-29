@@ -2,6 +2,7 @@
 
 #include "engine/image.h"
 #include "engine/video.h"
+#include "engine/util.h"
 
 BlockType hotbar[HOTBAR_SIZE] = HOTBAR_INITIAL;
 uint8_t hotbarCursor = 0;
@@ -21,6 +22,7 @@ void drawHotbar()
             drawTexQuad(WINX / 2 - (32 * 1.5f) + (i * 32), 8, 32, 32, UIBH, PTC(224), PTC(0), PTC(224 + 31), PTC(31));
         }
     }
+
     //TODO: Draw blocks
 }
 

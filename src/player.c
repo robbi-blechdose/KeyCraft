@@ -58,7 +58,6 @@ uint8_t getValueWithCollision(Player* player)
 {
     calcPlayerAABB(player);
     return intersectsAABBWorld(&player->aabb);
-    //return intersectsAABBChunk(getPlayerChunk(&player->position), &player->aabb);
 }
 
 void calcPlayer(Player* player, uint32_t ticks)
@@ -72,12 +71,7 @@ void calcPlayer(Player* player, uint32_t ticks)
 
     //Apply movement to position
     float diff = (player->speed * ticks) / 1000.0f;
-    /**
-    player->position.z -= cos(player->rotation.y) * cos(player->rotation.x) * diff;
-    player->position.x += sin(player->rotation.y) * cos(player->rotation.x) * diff;
-    player->position.y -= sin(player->rotation.x) * diff;
-    **/
-   
+
     float old = player->position.x;
     player->position.x += sin(player->rotation.y) * diff;
     if(getValueWithCollision(player))
@@ -94,15 +88,15 @@ void calcPlayer(Player* player, uint32_t ticks)
 
     //Apply gravity - or jumping
     old = player->position.y;
-    if(player->jumping)
+    if(player->jumping > 1)
     {
-        if(player->jumping >= ticks)
+        if(player->jumping > ticks)
         {
             player->jumping -= ticks;
         }
         else
         {
-            player->jumping = 0;
+            player->jumping = 1;
         }
         player->position.y += GRAVITY * ticks / 1000.0f;
     }
@@ -114,6 +108,10 @@ void calcPlayer(Player* player, uint32_t ticks)
     if(getValueWithCollision(player))
     {
         player->position.y = old;
+        if(player->jumping)
+        {
+            player->jumping = 0;
+        }
     }
 
     //TODO: Collision check

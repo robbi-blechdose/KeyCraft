@@ -237,7 +237,7 @@ uint8_t intersectsAABBChunk(Chunk* chunk, AABB* aabb)
         {
             for(uint8_t k = 0; k < CHUNK_SIZE; k++)
             {
-                if(CHUNK_BLOCK(chunk, i, j, k).type != BLOCK_AIR)
+                if(CHUNK_BLOCK(chunk, i, j, k).type != BLOCK_AIR && isBlockCollidable(CHUNK_BLOCK(chunk, i, j, k).type))
                 {
                     //TODO: Create AABB by block type
                     vec3 min = {chunk->aabb.min.x + i, chunk->aabb.min.y + j, chunk->aabb.min.z + k};

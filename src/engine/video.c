@@ -58,7 +58,7 @@ void initVideo(vec4 clearColor, vec4 viewport, float fov, float near, float far)
 	
 	//Initialize projection matrices
     mPerspective = perspective(fov, (float) WINX / (float) WINY, near, far);
-	mOrtho = ortho(0, WINX, 0, WINY, -16, 0);
+	mOrtho = ortho(0, WINX, 0, WINY, -32, 0);
 }
 
 void clearFrame()

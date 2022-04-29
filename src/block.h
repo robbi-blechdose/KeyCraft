@@ -28,6 +28,8 @@ typedef enum {
     BLOCK_BOOKSHELF,
     BLOCK_WHEAT,
 
+    BLOCK_WATER,
+
     BLOCK_REDSTONE_LAMP,
     BLOCK_REDSTONE_WIRE,
     BLOCK_REDSTONE_TORCH,
@@ -46,8 +48,9 @@ typedef struct {
 /**
  * Block data has the following format:
  * XXXX XXXX
- *        TT - Texture, if set block uses normal texture + offset. Used by: Flower, Wheat
- *      CC   - Counter
+ *        TT - Texture, if set block uses normal texture + offset. Used by: Flower, Wheat, Water
+ *      CC   - Counter. Used by: Wheat, Water
+ *       DDD - Direction, determines which way the block is facing.
  **/
 
 /** ---------- Block data definitions ---------- **/
@@ -76,5 +79,6 @@ void drawBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
 
 uint8_t isOpaqueBlock(BlockType type);
 uint8_t canPlaceBlock(BlockType toPlace, BlockType below);
+uint8_t isBlockCollidable(BlockType type);
 
 #endif

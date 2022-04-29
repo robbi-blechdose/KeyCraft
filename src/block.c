@@ -45,7 +45,10 @@ const vec2 textures[] = {
     {48, 16}, //Wheat 2
     {56, 16}, //Wheat 3
 
-    {0, 24} //Redstone lamp off
+    { 0, 24}, //Water 0
+    { 8, 24}, //Water 1
+    {16, 24}, //Water 2
+    {24, 24}  //Water 3
 };
 
 const uint8_t normalBlockTextures[] = {
@@ -60,7 +63,8 @@ const uint8_t normalBlockTextures[] = {
     [BLOCK_REDSTONE_ORE] = 12,
     [BLOCK_DIAMOND_ORE] = 13,
     [BLOCK_GLASS] = 17,
-    [BLOCK_LEAVES] = 18
+    [BLOCK_LEAVES] = 18,
+    [BLOCK_WATER] = 24
 };
 
 const uint8_t orientedBlockTextures[][6] = {
@@ -261,6 +265,25 @@ uint8_t canPlaceBlock(BlockType toPlace, BlockType below)
         case BLOCK_TALL_GRASS:
         {
             return (below == BLOCK_DIRT || below == BLOCK_GRASS);
+        }
+        default:
+        {
+            return 1;
+        }
+    }
+}
+
+uint8_t isBlockCollidable(BlockType type)
+{
+    switch(type)
+    {
+        case BLOCK_AIR:
+        case BLOCK_WHEAT:
+        case BLOCK_FLOWER:
+        case BLOCK_TALL_GRASS:
+        case BLOCK_WATER:
+        {
+            return 0;
         }
         default:
         {

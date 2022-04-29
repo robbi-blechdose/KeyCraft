@@ -23,7 +23,7 @@ typedef struct {
 
 #define GRAVITY 9.8f
 
-#define JUMP_TIME 250
+#define JUMP_TIME 200
 
 void playerMove(Player* player, int8_t dir, uint32_t ticks);
 void playerLook(Player* player, int8_t dirX, int8_t dirY, uint32_t ticks);

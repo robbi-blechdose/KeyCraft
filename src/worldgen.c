@@ -6,7 +6,15 @@
 #include "engine/includes/FastNoiseLite.h"
 #include "engine/util.h"
 
-//TODO: Switch all random usage to second noise - that way, values are reproducible and depend on the seed
+#define TREE_SIZE 5
+#define TREE_HEIGHT 6
+#define TREE_LEAVES_START 3
+
+#define RAND_FLOWER   0
+#define RAND_TREE     8
+#define RAND_ORE    128
+
+#define WATER_LEVEL 6
 
 fnl_state terrainNoise;
 fnl_state randNoise;
@@ -25,14 +33,10 @@ void initWorldgen(uint32_t seed)
     randNoise.seed = seed;
 }
 
-#define TREE_SIZE 5
-#define TREE_HEIGHT 6
-#define TREE_LEAVES_START 3
-
-float getNoiseRand(int16_t chunkX, int16_t chunkZ, uint8_t x, uint8_t z)
+float getNoiseRand(int16_t chunkX, int16_t chunkZ, uint8_t x, uint8_t z, uint8_t y)
 {
     //Scale noise to be within 0 to 1
-    return (fnlGetNoise2D(&randNoise, (chunkX * CHUNK_SIZE + x) * 10, (chunkZ * CHUNK_SIZE + z) * 10) + 1) / 2;
+    return (fnlGetNoise3D(&randNoise, (chunkX * CHUNK_SIZE + x) * 10, y, (chunkZ * CHUNK_SIZE + z) * 10) + 1) / 2;
 }
 
 void generateTree(Chunk* chunk, uint8_t baseX, uint8_t baseY, uint8_t baseZ)
@@ -80,14 +84,14 @@ void generateChunk(Chunk* chunk)
             for(uint8_t j = 0; j < CHUNK_SIZE; j++)
             {
                 uint8_t pos = j + (y * CHUNK_SIZE);
-
+                
                 if(pos == height)
                 {
-                    float rand = getNoiseRand(x, z, i, k);
-                    if(rand < 0.005f)
+                    float rand = getNoiseRand(x, z, i, k, RAND_FLOWER);
+                    if(rand < 0.01f)
                     {
                         CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_FLOWER;
-                        if(rand < 0.0025f)
+                        if(rand < 0.005f)
                         {
                             CHUNK_BLOCK(chunk, i, j, k).data = BLOCK_DATA_TEXTURE1;
                         }
@@ -113,7 +117,33 @@ void generateChunk(Chunk* chunk)
                     }
                     else
                     {
-                        CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_STONE;
+                        float rand = getNoiseRand(x, z, i, k, RAND_ORE);
+
+                        if(rand < 0.05f)
+                        {
+                            CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_IRON_ORE;
+                        }
+                        else if(rand < 0.1f)
+                        {
+                            CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_COAL_ORE;
+                        }
+                        else
+                        {
+                            CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_STONE;
+                        }
+                    }
+                }
+
+                //Generate lakes
+                if(pos <= WATER_LEVEL)
+                {
+                    if(pos >= height)
+                    {
+                        CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_WATER;
+                    }
+                    else if(pos == height - 1)
+                    {
+                        CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_SAND;
                     }
                 }
             }
@@ -121,10 +151,10 @@ void generateChunk(Chunk* chunk)
     }
 
     //Place tree?
-    if(getNoiseRand(x, z, 4, 4) < 0.05f)
+    if(getNoiseRand(x, z, 4, 4, RAND_TREE) < 0.05f)
     {
-        uint8_t baseX = getNoiseRand(x, z, 0, 0) * (CHUNK_SIZE - TREE_SIZE);
-        uint8_t baseZ = getNoiseRand(x, z, 8, 8) * (CHUNK_SIZE - TREE_SIZE);
+        uint8_t baseX = getNoiseRand(x, z, 0, 0, RAND_TREE) * (CHUNK_SIZE - TREE_SIZE);
+        uint8_t baseZ = getNoiseRand(x, z, 8, 8, RAND_TREE) * (CHUNK_SIZE - TREE_SIZE);
 
         uint8_t baseY = 255;
         for(uint8_t j = 0; j < CHUNK_SIZE; j++)

@@ -5,6 +5,7 @@
 #include "engine/audio.h"
 #include "engine/input.h"
 #include "engine/camera.h"
+#include "engine/image.h"
 
 #include "player.h"
 #include "world.h"
@@ -119,6 +120,7 @@ void calcFrame(uint32_t ticks)
             }
         }
 
+        //TODO: Don't place if it'd cause a collision with our player
         //Place new block
         if(getWorldBlock(&block)->type == BLOCK_AIR)
         {
@@ -162,6 +164,8 @@ void drawFrame()
     setOrtho();
     glLoadIdentity();
     glBegin(GL_QUADS);
+    //Crosshair
+    drawTexQuad(WINX / 2 - 8, WINY / 2 - 8, 16, 16, 10, PTC(240), PTC(64), PTC(240 + 15), PTC(64 + 15));
     drawHotbar();
     glEnd();
 
@@ -175,7 +179,7 @@ void drawFrame()
 int main(int argc, char **argv)
 {
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
-    initVideo((vec4) {.d = {0, 0.8f, 1.0f, 1.0f}}, (vec4) {.d = {0, 0, WINX, WINY}}, 70, 0.5f, 8 * VIEW_DISTANCE);
+    initVideo((vec4) {.d = {0, 0.8f, 1.0f, 1.0f}}, (vec4) {.d = {0, 0, WINX, WINY}}, 70, 0.3f, 8 * VIEW_DISTANCE);
     initAudio(MIX_MAX_VOLUME, 2, 2);
 
     player.position = (vec3) {0, 0, 0};
