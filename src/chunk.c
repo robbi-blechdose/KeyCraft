@@ -213,7 +213,6 @@ AABBSide intersectsRayChunk(Chunk* chunk, vec3* origin, vec3* direction, BlockPo
     return minSide;
 }
 
-//TODO: exclude non-colliding blocks (grass, flowers, ...)
 uint8_t intersectsAABBChunk(Chunk* chunk, AABB* aabb)
 {
     if(chunk->isEmpty)

@@ -54,7 +54,7 @@ void calcPlayerAABB(Player* player)
                                 .z = player->position.z + PLAYER_WIDTH / 2 + 20};
 }
 
-uint8_t getValueWithCollision(Player* player)
+uint8_t playerIntersectsWorld(Player* player)
 {
     calcPlayerAABB(player);
     return intersectsAABBWorld(&player->aabb);
@@ -74,14 +74,14 @@ void calcPlayer(Player* player, uint32_t ticks)
 
     float old = player->position.x;
     player->position.x += sin(player->rotation.y) * diff;
-    if(getValueWithCollision(player))
+    if(playerIntersectsWorld(player))
     {
         player->position.x = old;
     }
 
     old = player->position.z;
     player->position.z -= cos(player->rotation.y) * diff;
-    if(getValueWithCollision(player))
+    if(playerIntersectsWorld(player))
     {
         player->position.z = old;
     }
@@ -105,7 +105,7 @@ void calcPlayer(Player* player, uint32_t ticks)
         player->position.y -= GRAVITY * ticks / 1000.0f;
     }
     //Collision check for y direction (don't move if that would cause us to collide)
-    if(getValueWithCollision(player))
+    if(playerIntersectsWorld(player))
     {
         player->position.y = old;
         if(player->jumping)
@@ -113,10 +113,4 @@ void calcPlayer(Player* player, uint32_t ticks)
             player->jumping = 0;
         }
     }
-
-    //TODO: Collision check
-    //Idea: collide player aabb against chunk 2,2 aabb (chunk 2,2 because the player is always in this chunk)
-    
-    //printf("Pos: %f %f %f\n", player->position.x, player->position.y, player->position.z);
-    //printf("Rot: %f %f %f\n", player->rotation.x, player->rotation.y, player->rotation.z);
 }

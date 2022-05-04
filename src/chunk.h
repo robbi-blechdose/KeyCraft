@@ -15,9 +15,11 @@ typedef struct {
     AABB aabb;
     ChunkPos position;
     Block blocks[CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE];
+    GLuint drawList;
+    //Flags
     uint8_t isEmpty;
     uint8_t modified;
-    GLuint drawList;
+    uint8_t initial;
 } Chunk;
 
 #define CHUNK_BLOCK(chunk, i, j, k) chunk->blocks[(i) + ((j) * CHUNK_SIZE) + ((k) * CHUNK_SIZE * CHUNK_SIZE)]

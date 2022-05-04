@@ -8,7 +8,7 @@
  * Pixel To Coordinate
  * Converts a pixel position (0-255) to a texture coordinate (0-1)
  **/
-//Add 0.5 because OpenGL samples textures at the texel center, but we want the top-left corner (to get the entire pixel)
+//Subtract 0.5 because OpenGL samples textures at the texel center, but we want the top-left corner (to get the entire pixel)
 #define PTC(X) (((X) - 0.5f) / 255.0f)
 
 void initPNG();

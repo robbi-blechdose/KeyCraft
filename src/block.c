@@ -3,7 +3,6 @@
 #include <GL/gl.h>
 
 #include "engine/includes/3dMath.h"
-#include "engine/util.h"
 #include "engine/image.h"
 
 #define glVectorV3(vec) glVertex3f((vec).x, (vec).y, (vec).z)
@@ -45,10 +44,10 @@ const vec2 textures[] = {
     {48, 16}, //Wheat 2
     {56, 16}, //Wheat 3
 
-    { 0, 24}, //Water 0
-    { 8, 24}, //Water 1
-    {16, 24}, //Water 2
-    {24, 24}  //Water 3
+    { 0, 24}, //Water
+    { 8, 24}, //Door upper
+
+    { 8, 32} //Door lower
 };
 
 const uint8_t normalBlockTextures[] = {
@@ -79,17 +78,47 @@ const uint8_t xBlockTextures[] = {
     [BLOCK_WHEAT] = 20
 };
 
+const char* blockNames[] = {
+    [BLOCK_STONE] = "Stone",
+    [BLOCK_SAND] = "Sand",
+    [BLOCK_DIRT] = "Dirt",
+    [BLOCK_GRASS] = "Grass",
+    [BLOCK_WOOD] = "Wood",
+
+    [BLOCK_PLANKS] = "Wood planks",
+    [BLOCK_COAL_ORE] = "Coal ore",
+    [BLOCK_IRON_ORE] = "Iron ore",
+    [BLOCK_GOLD_ORE] = "Gold ore",
+    [BLOCK_REDSTONE_ORE] = "Redstone ore",
+    [BLOCK_DIAMOND_ORE] = "Diamond ore",
+    [BLOCK_FLOWER] = "Flower",
+
+    [BLOCK_TALL_GRASS] = "Tall grass",
+    [BLOCK_GLASS] = "Glass",
+    [BLOCK_LEAVES] = "Leaves",
+    [BLOCK_BOOKSHELF] = "Bookshelf",
+    [BLOCK_WHEAT] = "Wheat",
+
+    [BLOCK_WATER] = "Water",
+    [BLOCK_DOOR] = "Door"
+};
+
+void calcBlockVertices(vec3 list[8], float x, float y, float z, float xSize, float ySize, float zSize)
+{
+    list[0] = (vec3) {x, y, z + zSize};
+    list[1] = (vec3) {x + xSize, y, z + zSize};
+    list[2] = (vec3) {x + xSize, y + ySize, z + zSize};
+    list[3] = (vec3) {x, y + ySize, z + zSize};
+
+    list[4] = (vec3) {x + xSize, y, z};
+    list[5] = (vec3) {x, y, z};
+    list[6] = (vec3) {x, y + ySize, z};
+    list[7] = (vec3) {x + xSize, y + ySize, z};
+}
+
 void calcBlockCorners(vec3 list[8], uint8_t x, uint8_t y, uint8_t z)
 {
-    list[0] = (vec3) {x, y, z + BLOCK_SIZE};
-    list[1] = (vec3) {x + BLOCK_SIZE, y, z + BLOCK_SIZE};
-    list[2] = (vec3) {x + BLOCK_SIZE, y + BLOCK_SIZE, z + BLOCK_SIZE};
-    list[3] = (vec3) {x, y + BLOCK_SIZE, z + BLOCK_SIZE};
-
-    list[4] = (vec3) {x + BLOCK_SIZE, y, z};
-    list[5] = (vec3) {x, y, z};
-    list[6] = (vec3) {x, y + BLOCK_SIZE, z};
-    list[7] = (vec3) {x + BLOCK_SIZE, y + BLOCK_SIZE, z};
+    calcBlockVertices(list, x, y, z, BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
 }
 
 void drawNormalBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
@@ -211,6 +240,55 @@ void drawXBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion
     glEnable(GL_CULL_FACE);
 }
 
+void drawDoor(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
+{
+    //Calculate vertices
+    uint8_t front = (block->data & BLOCK_DATA_DIRECTION) == BLOCK_DATA_DIR_FRONT;
+    uint8_t back = (block->data & BLOCK_DATA_DIRECTION) == BLOCK_DATA_DIR_BACK;
+    uint8_t left = (block->data & BLOCK_DATA_DIRECTION) == BLOCK_DATA_DIR_LEFT;
+    uint8_t right = (block->data & BLOCK_DATA_DIRECTION) == BLOCK_DATA_DIR_RIGHT;
+    float x1 = (front || !back) ? x : 1 - DOOR_WIDTH;
+    float xS = (front || back) ? DOOR_WIDTH : BLOCK_SIZE;
+    float z1 = (left || !right) ? z : 1 - DOOR_WIDTH;
+    float zS = (left || right) ? DOOR_WIDTH : BLOCK_SIZE;
+
+    vec3 v[8];
+    calcBlockVertices(v, x1, y, z1, xS, BLOCK_SIZE, zS);
+
+    vec3* faces[6][4] = {
+        {&v[0], &v[1], &v[2], &v[3]},
+        {&v[4], &v[5], &v[6], &v[7]},
+        {&v[5], &v[0], &v[3], &v[6]},
+        {&v[1], &v[4], &v[7], &v[2]},
+        {&v[3], &v[2], &v[7], &v[6]},
+        {&v[5], &v[4], &v[1], &v[0]}
+    };
+
+    //Door texture positions
+    vec2 tex[6]; //TODO
+
+    uint8_t occlusionCheck = BS_FRONT;
+    for(uint8_t i = 0; i < 6; i++)
+    {
+        if(occlusion & occlusionCheck)
+        {
+            occlusionCheck <<= 1;
+            continue;
+        }
+
+        glTexCoord2f(PTCH(tex[i].x + 8), PTCH(tex[i].y + 8));
+        glVectorV3(*(faces[i][0]));
+        glTexCoord2f(PTCL(tex[i].x), PTCH(tex[i].y + 8));
+        glVectorV3(*(faces[i][1]));
+        glTexCoord2f(PTCL(tex[i].x), PTCL(tex[i].y));
+        glVectorV3(*(faces[i][2]));
+        glTexCoord2f(PTCH(tex[i].x + 8), PTCL(tex[i].y));
+        glVectorV3(*(faces[i][3]));
+
+        occlusionCheck <<= 1;
+    }
+}
+
 void drawBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
 {
     switch(block->type)
@@ -229,10 +307,38 @@ void drawBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
             drawXBlock(block, x, y, z, occlusion);
             break;
         }
+        case BLOCK_DOOR:
+        {
+            drawDoor(block, x, y, z, occlusion);
+            break;
+        }
         default:
         {
             drawNormalBlock(block, x, y, z, occlusion);
             break;
+        }
+    }
+}
+
+vec2 getTextureForBlock(BlockType block)
+{
+    switch(block)
+    {
+        case BLOCK_GRASS:
+        case BLOCK_WOOD:
+        case BLOCK_BOOKSHELF:
+        {
+            return textures[orientedBlockTextures[block][0]];
+        }
+        case BLOCK_FLOWER:
+        case BLOCK_TALL_GRASS:
+        case BLOCK_WHEAT:
+        {
+            return textures[xBlockTextures[block]];
+        }
+        default:
+        {
+            return textures[normalBlockTextures[block]];
         }
     }
 }
@@ -246,6 +352,7 @@ uint8_t isOpaqueBlock(BlockType type)
         case BLOCK_TALL_GRASS:
         case BLOCK_GLASS:
         case BLOCK_WHEAT:
+        case BLOCK_DOOR:
         {
             return 0;
         }
@@ -265,6 +372,11 @@ uint8_t canPlaceBlock(BlockType toPlace, BlockType below)
         case BLOCK_TALL_GRASS:
         {
             return (below == BLOCK_DIRT || below == BLOCK_GRASS);
+        }
+        case BLOCK_DOOR:
+        {
+            //TODO: Check block above
+            return (below != BLOCK_AIR);
         }
         default:
         {

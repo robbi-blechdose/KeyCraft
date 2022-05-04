@@ -214,15 +214,15 @@ void calcWorld(vec3* playerPos, uint32_t ticks)
             {
                 for(uint8_t k = 0; k < VIEW_DISTANCE; k++)
                 {
-                    tickChunk(VIEW_CHUNK(i, j, k));
+                    if(!VIEW_CHUNK(i, j, k)->isEmpty)
+                    {
+                        tickChunk(VIEW_CHUNK(i, j, k));
+                    }
                 }
             }
         }
     }
 }
-
-//Translation to make handling chunk indices easier (0 - VIEW_DISTANCE) while centering the player
-#define VIEW_TRANSLATION ((VIEW_DISTANCE * CHUNK_SIZE) / 2)
 
 //TODO: Skip chunks left or right of the screen player as well
 void drawWorld(vec3* playerPosition, vec3* playerRotation)
@@ -340,8 +340,11 @@ void setWorldBlock(BlockPos* pos, Block block)
     }
 
     //Place block and mark chunk as modified
-    CHUNK_BLOCK(WORLD_CHUNK(pos->chunk.x, pos->chunk.y, pos->chunk.z), pos->x, pos->y, pos->z) = block;
-    WORLD_CHUNK(pos->chunk.x, pos->chunk.y, pos->chunk.z)->modified = 1;
+    Chunk* chunk = WORLD_CHUNK(pos->chunk.x, pos->chunk.y, pos->chunk.z);
+    CHUNK_BLOCK(chunk, pos->x, pos->y, pos->z) = block;
+    chunk->modified = 1;
+    //Mark chunk as player-modified
+    chunk->initial = 0;
 
     //Mark adjacent chunks as modified if necessary
     if(pos->x == 0 && pos->chunk.x >= chunkPos.x)

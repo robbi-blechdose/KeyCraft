@@ -22,9 +22,15 @@
 uint16_t fps;
 #endif
 
+typedef enum {
+    STATE_GAME,
+    STATE_INVENTORY//,
+    //STATE_OPTIONS //TODO
+} State;
+
 //---------- Main game stuff ----------//
 uint8_t running = 1;
-
+State state = STATE_GAME;
 Player player;
 
 #ifdef DEBUG
@@ -36,7 +42,7 @@ void drawFPS(uint16_t fps)
 }
 #endif
 
-void calcFrame(uint32_t ticks)
+void calcFrameGame(uint32_t ticks)
 {
     //Player movement + look
     int8_t dirF = 0;
@@ -64,7 +70,7 @@ void calcFrame(uint32_t ticks)
         dirY = 1;
     }
     playerLook(&player, dirX, dirY, ticks);
-    if(keyUp(B_Y) && !player.jumping) //TODO: Check block above player, also figure out if we're still in the air (because we shouldn't be able to jump then)
+    if(keyUp(B_Y) && !player.jumping)
     {
         player.jumping = JUMP_TIME;
     }
@@ -74,9 +80,9 @@ void calcFrame(uint32_t ticks)
     vec3 rayDir = anglesToDirection(&player.rotation);
     //Player position in world space
     vec3 posWorld = player.position;
-    posWorld.x += 20;
-    posWorld.y += 20;
-    posWorld.z += 20;
+    posWorld.x += VIEW_TRANSLATION;
+    posWorld.y += VIEW_TRANSLATION;
+    posWorld.z += VIEW_TRANSLATION;
 
     BlockPos block;
     float distance;
@@ -120,7 +126,6 @@ void calcFrame(uint32_t ticks)
             }
         }
 
-        //TODO: Don't place if it'd cause a collision with our player
         //Place new block
         if(getWorldBlock(&block)->type == BLOCK_AIR)
         {
@@ -129,6 +134,11 @@ void calcFrame(uint32_t ticks)
             if(canPlaceBlock(getHotbarSelection(), getWorldBlock(&below)->type))
             {
                 setWorldBlock(&block, (Block) {getHotbarSelection(), 0});
+                //Check if the block intersects with the player. If so, don't place it
+                if(playerIntersectsWorld(&player))
+                {
+                    setWorldBlock(&block, (Block) {BLOCK_AIR, 0});
+                }
             }
         }
     }
@@ -146,7 +156,62 @@ void calcFrame(uint32_t ticks)
         scrollHotbar();
     }
 
+    if(keyUp(B_START))
+    {
+        state = STATE_INVENTORY;
+    }
+
     calcWorld(&player.position, ticks);
+}
+
+void calcFrame(uint32_t ticks)
+{
+    switch(state)
+    {
+        case STATE_GAME:
+        {
+            calcFrameGame(ticks);
+            break;
+        }
+        case STATE_INVENTORY:
+        {
+            int8_t dirX = 0;
+            int8_t dirY = 0;
+            if(keyUp(B_UP))
+            {
+                dirY = -1;
+            }
+            else if(keyUp(B_DOWN))
+            {
+                dirY = 1;
+            }
+            if(keyUp(B_LEFT))
+            {
+                dirX = -1;
+            }
+            else if(keyUp(B_RIGHT))
+            {
+                dirX = 1;
+            }
+            scrollInventory(dirX, dirY);
+
+            if(keyUp(B_A))
+            {
+                selectInventorySlot();
+            }
+
+            if(keyUp(B_SELECT))
+            {
+                scrollHotbar();
+            }
+
+            if(keyUp(B_START))
+            {
+                state = STATE_GAME;
+            }
+            break;
+        }
+    }
 }
 
 void drawFrame()
@@ -155,7 +220,6 @@ void drawFrame()
 
     //3d drawing
     setPerspective();
-
     drawCamera(&player.position, &player.rotation);
 
     drawWorld(&player.position, &player.rotation);
@@ -165,7 +229,14 @@ void drawFrame()
     glLoadIdentity();
     glBegin(GL_QUADS);
     //Crosshair
-    drawTexQuad(WINX / 2 - 8, WINY / 2 - 8, 16, 16, 10, PTC(240), PTC(64), PTC(240 + 15), PTC(64 + 15));
+    if(state == STATE_GAME)
+    {
+        drawTexQuad(WINX / 2 - 8, WINY / 2 - 8, 16, 16, 10, PTC(240), PTC(64), PTC(240 + 15), PTC(64 + 15));
+    }
+    else //if(state == STATE_INVENTORY
+    {
+        drawInventory();
+    }
     drawHotbar();
     glEnd();
 

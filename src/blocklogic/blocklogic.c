@@ -1,23 +1,28 @@
 #include "blocklogic.h"
 
+#include "../engine/util.h"
+
 void tickBlock(Chunk* chunk, Block* block)
 {
     switch(block->type)
     {
         case BLOCK_WHEAT:
         {
-            chunk->modified = 1;
-            
-            if((block->data & BLOCK_DATA_TEXTURE) != BLOCK_DATA_TEXTURE3)
+            if(randr(100) < 20)
             {
-                if((block->data & BLOCK_DATA_COUNTER) != BLOCK_DATA_COUNTER)
+                chunk->modified = 1;
+                
+                if((block->data & BLOCK_DATA_TEXTURE) != BLOCK_DATA_TEXTURE3)
                 {
-                    block->data += BLOCK_DATA_COUNTER1;
-                }
-                else
-                {
-                    (block->data)++;
-                    block->data &= ~BLOCK_DATA_COUNTER; //Clear counter
+                    if((block->data & BLOCK_DATA_COUNTER) != BLOCK_DATA_COUNTER)
+                    {
+                        block->data += BLOCK_DATA_COUNTER1;
+                    }
+                    else
+                    {
+                        (block->data)++;
+                        block->data &= ~BLOCK_DATA_COUNTER; //Clear counter
+                    }
                 }
             }
             break;

@@ -105,11 +105,11 @@ void generateChunk(Chunk* chunk)
                 {
                     CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_GRASS;
                 }
-                else if(pos < height && pos >= height / 2)
+                else if(pos < height && pos >= height * 0.7f)
                 {
                     CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_DIRT;
                 }
-                else if(pos < height / 2)
+                else if(pos < height * 0.7f)
                 {
                     if(pos == 0)
                     {
@@ -173,6 +173,8 @@ void generateChunk(Chunk* chunk)
 
     //Mark chunk geometry to be built
     chunk->modified = CHUNK_MODIFIED_INITIAL;
+    //Mark chunk as initial - has been generated, no player-made modifications
+    chunk->initial = 1;
 
     //Calculate basic AABB
     calcChunkAABB(chunk);

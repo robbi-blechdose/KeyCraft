@@ -12,6 +12,9 @@
 
 #define VIEW_DISTANCE 5
 
+//Translation to make handling chunk indices easier (0 - VIEW_DISTANCE) while centering the player
+#define VIEW_TRANSLATION ((VIEW_DISTANCE * CHUNK_SIZE) / 2)
+
 #define MAX_RAY_DISTANCE 5
 
 #define TICK_RATE 250
