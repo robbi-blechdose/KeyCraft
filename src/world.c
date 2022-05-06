@@ -371,6 +371,14 @@ void setWorldBlock(BlockPos* pos, Block block)
     {
         WORLD_CHUNK(pos->chunk.x, pos->chunk.y, pos->chunk.z + 1)->modified = 1;
     }
+
+    //Place door upper (yes, this is a special case)
+    if(block.type == BLOCK_DOOR && !(block.data & BLOCK_DATA_PART))
+    {
+        pos->y++;
+        setWorldBlock(pos, (Block) {BLOCK_DOOR, BLOCK_DATA_PART});
+        pos->y--;
+    }
 }
 
 AABBSide intersectsRayWorld(vec3* origin, vec3* direction, BlockPos* block, float* distance)

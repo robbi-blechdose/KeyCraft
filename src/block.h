@@ -93,5 +93,6 @@ vec2 getTextureForBlock(BlockType block);
 uint8_t isOpaqueBlock(BlockType type);
 uint8_t canPlaceBlock(BlockType toPlace, BlockType below);
 uint8_t isBlockCollidable(BlockType type);
+uint8_t isBlockOriented(BlockType type);
 
 #endif

@@ -131,13 +131,26 @@ void calcFrameGame(uint32_t ticks)
         {
             BlockPos below = block;
             below.y -= BLOCK_SIZE;
-            if(canPlaceBlock(getHotbarSelection(), getWorldBlock(&below)->type))
+            BlockPos above = block;
+            above.y += BLOCK_SIZE;
+            if(canPlaceBlock(getHotbarSelection(), getWorldBlock(&below)->type) &&
+                !(getHotbarSelection() == BLOCK_DOOR && getWorldBlock(&above)->type != BLOCK_AIR)) //Check if we can place the door upper (yes, this is a special case)
             {
+                if(isBlockOriented(getHotbarSelection()))
+                {
+                    //TODO: set orientation by player rotation
+                }
+
                 setWorldBlock(&block, (Block) {getHotbarSelection(), 0});
                 //Check if the block intersects with the player. If so, don't place it
                 if(playerIntersectsWorld(&player))
                 {
                     setWorldBlock(&block, (Block) {BLOCK_AIR, 0});
+                    //Remove door upper as well (yes, this is a special case)
+                    if(getHotbarSelection() == BLOCK_DOOR)
+                    {
+                        setWorldBlock(&above, (Block) {BLOCK_AIR, 0});
+                    }
                 }
             }
         }
@@ -147,6 +160,25 @@ void calcFrameGame(uint32_t ticks)
     {
         if(getWorldBlock(&block)->type != BLOCK_BEDROCK)
         {
+            //Remove other door half (yes, this is a special case)
+            if(getWorldBlock(&block)->type == BLOCK_DOOR)
+            {
+                if(getWorldBlock(&block)->data & BLOCK_DATA_PART)
+                {
+                    //This is the upper part, remove lower
+                    block.y--;
+                    setWorldBlock(&block, (Block) {BLOCK_AIR, 0});
+                    block.y++;
+                }
+                else
+                {
+                    //This is the lower part, remove upper
+                    block.y++;
+                    setWorldBlock(&block, (Block) {BLOCK_AIR, 0});
+                    block.y--;
+                }
+            }
+
             setWorldBlock(&block, (Block) {BLOCK_AIR, 0});
         }
     }

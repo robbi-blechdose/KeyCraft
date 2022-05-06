@@ -78,6 +78,12 @@ const uint8_t xBlockTextures[] = {
     [BLOCK_WHEAT] = 20
 };
 
+//front, rear, left, right, up, down
+
+const uint8_t doorTexture[3] = {
+    8, 25, 26
+};
+
 const char* blockNames[] = {
     [BLOCK_STONE] = "Stone",
     [BLOCK_SAND] = "Sand",
@@ -265,7 +271,10 @@ void drawDoor(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
     };
 
     //Door texture positions
-    vec2 tex[6]; //TODO
+    vec2 texFB0 = textures[doorTexture[(block->data & BLOCK_DATA_PART ? 1 : 2)]];
+    vec2 texFB1 = {texFB0.x + 8, texFB0.y + 8};
+    vec2 texLR0 = textures[doorTexture[0]];
+    vec2 texLR1 = {texLR0.x + 2, texLR0.y + 8};
 
     uint8_t occlusionCheck = BS_FRONT;
     for(uint8_t i = 0; i < 6; i++)
@@ -276,13 +285,21 @@ void drawDoor(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
             continue;
         }
 
-        glTexCoord2f(PTCH(tex[i].x + 8), PTCH(tex[i].y + 8));
+        vec2 tex0 = texLR0;
+        vec2 tex1 = texLR1;
+        if(i == 2 || i == 3)
+        {
+            tex0 = texFB0;
+            tex1 = texFB1;
+        }
+
+        glTexCoord2f(PTCH(tex1.x), PTCH(tex1.y));
         glVectorV3(*(faces[i][0]));
-        glTexCoord2f(PTCL(tex[i].x), PTCH(tex[i].y + 8));
+        glTexCoord2f(PTCL(tex0.x), PTCH(tex1.y));
         glVectorV3(*(faces[i][1]));
-        glTexCoord2f(PTCL(tex[i].x), PTCL(tex[i].y));
+        glTexCoord2f(PTCL(tex0.x), PTCL(tex0.y));
         glVectorV3(*(faces[i][2]));
-        glTexCoord2f(PTCH(tex[i].x + 8), PTCL(tex[i].y));
+        glTexCoord2f(PTCH(tex1.x), PTCL(tex0.y));
         glVectorV3(*(faces[i][3]));
 
         occlusionCheck <<= 1;
@@ -400,6 +417,21 @@ uint8_t isBlockCollidable(BlockType type)
         default:
         {
             return 1;
+        }
+    }
+}
+
+uint8_t isBlockOriented(BlockType type)
+{
+    switch(type)
+    {
+        case BLOCK_DOOR:
+        {
+            return 1;
+        }
+        default:
+        {
+            return 0;
         }
     }
 }
