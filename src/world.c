@@ -5,6 +5,7 @@
 #include "chunk.h"
 #include "worldgen.h"
 #include "blocklogic/blocklogic.h"
+#include "blockactions/blockactions.h"
 
 #define VIEW_CHUNK(i, j, k) chunks[(i) + ((j) * VIEW_DISTANCE) + ((k) * VIEW_DISTANCE * VIEW_DISTANCE)]
 #define WORLD_CHUNK(i, j, k) VIEW_CHUNK((i) - chunkPos.x, (j) - chunkPos.y, (k) - chunkPos.z)
@@ -376,9 +377,40 @@ void setWorldBlock(BlockPos* pos, Block block)
     if(block.type == BLOCK_DOOR && !(block.data & BLOCK_DATA_PART))
     {
         pos->y++;
-        setWorldBlock(pos, (Block) {BLOCK_DOOR, BLOCK_DATA_PART});
+        setWorldBlock(pos, (Block) {BLOCK_DOOR, block.data + BLOCK_DATA_PART});
         pos->y--;
     }
+}
+
+uint8_t actWorldBlock(BlockPos* pos)
+{
+    Block* block = getWorldBlock(pos);
+    if(block == NULL)
+    {
+        return 0;
+    }
+
+    Chunk* chunk = WORLD_CHUNK(pos->chunk.x, pos->chunk.y, pos->chunk.z);
+    uint8_t ret = actBlock(chunk, block);
+
+    if(block->type == BLOCK_DOOR)
+    {
+        if(block->data & BLOCK_DATA_PART)
+        {
+            //Upper, act lower too
+            pos->y--;
+            block = getWorldBlock(pos);
+            ret += actBlock(chunk, block);
+        }
+        else
+        {
+            //Lower, act upper too
+            pos->y++;
+            block = getWorldBlock(pos);
+            ret += actBlock(chunk, block);
+        }
+    }
+    return ret;
 }
 
 AABBSide intersectsRayWorld(vec3* origin, vec3* direction, BlockPos* block, float* distance)

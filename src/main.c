@@ -91,6 +91,8 @@ void calcFrameGame(uint32_t ticks)
     //Place block
     if(keyUp(B_A) && result)
     {
+        uint8_t canPlace = !actWorldBlock(&block);
+
         //Calc position
         switch(result)
         {
@@ -127,7 +129,7 @@ void calcFrameGame(uint32_t ticks)
         }
 
         //Place new block
-        if(getWorldBlock(&block)->type == BLOCK_AIR)
+        if(getWorldBlock(&block)->type == BLOCK_AIR && canPlace)
         {
             BlockPos below = block;
             below.y -= BLOCK_SIZE;
@@ -136,12 +138,31 @@ void calcFrameGame(uint32_t ticks)
             if(canPlaceBlock(getHotbarSelection(), getWorldBlock(&below)->type) &&
                 !(getHotbarSelection() == BLOCK_DOOR && getWorldBlock(&above)->type != BLOCK_AIR)) //Check if we can place the door upper (yes, this is a special case)
             {
+                uint8_t blockData = 0;
+
                 if(isBlockOriented(getHotbarSelection()))
                 {
-                    //TODO: set orientation by player rotation
+                    uint8_t orientation = BLOCK_DATA_DIR_RIGHT;
+                    float rotation = player.rotation.y - M_PI_4;
+                    clampAngle(&rotation);
+
+                    if(rotation < M_PI_2)
+                    {
+                        orientation = BLOCK_DATA_DIR_FRONT;
+                    }
+                    else if(rotation < M_PI)
+                    {
+                        orientation = BLOCK_DATA_DIR_LEFT;
+                    }
+                    else if(rotation < M_PI + M_PI_2)
+                    {
+                        orientation = BLOCK_DATA_DIR_BACK;
+                    }
+                    //4th case is covered by the original assignment
+                    blockData += orientation;
                 }
 
-                setWorldBlock(&block, (Block) {getHotbarSelection(), 0});
+                setWorldBlock(&block, (Block) {getHotbarSelection(), blockData});
                 //Check if the block intersects with the player. If so, don't place it
                 if(playerIntersectsWorld(&player))
                 {

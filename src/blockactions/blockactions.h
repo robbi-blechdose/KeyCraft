@@ -4,4 +4,6 @@
 #include "../chunk.h"
 #include "../block.h"
 
+uint8_t actBlock(Chunk* chunk, Block* block);
+
 #endif

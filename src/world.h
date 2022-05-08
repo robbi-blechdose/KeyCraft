@@ -25,6 +25,7 @@ void drawWorld(vec3* playerPosition, vec3* playerRotation);
 
 Block* getWorldBlock(BlockPos* pos);
 void setWorldBlock(BlockPos* pos, Block block);
+uint8_t actWorldBlock(BlockPos* pos);
 
 AABBSide intersectsRayWorld(vec3* origin, vec3* direction, BlockPos* block, float* distance);
 uint8_t intersectsAABBWorld(AABB* aabb);

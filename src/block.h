@@ -48,7 +48,8 @@ typedef struct {
  *        TT - Texture, if set block uses normal texture + offset. Used by: Flower, Wheat, Water
  *      CC   - Counter. Used by: Wheat, Water
  * DD        - Direction, determines which way the block is facing. Used by: Door
- *       P   - Part, determines which part of a "multiblock" this is. Used by: Door
+ *         P - Part, determines which part of a "multiblock" this is. Used by: Door
+ *        S  - State. Used by: Door
  **/
 
 /** ---------- Block data definitions ---------- **/
@@ -66,7 +67,9 @@ typedef struct {
 #define BLOCK_DATA_DIR_LEFT  0b10000000
 #define BLOCK_DATA_DIR_RIGHT 0b11000000
 
-#define BLOCK_DATA_PART      0b00000100
+#define BLOCK_DATA_PART      0b00000001
+
+#define BLOCK_DATA_STATE     0b00000010
 
 //TODO
 /** -------------------------------------------- **/

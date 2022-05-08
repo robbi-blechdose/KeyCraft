@@ -16,7 +16,7 @@ include $(TARGET).mk
 endif
 
 # Files to be compiled
-SRCDIR 		=  ./src ./src/engine ./src/blocklogic
+SRCDIR 		=  ./src ./src/engine ./src/blocklogic ./src/blockactions
 VPATH		= $(SRCDIR)
 SRC_C		= $(foreach dir, $(SRCDIR), $(wildcard $(dir)/*.c))
 OBJS		= $(notdir $(patsubst %.c, %.o, $(SRC_C)))

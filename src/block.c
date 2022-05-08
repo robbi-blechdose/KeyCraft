@@ -253,9 +253,9 @@ void drawDoor(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
     uint8_t back = (block->data & BLOCK_DATA_DIRECTION) == BLOCK_DATA_DIR_BACK;
     uint8_t left = (block->data & BLOCK_DATA_DIRECTION) == BLOCK_DATA_DIR_LEFT;
     uint8_t right = (block->data & BLOCK_DATA_DIRECTION) == BLOCK_DATA_DIR_RIGHT;
-    float x1 = (front || !back) ? x : 1 - DOOR_WIDTH;
+    float x1 = (front || !back) ? x : x + 1 - DOOR_WIDTH;
     float xS = (front || back) ? DOOR_WIDTH : BLOCK_SIZE;
-    float z1 = (left || !right) ? z : 1 - DOOR_WIDTH;
+    float z1 = (left || !right) ? z : z + 1 - DOOR_WIDTH;
     float zS = (left || right) ? DOOR_WIDTH : BLOCK_SIZE;
 
     vec3 v[8];
@@ -282,12 +282,13 @@ void drawDoor(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
         if(occlusion & occlusionCheck)
         {
             occlusionCheck <<= 1;
-            continue;
+            //continue;
         }
 
         vec2 tex0 = texLR0;
         vec2 tex1 = texLR1;
-        if(i == 2 || i == 3)
+        if(((front || back) && (i == 2 || i == 3)) ||
+            ((left || right) && (i == 0 || i == 1)))
         {
             tex0 = texFB0;
             tex1 = texFB1;
@@ -392,8 +393,7 @@ uint8_t canPlaceBlock(BlockType toPlace, BlockType below)
         }
         case BLOCK_DOOR:
         {
-            //TODO: Check block above
-            return (below != BLOCK_AIR);
+            return isBlockCollidable(below);
         }
         default:
         {
