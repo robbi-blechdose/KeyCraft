@@ -5,8 +5,8 @@
 
 #include "engine/includes/3dMath.h"
 
-#include "blockutils.h"
-#include "block.h"
+#include "blocks/blockutils.h"
+#include "blocks/block.h"
 #include "aabb.h"
 #include "chunk.h"
 

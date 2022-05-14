@@ -5,9 +5,9 @@
 
 #include "engine/includes/3dMath.h"
 
-#include "block.h"
+#include "blocks/block.h"
 #include "aabb.h"
-#include "blockutils.h"
+#include "blocks/blockutils.h"
 
 #define CHUNK_SIZE 8
 

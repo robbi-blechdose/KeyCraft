@@ -9,8 +9,8 @@
 
 #include "player.h"
 #include "world.h"
-#include "blockutils.h"
-#include "block.h"
+#include "blocks/blockutils.h"
+#include "blocks/block.h"
 #include "inventory.h"
 
 #define DEBUG

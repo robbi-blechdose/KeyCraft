@@ -4,8 +4,8 @@
 
 #include "chunk.h"
 #include "worldgen.h"
-#include "blocklogic/blocklogic.h"
-#include "blockactions/blockactions.h"
+#include "blocks/blocklogic.h"
+#include "blocks/blockactions.h"
 
 #define VIEW_CHUNK(i, j, k) chunks[(i) + ((j) * VIEW_DISTANCE) + ((k) * VIEW_DISTANCE * VIEW_DISTANCE)]
 #define WORLD_CHUNK(i, j, k) VIEW_CHUNK((i) - chunkPos.x, (j) - chunkPos.y, (k) - chunkPos.z)

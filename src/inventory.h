@@ -1,7 +1,7 @@
 #ifndef _INVENTORY_H
 #define _INVENTORY_H
 
-#include "block.h"
+#include "blocks/block.h"
 
 #define HOTBAR_SIZE 3
 #define HOTBAR_INITIAL {BLOCK_PLANKS, BLOCK_GLASS, BLOCK_WHEAT}

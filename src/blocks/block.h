@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#include "engine/util.h"
+#include "../engine/util.h"
 
 typedef enum {
     BLOCK_AIR = 0,
