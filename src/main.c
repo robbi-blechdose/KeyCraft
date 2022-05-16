@@ -310,6 +310,8 @@ int main(int argc, char **argv)
 
     initWorld();
 
+    loadWorld();
+
     //Run main loop
 	uint32_t tNow = SDL_GetTicks();
 	uint32_t tLastFrame = tNow;
@@ -336,7 +338,11 @@ int main(int argc, char **argv)
 		tLastFrame = tNow;
     }
 
+    saveWorld();
+
     //Cleanup
+    quitWorld();
+    
     quitAudio();
 	quitVideo();
 

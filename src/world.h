@@ -20,6 +20,8 @@
 #define TICK_RATE 250
 
 void initWorld();
+void quitWorld();
+
 void calcWorld(vec3* playerPos, uint32_t ticks);
 void drawWorld(vec3* playerPosition, vec3* playerRotation);
 
@@ -29,5 +31,8 @@ uint8_t actWorldBlock(BlockPos* pos);
 
 AABBSide intersectsRayWorld(vec3* origin, vec3* direction, BlockPos* block, float* distance);
 uint8_t intersectsAABBWorld(AABB* aabb);
+
+void saveWorld();
+void loadWorld();
 
 #endif

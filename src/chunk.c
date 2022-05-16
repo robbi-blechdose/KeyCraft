@@ -252,3 +252,22 @@ uint8_t intersectsAABBChunk(Chunk* chunk, AABB* aabb)
 
     return 0;
 }
+
+void saveChunk(Chunk* chunk)
+{
+    writeElement(&chunk->position, sizeof(ChunkPos));
+    writeElement(&chunk->blocks, sizeof(Block) * CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE);
+}
+
+void loadChunk(Chunk* chunk)
+{
+    readElement(&chunk->position, sizeof(ChunkPos));
+    readElement(&chunk->blocks, sizeof(Block) * CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE);
+
+    //Since we loaded the chunk it's been player-modified (otherwise saving + loading doesn't take place)
+    chunk->initial = 0;
+    //Mark to build geometry
+    chunk->modified = CHUNK_MODIFIED_INITIAL;
+    //Calculate basic AABB
+    calcChunkAABB(chunk);
+}

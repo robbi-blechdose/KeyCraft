@@ -1,17 +1,20 @@
 #include "world.h"
 
 #include "engine/image.h"
+#include "engine/savegame.h"
 
 #include "chunk.h"
 #include "worldgen.h"
 #include "blocks/blocklogic.h"
 #include "blocks/blockactions.h"
+#include "octree.h"
 
 #define VIEW_CHUNK(i, j, k) chunks[(i) + ((j) * VIEW_DISTANCE) + ((k) * VIEW_DISTANCE * VIEW_DISTANCE)]
 #define WORLD_CHUNK(i, j, k) VIEW_CHUNK((i) - chunkPos.x, (j) - chunkPos.y, (k) - chunkPos.z)
 
 ChunkPos chunkPos;
 Chunk* chunks[VIEW_DISTANCE * VIEW_DISTANCE * VIEW_DISTANCE];
+Octree* modifiedChunks;
 
 GLuint terrainTexture;
 
@@ -20,7 +23,6 @@ uint32_t worldTicks;
 void initWorld()
 {
     initWorldgen(0);
-    terrainTexture = loadRGBTexture("res/tex/terrain.png");
 
     for(uint8_t i = 0; i < VIEW_DISTANCE; i++)
     {
@@ -36,13 +38,17 @@ void initWorld()
     }
     chunkPos = (ChunkPos) {0, 0, 0};
 
+    modifiedChunks = createOctree((vec3) {0, 0, 0}, INT16_MAX * 2, NULL);
+
     worldTicks = 0;
+
+    terrainTexture = loadRGBTexture("res/tex/terrain.png");
     glBindTexture(GL_TEXTURE_2D, terrainTexture);
 }
 
 void quitWorld()
 {
-    //TODO
+    freeOctree(modifiedChunks);
 }
 
 typedef enum {
@@ -88,8 +94,16 @@ void swapChunks(SwapSide side, SwapDir direction)
             {
                 toDestroy = VIEW_CHUNK(i, j, out);
             }
-            destroyChunk(toDestroy);
-            free(toDestroy);
+            //Check if chunk has been modified
+            if(toDestroy->initial)
+            {
+                destroyChunk(toDestroy);
+                free(toDestroy);
+            }
+            else
+            {
+                insertOctree(modifiedChunks, toDestroy);
+            }
 
             //Shift other chunks
             if(direction == SWP_FORE)
@@ -130,23 +144,47 @@ void swapChunks(SwapSide side, SwapDir direction)
             }
 
             //Load new chunk "in front of" player
-            Chunk* newChunk = calloc(1, sizeof(Chunk));
+            //Check in octree
+            ChunkPos newPos;
             if(side == SWP_FB)
             {
-                newChunk->position = (ChunkPos) {chunkPos.x + in, chunkPos.y + i, chunkPos.z + j};
+                newPos = (ChunkPos) {chunkPos.x + in, chunkPos.y + i, chunkPos.z + j};
+            }
+            else if(side == SWP_LR)
+            {
+                newPos = (ChunkPos) {chunkPos.x + i, chunkPos.y + j, chunkPos.z + in};
+            }
+            else
+            {
+                newPos = (ChunkPos) {chunkPos.x + i, chunkPos.y + j, chunkPos.z + in};
+            }
+            Chunk* newChunk = findOctree(modifiedChunks, &newPos);
+
+            //Nothing in octree, generate
+            if(newChunk == NULL)
+            {
+                newChunk = calloc(1, sizeof(Chunk));
+                newChunk->position = newPos;
+                generateChunk(newChunk);
+            }
+            else
+            {
+                //Mark geometry to be rebuilt (in case adjacent chunks changed)
+                newChunk->modified = 1;
+            }
+            
+            if(side == SWP_FB)
+            {
                 VIEW_CHUNK(in, i, j) = newChunk;
             }
             else if(side == SWP_LR)
             {
-                newChunk->position = (ChunkPos) {chunkPos.x + i, chunkPos.y + j, chunkPos.z + in};
                 VIEW_CHUNK(i, j, in) = newChunk;
             }
             else
             {
-                newChunk->position = (ChunkPos) {chunkPos.x + i, chunkPos.y + j, chunkPos.z + in};
                 VIEW_CHUNK(i, j, in) = newChunk;
             }
-            generateChunk(newChunk);
         }
     }
 }
@@ -476,4 +514,61 @@ uint8_t intersectsAABBWorld(AABB* aabb)
     }
 
     return 0;
+}
+
+void saveWorld()
+{
+    //TODO: Don't save anything if our octree is empty!
+    //Store all modified chunks into octree
+    for(uint8_t i = 0; i < VIEW_DISTANCE; i++)
+    {
+        for(uint8_t j = 0; j < VIEW_DISTANCE; j++)
+        {
+            for(uint8_t k = 0; k < VIEW_DISTANCE; k++)
+            {
+                if(!VIEW_CHUNK(i, j, k)->initial)
+                {
+                    insertOctree(modifiedChunks, VIEW_CHUNK(i, j, k));
+                }
+            }
+        }
+    }
+
+    //Save game
+    openSave(".keycraft", "world.sav", 1);
+    saveOctree(modifiedChunks);
+    closeSave();
+}
+
+void loadWorld()
+{
+    if(openSave(".keycraft", "world.sav", 0))
+    {
+        if(modifiedChunks != NULL)
+        {
+            freeOctree(modifiedChunks);
+        }
+
+        modifiedChunks = loadOctree();
+        closeSave();
+
+        //Load chunks in
+        for(uint8_t i = 0; i < VIEW_DISTANCE; i++)
+        {
+            for(uint8_t j = 0; j < VIEW_DISTANCE; j++)
+            {
+                for(uint8_t k = 0; k < VIEW_DISTANCE; k++)
+                {
+                    ChunkPos pos = {i, j, k};
+                    Chunk* chunk = findOctree(modifiedChunks, &pos);
+                    if(chunk != NULL)
+                    {
+                        destroyChunk(VIEW_CHUNK(i, j, k));
+                        free(VIEW_CHUNK(i, j, k));
+                        VIEW_CHUNK(i, j, k) = chunk;
+                    }
+                }
+            }
+        }
+    }
 }
