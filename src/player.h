@@ -31,4 +31,7 @@ void playerLook(Player* player, int8_t dirX, int8_t dirY, uint32_t ticks);
 uint8_t playerIntersectsWorld(Player* player);
 void calcPlayer(Player* player, uint32_t ticks);
 
+void savePlayer(Player* player);
+void loadPlayer(Player* player);
+
 #endif

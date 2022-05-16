@@ -1,7 +1,6 @@
 #include "world.h"
 
 #include "engine/image.h"
-#include "engine/savegame.h"
 
 #include "chunk.h"
 #include "worldgen.h"
@@ -518,7 +517,6 @@ uint8_t intersectsAABBWorld(AABB* aabb)
 
 void saveWorld()
 {
-    //TODO: Don't save anything if our octree is empty!
     //Store all modified chunks into octree
     for(uint8_t i = 0; i < VIEW_DISTANCE; i++)
     {
@@ -534,39 +532,38 @@ void saveWorld()
         }
     }
 
-    //Save game
-    openSave(".keycraft", "world.sav", 1);
+    //Don't save anything if we didn't modify anything
+    if(octreeEmpty(modifiedChunks))
+    {
+        return;
+    }
+
     saveOctree(modifiedChunks);
-    closeSave();
 }
 
 void loadWorld()
 {
-    if(openSave(".keycraft", "world.sav", 0))
+    if(modifiedChunks != NULL)
     {
-        if(modifiedChunks != NULL)
-        {
-            freeOctree(modifiedChunks);
-        }
+        freeOctree(modifiedChunks);
+    }
 
-        modifiedChunks = loadOctree();
-        closeSave();
+    modifiedChunks = loadOctree();
 
-        //Load chunks in
-        for(uint8_t i = 0; i < VIEW_DISTANCE; i++)
+    //Load chunks in
+    for(uint8_t i = 0; i < VIEW_DISTANCE; i++)
+    {
+        for(uint8_t j = 0; j < VIEW_DISTANCE; j++)
         {
-            for(uint8_t j = 0; j < VIEW_DISTANCE; j++)
+            for(uint8_t k = 0; k < VIEW_DISTANCE; k++)
             {
-                for(uint8_t k = 0; k < VIEW_DISTANCE; k++)
+                ChunkPos pos = {i, j, k};
+                Chunk* chunk = findOctree(modifiedChunks, &pos);
+                if(chunk != NULL)
                 {
-                    ChunkPos pos = {i, j, k};
-                    Chunk* chunk = findOctree(modifiedChunks, &pos);
-                    if(chunk != NULL)
-                    {
-                        destroyChunk(VIEW_CHUNK(i, j, k));
-                        free(VIEW_CHUNK(i, j, k));
-                        VIEW_CHUNK(i, j, k) = chunk;
-                    }
+                    destroyChunk(VIEW_CHUNK(i, j, k));
+                    free(VIEW_CHUNK(i, j, k));
+                    VIEW_CHUNK(i, j, k) = chunk;
                 }
             }
         }

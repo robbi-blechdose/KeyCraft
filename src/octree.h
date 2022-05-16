@@ -13,6 +13,7 @@ typedef struct Octree {
 Octree* createOctree(vec3 pos, float size, Chunk* chunk);
 void insertOctree(Octree* octree, Chunk* chunk);
 Chunk* findOctree(Octree* octree, ChunkPos* pos);
+uint8_t octreeEmpty(Octree* octree);
 
 void freeOctree(Octree* octree);
 

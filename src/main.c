@@ -6,6 +6,7 @@
 #include "engine/input.h"
 #include "engine/camera.h"
 #include "engine/image.h"
+#include "engine/savegame.h"
 
 #include "player.h"
 #include "world.h"
@@ -310,7 +311,11 @@ int main(int argc, char **argv)
 
     initWorld();
 
-    loadWorld();
+    if(openSave(".keycraft", "game.sav", 0))
+    {
+        loadPlayer(&player);
+        loadWorld();
+    }
 
     //Run main loop
 	uint32_t tNow = SDL_GetTicks();
@@ -338,7 +343,11 @@ int main(int argc, char **argv)
 		tLastFrame = tNow;
     }
 
+    //Save game
+    openSave(".keycraft", "game.sav", 1);
+    savePlayer(&player);
     saveWorld();
+    closeSave();
 
     //Cleanup
     quitWorld();

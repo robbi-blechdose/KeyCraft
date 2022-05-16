@@ -97,6 +97,45 @@ Chunk* findOctree(Octree* octree, ChunkPos* pos)
     return NULL;
 }
 
+uint8_t octreeCount(Octree* octree)
+{
+    if(octree == NULL)
+    {
+        return 0;
+    }
+    //Since we always insert into an octree first, the children have to be NULL if the chunk is NULL
+    else if(octree->chunk == NULL)
+    {
+        return 0;
+    }
+    else
+    {
+        uint8_t sum = 1;
+        for(uint8_t i = 0; i < 8; i++)
+        {
+            sum += octreeCount(octree->children[i]);
+        }
+        return sum;
+    }
+}
+
+uint8_t octreeEmpty(Octree* octree)
+{
+    if(octree == NULL)
+    {
+        return 1;
+    }
+    //Since we always insert into an octree first, the children have to be NULL if the chunk is NULL
+    else if(octree->chunk == NULL)
+    {
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
 void freeOctree(Octree* octree)
 {
     for(uint8_t i = 0; i < 8; i++)

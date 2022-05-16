@@ -1,6 +1,8 @@
 #include "player.h"
 
 #include "engine/util.h"
+#include "engine/savegame.h"
+
 #include "world.h"
 #include "chunk.h"
 
@@ -113,4 +115,17 @@ void calcPlayer(Player* player, uint32_t ticks)
             player->jumping = 0;
         }
     }
+}
+
+void savePlayer(Player* player)
+{
+    writeElement(&player->position, sizeof(vec3));
+    writeElement(&player->rotation, sizeof(vec3));
+}
+
+void loadPlayer(Player* player)
+{
+    readElement(&player->position, sizeof(vec3));
+    readElement(&player->rotation, sizeof(vec3));
+    player->position.y += 0.1f; //Safety buffer to make sure we don't accidentally glitch into a block
 }
