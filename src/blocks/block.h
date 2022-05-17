@@ -75,7 +75,7 @@ typedef struct {
 /** -------------------------------------------- **/
 
 #define BLOCK_SIZE 1.0f
-#define DOOR_WIDTH 0.2f
+#define DOOR_WIDTH 0.1f
 
 typedef enum {
     BS_FRONT  = 0b00000001,

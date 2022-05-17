@@ -274,7 +274,7 @@ void drawDoor(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
     vec2 texFB0 = textures[doorTexture[(block->data & BLOCK_DATA_PART ? 1 : 2)]];
     vec2 texFB1 = {texFB0.x + 8, texFB0.y + 8};
     vec2 texLR0 = textures[doorTexture[0]];
-    vec2 texLR1 = {texLR0.x + 2, texLR0.y + 8};
+    vec2 texLR1 = {texLR0.x + 1, texLR0.y + 8};
 
     uint8_t occlusionCheck = BS_FRONT;
     for(uint8_t i = 0; i < 6; i++)

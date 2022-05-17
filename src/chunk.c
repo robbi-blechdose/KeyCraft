@@ -3,6 +3,7 @@
 #include "engine/savegame.h"
 
 #include "world.h"
+#include "blocks/blockaabbs.h"
 
 uint8_t isWorldBlockOpaque(Chunk* chunk, uint8_t i, uint8_t j, uint8_t k)
 {
@@ -239,7 +240,8 @@ uint8_t intersectsAABBChunk(Chunk* chunk, AABB* aabb)
                 {
                     //TODO: Create AABB by block type
                     vec3 min = {chunk->aabb.min.x + i, chunk->aabb.min.y + j, chunk->aabb.min.z + k};
-                    AABB blockAABB = {.min = min, .max = (vec3) {min.x + BLOCK_SIZE, min.y + BLOCK_SIZE, min.z + BLOCK_SIZE}};
+                    //AABB blockAABB = {.min = min, .max = (vec3) {min.x + BLOCK_SIZE, min.y + BLOCK_SIZE, min.z + BLOCK_SIZE}};
+                    AABB blockAABB = getAABBForBlock(&CHUNK_BLOCK(chunk, i, j, k), min);
 
                     if(aabbIntersectsAABB(&blockAABB, aabb))
                     {
