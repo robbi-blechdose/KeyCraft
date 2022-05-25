@@ -25,4 +25,7 @@ void drawInventory();
 void scrollInventory(int8_t dirX, int8_t dirY);
 void selectInventorySlot();
 
+void saveHotbar();
+void loadHotbar();
+
 #endif

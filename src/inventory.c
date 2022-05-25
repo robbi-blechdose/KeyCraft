@@ -3,6 +3,7 @@
 #include "engine/image.h"
 #include "engine/video.h"
 #include "engine/util.h"
+#include "engine/savegame.h"
 
 BlockType hotbar[HOTBAR_SIZE] = HOTBAR_INITIAL;
 uint8_t hotbarCursor = 0;
@@ -96,4 +97,22 @@ void scrollInventory(int8_t dirX, int8_t dirY)
 void selectInventorySlot()
 {
     hotbar[hotbarCursor] = inventory[inventoryCursorX + inventoryCursorY * INVENTORY_SIZE_X];
+}
+
+void saveHotbar()
+{
+    writeElement(&hotbarCursor, sizeof(uint8_t));
+    for(uint8_t i = 0; i < HOTBAR_SIZE; i++)
+    {
+        writeElement(&hotbar[i], sizeof(BlockType));
+    }
+}
+
+void loadHotbar()
+{
+    readElement(&hotbarCursor, sizeof(uint8_t));
+    for(uint8_t i = 0; i < HOTBAR_SIZE; i++)
+    {
+        readElement(&hotbar[i], sizeof(BlockType));
+    }
 }

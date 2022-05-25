@@ -315,6 +315,8 @@ int main(int argc, char **argv)
     {
         loadPlayer(&player);
         loadWorld();
+        loadHotbar();
+        closeSave();
     }
 
     //Run main loop
@@ -344,10 +346,13 @@ int main(int argc, char **argv)
     }
 
     //Save game
-    openSave(".keycraft", "game.sav", 1);
-    savePlayer(&player);
-    saveWorld();
-    closeSave();
+    if(openSave(".keycraft", "game.sav", 1))
+    {
+        savePlayer(&player);
+        saveWorld();
+        saveHotbar();
+        closeSave();
+    }
 
     //Cleanup
     quitWorld();
