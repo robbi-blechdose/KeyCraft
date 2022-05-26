@@ -437,6 +437,7 @@ uint8_t actWorldBlock(BlockPos* pos)
             //Upper, act lower too
             pos->y--;
             block = getWorldBlock(pos);
+            chunk = WORLD_CHUNK(pos->chunk.x, pos->chunk.y, pos->chunk.z);
             ret += actBlock(chunk, block);
         }
         else
@@ -444,6 +445,7 @@ uint8_t actWorldBlock(BlockPos* pos)
             //Lower, act upper too
             pos->y++;
             block = getWorldBlock(pos);
+            chunk = WORLD_CHUNK(pos->chunk.x, pos->chunk.y, pos->chunk.z);
             ret += actBlock(chunk, block);
         }
     }

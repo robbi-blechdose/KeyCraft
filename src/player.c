@@ -6,10 +6,6 @@
 #include "world.h"
 #include "chunk.h"
 
-#define ACCELERATION (1.0f / 75.0f)
-#define MAX_TURN_SPEED 4
-#define MAX_SPEED 10
-
 void calcAcceleration(float* var, int8_t dir, uint32_t ticks)
 {
     if(dir != 0)

@@ -21,6 +21,9 @@
 
 #ifdef DEBUG
 uint16_t fps;
+#define FPS_WINDOW 250
+uint32_t counterFrames = 0;
+uint32_t counterTime = 0;
 #endif
 
 typedef enum {
@@ -339,9 +342,19 @@ int main(int argc, char **argv)
 			SDL_Delay(1); //Yay stable framerate!
 		}
         #endif
+
         #ifdef DEBUG
-		fps = 1000.0f / (float)(tNow - tLastFrame);
+		//fps = 1000.0f / (float)(tNow - tLastFrame);
+        counterTime += ticks;
+        counterFrames++;
+        if(counterTime > FPS_WINDOW)
+        {
+            fps = ((float) counterFrames / counterTime) * 1000.0f;
+            counterTime = 0;
+            counterFrames = 0;
+        }
         #endif
+
 		tLastFrame = tNow;
     }
 

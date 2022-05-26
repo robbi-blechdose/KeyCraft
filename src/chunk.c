@@ -238,9 +238,7 @@ uint8_t intersectsAABBChunk(Chunk* chunk, AABB* aabb)
             {
                 if(CHUNK_BLOCK(chunk, i, j, k).type != BLOCK_AIR && isBlockCollidable(CHUNK_BLOCK(chunk, i, j, k).type))
                 {
-                    //TODO: Create AABB by block type
                     vec3 min = {chunk->aabb.min.x + i, chunk->aabb.min.y + j, chunk->aabb.min.z + k};
-                    //AABB blockAABB = {.min = min, .max = (vec3) {min.x + BLOCK_SIZE, min.y + BLOCK_SIZE, min.z + BLOCK_SIZE}};
                     AABB blockAABB = getAABBForBlock(&CHUNK_BLOCK(chunk, i, j, k), min);
 
                     if(aabbIntersectsAABB(&blockAABB, aabb))
