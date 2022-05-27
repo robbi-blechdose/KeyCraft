@@ -67,6 +67,10 @@ void drawInventory()
         for(uint8_t j = 0; j < INVENTORY_SIZE_Y; j++)
         {
             drawSquare(WINX / 2 - (32 * INVENTORY_SIZE_X / 2.0f) + (i * 32), 184 - (j * 32), i == inventoryCursorX && j == inventoryCursorY);
+            if(inventory[i + j * INVENTORY_SIZE_X] == BLOCK_AIR)
+            {
+                continue;
+            }
             drawBlockItem(inventory[i + j * INVENTORY_SIZE_X], WINX / 2 - (32 * INVENTORY_SIZE_X / 2.0f) + (i * 32) + 4, 184 - (j * 32) + 4);
         }
     }

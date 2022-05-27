@@ -30,6 +30,7 @@ typedef enum {
 
     BLOCK_WATER,
     BLOCK_DOOR,
+    BLOCK_REDSTONE_LAMP,
 
     BLOCK_LAST
 } BlockType;

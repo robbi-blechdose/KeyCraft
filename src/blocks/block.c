@@ -16,73 +16,49 @@
 #define PTCH(X) PTC(X) - 0.001f
 
 //Texture atlas
-const vec2 textures[] = {
-    { 0, 0}, //Bedrock
-    { 8, 0}, //Stone
-    {16, 0}, //Sand
-    {24, 0}, //Dirt
-    {32, 0}, //Grass side
-    {40, 0}, //Grass top
-    {48, 0}, //Wood side
-    {56, 0}, //Wood top
+//Texture order: front, rear, left, right, up, down
 
-    { 0, 8}, //Planks
-    { 8, 8}, //Coal ore
-    {16, 8}, //Iron ore
-    {24, 8}, //Gold ore
-    {32, 8}, //Redstone ore
-    {40, 8}, //Diamond ore
-    {48, 8}, //Red flower
-    {56, 8}, //Yellow flower
+typedef struct {
+    uint8_t x;
+    uint8_t y;
+} vec2i;
 
-    { 0, 16}, //Tall grass
-    { 8, 16}, //Glass
-    {16, 16}, //Leaves
-    {24, 16}, //Bookshelf
-    {32, 16}, //Wheat 0
-    {40, 16}, //Wheat 1
-    {48, 16}, //Wheat 2
-    {56, 16}, //Wheat 3
+typedef struct {
+    uint8_t count;
+    vec2i* textures;
+} BlockTexture;
 
-    { 0, 24}, //Water
-    { 8, 24}, //Door upper
+const BlockTexture blockTextures[] = {
+    [BLOCK_BEDROCK] =    {1, (vec2i[1]) {{0, 0}}},
+    [BLOCK_STONE] =      {1, (vec2i[1]) {{2, 0}}},
+    [BLOCK_SAND] =       {1, (vec2i[1]) {{2, 0}}},
+    [BLOCK_DIRT] =       {1, (vec2i[1]) {{3, 0}}},
+    [BLOCK_GRASS] = {6, (vec2i[6]) {{4, 0}, {4, 0}, {4, 0}, {4, 0}, {5, 0}, {3, 0}}},
+    [BLOCK_WOOD] =  {6, (vec2i[6]) {{6, 0}, {6, 0}, {6, 0}, {6, 0}, {7, 0}, {7, 0}}},
 
-    { 8, 32} //Door lower
+    [BLOCK_PLANKS] =     {1, (vec2i[1]) {{0, 1}}},
+    [BLOCK_COAL_ORE] =   {1, (vec2i[1]) {{1, 1}}},
+    [BLOCK_IRON_ORE] =   {1, (vec2i[1]) {{2, 1}}},
+    [BLOCK_GOLD_ORE] =   {1, (vec2i[1]) {{3, 1}}},
+    [BLOCK_REDSTONE_ORE] = {1, (vec2i[1]) {{4, 1}}},
+    [BLOCK_DIAMOND_ORE] = {1, (vec2i[1]) {{5, 1}}},
+    [BLOCK_FLOWER] =     {2, (vec2i[2]) {{6, 1}, {7, 1}}},
+
+    [BLOCK_TALL_GRASS] = {1, (vec2i[1]) {{0, 2}}},
+    [BLOCK_GLASS] =      {1, (vec2i[1]) {{1, 2}}},
+    [BLOCK_LEAVES] =     {1, (vec2i[1]) {{2, 2}}},
+    [BLOCK_BOOKSHELF] =  {1, (vec2i[6]) {{3, 2}, {3, 2}, {3, 2}, {3, 2}, {0, 1}, {0, 1}}},
+    [BLOCK_WHEAT] = {4, (vec2i[4]) {{4, 2}, {5, 2}, {6, 2}, {7, 2}}},
+
+    [BLOCK_WATER] =      {1, (vec2i[1]) {{0, 3}}},
+    [BLOCK_DOOR] =       {3, (vec2i[3]) {{0, 1}, {1, 3}, {1, 4}}},
+    [BLOCK_REDSTONE_LAMP] = {2, (vec2i[2]) {{2, 3}, {2, 4}}}
 };
 
-const uint8_t normalBlockTextures[] = {
-    [BLOCK_BEDROCK] = 0,
-    [BLOCK_STONE] = 1,
-    [BLOCK_SAND] = 2,
-    [BLOCK_DIRT] = 3,
-    [BLOCK_PLANKS] = 8,
-    [BLOCK_COAL_ORE] = 9,
-    [BLOCK_IRON_ORE] = 10,
-    [BLOCK_GOLD_ORE] = 11,
-    [BLOCK_REDSTONE_ORE] = 12,
-    [BLOCK_DIAMOND_ORE] = 13,
-    [BLOCK_GLASS] = 17,
-    [BLOCK_LEAVES] = 18,
-    [BLOCK_WATER] = 24
-};
-
-const uint8_t orientedBlockTextures[][6] = {
-    [BLOCK_GRASS] = {4, 4, 4, 4, 5, 3},
-    [BLOCK_WOOD] = {6, 6, 6, 6, 7, 7},
-    [BLOCK_BOOKSHELF] = {19, 19, 19, 19, 8, 8}
-};
-
-const uint8_t xBlockTextures[] = {
-    [BLOCK_FLOWER] = 14,
-    [BLOCK_TALL_GRASS] = 16,
-    [BLOCK_WHEAT] = 20
-};
-
-//front, rear, left, right, up, down
-
-const uint8_t doorTexture[3] = {
-    8, 25, 26
-};
+vec2 getBlockTexture(BlockType type, uint8_t index)
+{
+    return (vec2) {blockTextures[type].textures[index].x * 8.0f, blockTextures[type].textures[index].y * 8.0f};
+}
 
 const char* blockNames[] = {
     [BLOCK_STONE] = "Stone",
@@ -106,7 +82,8 @@ const char* blockNames[] = {
     [BLOCK_WHEAT] = "Wheat",
 
     [BLOCK_WATER] = "Water",
-    [BLOCK_DOOR] = "Door"
+    [BLOCK_DOOR] = "Door",
+    [BLOCK_REDSTONE_LAMP] = "Redstone lamp"
 };
 
 void calcBlockVertices(vec3 list[8], float x, float y, float z, float xSize, float ySize, float zSize)
@@ -142,7 +119,7 @@ void drawNormalBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occl
     };
 
     //Get texture position
-    vec2 tex = textures[normalBlockTextures[block->type]];
+    vec2 tex = getBlockTexture(block->type, 0);
     float texX1 = PTCL(tex.x);
     float texX2 = PTCH(tex.x + 8);
     float texY1 = PTCL(tex.y);
@@ -189,7 +166,7 @@ void drawOrientedBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t oc
     vec2 tex[6];
     for(uint8_t i = 0; i < 6; i++)
     {
-        tex[i] = textures[orientedBlockTextures[block->type][i]];
+        tex[i] = getBlockTexture(block->type, i);
     }
 
     uint8_t occlusionCheck = BS_FRONT;
@@ -225,7 +202,7 @@ void drawXBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion
     };
 
     //Get texture position
-    vec2 tex = textures[xBlockTextures[block->type] + (block->data & BLOCK_DATA_TEXTURE)];
+    vec2 tex = getBlockTexture(block->type, block->data & BLOCK_DATA_TEXTURE);
     float texX1 = PTCL(tex.x);
     float texX2 = PTCH(tex.x + 8);
     float texY1 = PTCL(tex.y);
@@ -271,9 +248,9 @@ void drawDoor(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
     };
 
     //Door texture positions
-    vec2 texFB0 = textures[doorTexture[(block->data & BLOCK_DATA_PART ? 1 : 2)]];
+    vec2 texFB0 = getBlockTexture(block->type, block->data & BLOCK_DATA_PART ? 1 : 2);
     vec2 texFB1 = {texFB0.x + 8, texFB0.y + 8};
-    vec2 texLR0 = textures[doorTexture[0]];
+    vec2 texLR0 = getBlockTexture(block->type, 0);
     vec2 texLR1 = {texLR0.x + 1, texLR0.y + 8};
 
     uint8_t occlusionCheck = BS_FRONT;
@@ -338,25 +315,27 @@ void drawBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
     }
 }
 
+//TODO: Change to getInventoryTextureForBlock
 vec2 getTextureForBlock(BlockType block)
 {
     switch(block)
     {
+        /**
         case BLOCK_GRASS:
         case BLOCK_WOOD:
         case BLOCK_BOOKSHELF:
         {
-            return textures[orientedBlockTextures[block][0]];
+            return orientedBlockTextures[block][0];
         }
         case BLOCK_FLOWER:
         case BLOCK_TALL_GRASS:
         case BLOCK_WHEAT:
         {
-            return textures[xBlockTextures[block]];
-        }
+            return xBlockTextures[block];
+        }**/
         default:
         {
-            return textures[normalBlockTextures[block]];
+            return getBlockTexture(block, 0);
         }
     }
 }
