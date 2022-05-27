@@ -4,6 +4,8 @@
 #include "chunk.h"
 #include "aabb.h"
 
+//#define OCTREE_DEBUG
+
 typedef struct Octree {
     AABB aabb;
     Chunk* chunk;
@@ -20,6 +22,8 @@ void freeOctree(Octree* octree);
 void saveOctree(Octree* octree);
 Octree* loadOctree();
 
+#ifdef OCTREE_DEBUG
 void printOctree(Octree* octree, char* prefix);
+#endif
 
 #endif

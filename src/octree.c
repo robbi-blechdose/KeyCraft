@@ -1,6 +1,9 @@
 #include "octree.h"
 
 #include <stdlib.h>
+#ifdef OCTREE_DEBUG
+#include <stdio.h>
+#endif
 
 #include "engine/savegame.h"
 
@@ -200,6 +203,7 @@ Octree* loadOctree()
     return octree;
 }
 
+#ifdef OCTREE_DEBUG
 void printOctree(Octree* octree, char* prefix)
 {
     if(octree == NULL)
@@ -227,3 +231,4 @@ void printOctree(Octree* octree, char* prefix)
     }
     free(newPrefix);
 }
+#endif
