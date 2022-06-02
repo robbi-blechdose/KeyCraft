@@ -10,9 +10,10 @@
 #define TREE_HEIGHT 6
 #define TREE_LEAVES_START 3
 
-#define RAND_FLOWER   0
-#define RAND_TREE     8
-#define RAND_ORE    128
+#define RAND_FLOWER     0
+#define RAND_TALLGRASS  8
+#define RAND_TREE      16
+#define RAND_ORE      128
 
 #define WATER_LEVEL 6
 
@@ -36,7 +37,7 @@ void initWorldgen(uint32_t seed)
 float getNoiseRand(int16_t chunkX, int16_t chunkZ, uint8_t x, uint8_t z, uint8_t y)
 {
     //Scale noise to be within 0 to 1
-    return (fnlGetNoise3D(&randNoise, (chunkX * CHUNK_SIZE + x) * 10, y, (chunkZ * CHUNK_SIZE + z) * 10) + 1) / 2;
+    return (fnlGetNoise3D(&randNoise, (chunkX * CHUNK_SIZE + x) * 50, y, (chunkZ * CHUNK_SIZE + z) * 50) + 1) / 2;
 }
 
 void generateTree(Chunk* chunk, uint8_t baseX, uint8_t baseY, uint8_t baseZ)
@@ -91,12 +92,12 @@ void generateChunk(Chunk* chunk)
                     if(rand < 0.01f)
                     {
                         CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_FLOWER;
-                        if(rand < 0.005f)
+                        if(rand < 0.007f)
                         {
                             CHUNK_BLOCK(chunk, i, j, k).data = BLOCK_DATA_TEXTURE1;
                         }
                     }
-                    else if(rand > 0.5f)
+                    else if(getNoiseRand(x, z, i, k, RAND_TALLGRASS) < 0.02f)
                     {
                         CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_TALL_GRASS;
                     }
@@ -151,7 +152,7 @@ void generateChunk(Chunk* chunk)
     }
 
     //Place tree?
-    if(getNoiseRand(x, z, 4, 4, RAND_TREE) < 0.05f)
+    if(getNoiseRand(x, z, 4, 4, RAND_TREE) < 0.06f)
     {
         uint8_t baseX = getNoiseRand(x, z, 0, 0, RAND_TREE) * (CHUNK_SIZE - TREE_SIZE);
         uint8_t baseZ = getNoiseRand(x, z, 8, 8, RAND_TREE) * (CHUNK_SIZE - TREE_SIZE);
