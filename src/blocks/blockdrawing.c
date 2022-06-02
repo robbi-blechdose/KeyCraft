@@ -25,7 +25,7 @@ typedef struct {
 
 const vec2i* blockTextures[] = {
     [BLOCK_BEDROCK] =    (vec2i[1]) {{0, 0}},
-    [BLOCK_STONE] =      (vec2i[1]) {{2, 0}},
+    [BLOCK_STONE] =      (vec2i[1]) {{1, 0}},
     [BLOCK_SAND] =       (vec2i[1]) {{2, 0}},
     [BLOCK_DIRT] =       (vec2i[1]) {{3, 0}},
     [BLOCK_GRASS] =      (vec2i[6]) {{4, 0}, {4, 0}, {4, 0}, {4, 0}, {5, 0}, {3, 0}},
@@ -49,7 +49,10 @@ const vec2i* blockTextures[] = {
     [BLOCK_DOOR] =       (vec2i[3]) {{0, 1}, {1, 3}, {1, 4}},
     [BLOCK_REDSTONE_LAMP] = (vec2i[2]) {{2, 3}, {2, 4}},
     [BLOCK_REDSTONE_WIRE] = (vec2i[2]) {{3, 3}, {3, 4}},
-    [BLOCK_REDSTONE_TORCH] = (vec2i[2]) {{5, 4}, {5, 3}}
+    [BLOCK_REDSTONE_TORCH] = (vec2i[2]) {{5, 4}, {5, 3}},
+    [BLOCK_COBBLESTONE] = (vec2i[1]) {{6, 3}},
+
+    [BLOCK_CRAFTING_TABLE] = (vec2i[6]) {{1, 5}, {1, 5}, {2, 5}, {2, 5}, {0, 5}, {0, 1}}
 };
 
 vec2 getBlockTexture(BlockType type, uint8_t index)
@@ -119,8 +122,7 @@ void drawNormalBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occl
     }
 }
 
-//TODO: Rename
-void drawOrientedBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
+void drawMultitexBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
 {
     vec3 v[8];
     calcBlockCorners(v, x, y, z);
@@ -255,4 +257,26 @@ void drawDoor(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
 
         occlusionCheck <<= 1;
     }
+}
+
+void drawFlatBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
+{
+    //Get texture position
+    //TODO: Different texture for powered, also "connected textures"?
+    vec2 tex = getBlockTexture(block->type, block->data);
+    float texX1 = PTCL(tex.x);
+    float texX2 = PTCH(tex.x + 8);
+    float texY1 = PTCL(tex.y);
+    float texY2 = PTCH(tex.y + 8);
+    
+    //Draw face
+    //Uses direct coordinates since it's only a single face
+    glTexCoord2f(texX2, texY2);
+    glVertex3f(x, y + (BLOCK_SIZE / 20), z + BLOCK_SIZE);
+    glTexCoord2f(texX1, texY2);
+    glVertex3f(x + BLOCK_SIZE, y + (BLOCK_SIZE / 20), z + BLOCK_SIZE);
+    glTexCoord2f(texX1, texY1);
+    glVertex3f(x + BLOCK_SIZE, y + (BLOCK_SIZE / 20), z);
+    glTexCoord2f(texX2, texY1);
+    glVertex3f(x, y + (BLOCK_SIZE / 20), z);
 }

@@ -27,7 +27,10 @@ const char* blockNames[] = {
     [BLOCK_DOOR] = "Door",
     [BLOCK_REDSTONE_LAMP] = "Redstone lamp",
     [BLOCK_REDSTONE_WIRE] = "Redstone wire",
-    [BLOCK_REDSTONE_TORCH] = "Redstone torch"
+    [BLOCK_REDSTONE_TORCH] = "Redstone torch",
+    [BLOCK_COBBLESTONE] = "Cobblestone",
+
+    [BLOCK_CRAFTING_TABLE] = "Crafting table"
 };
 
 void drawBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
@@ -37,13 +40,15 @@ void drawBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
         case BLOCK_GRASS:
         case BLOCK_WOOD:
         case BLOCK_BOOKSHELF:
+        case BLOCK_CRAFTING_TABLE:
         {
-            drawOrientedBlock(block, x, y, z, occlusion);
+            drawMultitexBlock(block, x, y, z, occlusion);
             break;
         }
         case BLOCK_FLOWER:
         case BLOCK_TALL_GRASS:
         case BLOCK_WHEAT:
+        case BLOCK_REDSTONE_TORCH:
         {
             drawXBlock(block, x, y, z, occlusion);
             break;
@@ -51,6 +56,11 @@ void drawBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
         case BLOCK_DOOR:
         {
             drawDoor(block, x, y, z, occlusion);
+            break;
+        }
+        case BLOCK_REDSTONE_WIRE:
+        {
+            drawFlatBlock(block, x, y, z, occlusion);
             break;
         }
         default:
@@ -96,6 +106,8 @@ uint8_t isOpaqueBlock(BlockType type)
         case BLOCK_GLASS:
         case BLOCK_WHEAT:
         case BLOCK_DOOR:
+        case BLOCK_REDSTONE_TORCH:
+        case BLOCK_REDSTONE_WIRE:
         {
             return 0;
         }
@@ -117,6 +129,8 @@ uint8_t canPlaceBlock(BlockType toPlace, BlockType below)
             return (below == BLOCK_DIRT || below == BLOCK_GRASS);
         }
         case BLOCK_DOOR:
+        case BLOCK_REDSTONE_TORCH:
+        case BLOCK_REDSTONE_WIRE:
         {
             return isBlockCollidable(below);
         }
@@ -136,6 +150,8 @@ uint8_t isBlockCollidable(BlockType type)
         case BLOCK_FLOWER:
         case BLOCK_TALL_GRASS:
         case BLOCK_WATER:
+        case BLOCK_REDSTONE_TORCH:
+        case BLOCK_REDSTONE_WIRE:
         {
             return 0;
         }
