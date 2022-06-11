@@ -19,7 +19,7 @@ uint8_t inventoryCursorY = 0;
 
 void drawBlockItem(BlockType type, float x, float y)
 {
-    vec2 blockTexture = getTextureForBlock(type);
+    vec2 blockTexture = getInventoryTextureForBlock(type);
     drawTexQuad(x, y, 24, 24, UIBH, PTCL(blockTexture.x), PTCL(blockTexture.y), PTCH(blockTexture.x + 8), PTCH(blockTexture.y + 8));
 }
 

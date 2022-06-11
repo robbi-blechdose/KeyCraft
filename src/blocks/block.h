@@ -55,7 +55,7 @@ typedef struct {
  * DD        - Direction, determines which way the block is facing. Used by: Door
  *         P - Part, determines which part of a "multiblock" this is. Used by: Door
  *        S  - State. Used by: Door
- *      PP   - Power, can be normal (1) or strong (2). Used by: Redstone wire, torch, lamp.
+ *      PP   - Power, can be passive (1) or active (2). Used by: Redstone wire, torch, lamp.
  **/
 
 /** ---------- Block data definitions ---------- **/
@@ -78,8 +78,8 @@ typedef struct {
 #define BLOCK_DATA_STATE     0b00000010
 
 #define BLOCK_DATA_POWER     0b00001100
-#define BLOCK_DATA_POWER1    0b00000100
-#define BLOCK_DATA_POWER2    0b00001000
+#define BLOCK_DATA_POWERP    0b00000100
+#define BLOCK_DATA_POWERA    0b00001000
 
 /** -------------------------------------------- **/
 
@@ -100,7 +100,7 @@ extern const char* blockNames[];
 
 void drawBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion);
 
-vec2 getTextureForBlock(BlockType block);
+vec2 getInventoryTextureForBlock(BlockType block);
 
 uint8_t isOpaqueBlock(BlockType type);
 uint8_t canPlaceBlock(BlockType toPlace, BlockType below);

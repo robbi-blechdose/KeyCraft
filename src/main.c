@@ -13,6 +13,7 @@
 #include "blocks/blockutils.h"
 #include "blocks/block.h"
 #include "inventory.h"
+#include "gui/menu.h"
 
 #define DEBUG
 
@@ -28,13 +29,14 @@ uint32_t counterTime = 0;
 
 typedef enum {
     STATE_GAME,
-    STATE_INVENTORY//,
+    STATE_INVENTORY,
+    STATE_MENU
     //STATE_OPTIONS //TODO
 } State;
 
 //---------- Main game stuff ----------//
 uint8_t running = 1;
-State state = STATE_GAME;
+State state = STATE_MENU;
 Player player;
 
 #ifdef DEBUG
@@ -268,6 +270,39 @@ void calcFrame(uint32_t ticks)
             }
             break;
         }
+        case STATE_MENU:
+        {
+            if(keyUp(B_UP))
+            {
+                scrollMenu(-1);
+            }
+            else if(keyUp(B_DOWN))
+            {
+                scrollMenu(1);
+            }
+            
+            if(keyUp(B_START) || keyUp(B_A))
+            {
+                switch(getMenuCursor())
+                {
+                    case MENU_SELECTION_CONTINUE:
+                    {
+                        state = STATE_GAME;
+                        break;
+                    }
+                    case MENU_SELECTION_NEW_GAME:
+                    {
+                        break;
+                    }
+                    case MENU_SELECTION_OPTIONS:
+                    {
+                        break;
+                    }
+                    //TODO
+                }
+            }
+            break;
+        }
     }
 }
 
@@ -285,16 +320,21 @@ void drawFrame()
     setOrtho();
     glLoadIdentity();
     glBegin(GL_QUADS);
-    //Crosshair
     if(state == STATE_GAME)
     {
+        //Crosshair
         drawTexQuad(WINX / 2 - 8, WINY / 2 - 8, 16, 16, 10, PTC(240), PTC(64), PTC(240 + 15), PTC(64 + 15));
+        drawHotbar();
     }
-    else //if(state == STATE_INVENTORY
+    else if(state == STATE_INVENTORY)
     {
+        drawHotbar();
         drawInventory();
     }
-    drawHotbar();
+    else //if(state == STATE_MENU)
+    {
+        drawMenu();
+    }
     glEnd();
 
     #ifdef DEBUG
@@ -321,6 +361,9 @@ int main(int argc, char **argv)
         loadHotbar();
         closeSave();
     }
+
+    //Run one frame to build geometry for the first time etc.
+    calcFrameGame(1);
 
     //Run main loop
 	uint32_t tNow = SDL_GetTicks();

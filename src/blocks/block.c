@@ -71,24 +71,14 @@ void drawBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
     }
 }
 
-//TODO: Change to getInventoryTextureForBlock
-vec2 getTextureForBlock(BlockType block)
+vec2 getInventoryTextureForBlock(BlockType block)
 {
     switch(block)
     {
-        /**
-        case BLOCK_GRASS:
-        case BLOCK_WOOD:
-        case BLOCK_BOOKSHELF:
+        case BLOCK_DOOR:
         {
-            return orientedBlockTextures[block][0];
+            return getBlockTexture(block, 1);
         }
-        case BLOCK_FLOWER:
-        case BLOCK_TALL_GRASS:
-        case BLOCK_WHEAT:
-        {
-            return xBlockTextures[block];
-        }**/
         default:
         {
             return getBlockTexture(block, 0);

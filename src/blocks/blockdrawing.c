@@ -48,8 +48,8 @@ const vec2i* blockTextures[] = {
     [BLOCK_WATER] =      (vec2i[1]) {{0, 3}},
     [BLOCK_DOOR] =       (vec2i[3]) {{0, 1}, {1, 3}, {1, 4}},
     [BLOCK_REDSTONE_LAMP] = (vec2i[2]) {{2, 3}, {2, 4}},
-    [BLOCK_REDSTONE_WIRE] = (vec2i[2]) {{3, 3}, {3, 4}},
-    [BLOCK_REDSTONE_TORCH] = (vec2i[2]) {{5, 4}, {5, 3}},
+    [BLOCK_REDSTONE_WIRE] = (vec2i[2]) {{4, 3}, {4, 4}},
+    [BLOCK_REDSTONE_TORCH] = (vec2i[2]) {{5, 3}, {5, 4}},
     [BLOCK_COBBLESTONE] = (vec2i[1]) {{6, 3}},
 
     [BLOCK_CRAFTING_TABLE] = (vec2i[6]) {{1, 5}, {1, 5}, {2, 5}, {2, 5}, {0, 5}, {0, 1}}
@@ -59,7 +59,6 @@ vec2 getBlockTexture(BlockType type, uint8_t index)
 {
     return (vec2) {blockTextures[type][index].x * 8.0f, blockTextures[type][index].y * 8.0f};
 }
-
 
 void calcBlockVertices(vec3 list[8], float x, float y, float z, float xSize, float ySize, float zSize)
 {
@@ -94,7 +93,7 @@ void drawNormalBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occl
     };
 
     //Get texture position
-    vec2 tex = getBlockTexture(block->type, 0);
+    vec2 tex = getBlockTexture(block->type, block->data & BLOCK_DATA_TEXTURE);
     float texX1 = PTCL(tex.x);
     float texX2 = PTCH(tex.x + 8);
     float texY1 = PTCL(tex.y);
@@ -279,4 +278,24 @@ void drawFlatBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlus
     glVertex3f(x + BLOCK_SIZE, y + (BLOCK_SIZE / 20), z);
     glTexCoord2f(texX2, texY1);
     glVertex3f(x, y + (BLOCK_SIZE / 20), z);
+}
+
+#define BP (BLOCK_SIZE / 8.0f)
+
+//TODO: Rotation
+void drawSwitch(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
+{
+    //Base
+    vec3 v[8];
+    calcBlockVertices(v, x + BP, y, z + BP * 2, BP * 6, BP * 2, BP * 4);
+
+    vec3* faces[5][4] = {
+        {&v[4], &v[5], &v[6], &v[7]},
+        {&v[5], &v[0], &v[3], &v[6]},
+        {&v[1], &v[4], &v[7], &v[2]},
+        {&v[3], &v[2], &v[7], &v[6]},
+        {&v[5], &v[4], &v[1], &v[0]}
+    };
+
+    //TODO
 }
