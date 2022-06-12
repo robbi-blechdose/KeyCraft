@@ -31,7 +31,6 @@ typedef enum {
     STATE_GAME,
     STATE_INVENTORY,
     STATE_MENU
-    //STATE_OPTIONS //TODO
 } State;
 
 //---------- Main game stuff ----------//
