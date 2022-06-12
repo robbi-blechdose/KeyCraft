@@ -44,12 +44,12 @@ void playerLook(Player* player, int8_t dirX, int8_t dirY, uint32_t ticks)
 
 void calcPlayerAABB(Player* player)
 {
-    player->aabb.min = (vec3) {.x = player->position.x - PLAYER_WIDTH / 2 + 20,
-                                .y = player->position.y - PLAYER_HEIGHT + 20,
-                                .z = player->position.z - PLAYER_WIDTH / 2 + 20};
-    player->aabb.max = (vec3) {.x = player->position.x + PLAYER_WIDTH / 2 + 20,
-                                .y = player->position.y + 20,
-                                .z = player->position.z + PLAYER_WIDTH / 2 + 20};
+    player->aabb.min = (vec3) {.x = player->position.x - PLAYER_WIDTH / 2 + VIEW_TRANSLATION,
+                                .y = player->position.y - PLAYER_HEIGHT + VIEW_TRANSLATION,
+                                .z = player->position.z - PLAYER_WIDTH / 2 + VIEW_TRANSLATION};
+    player->aabb.max = (vec3) {.x = player->position.x + PLAYER_WIDTH / 2 + VIEW_TRANSLATION,
+                                .y = player->position.y + VIEW_TRANSLATION,
+                                .z = player->position.z + PLAYER_WIDTH / 2 + VIEW_TRANSLATION};
 }
 
 uint8_t playerIntersectsWorld(Player* player)

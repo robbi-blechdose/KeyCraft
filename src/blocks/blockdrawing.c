@@ -52,7 +52,9 @@ const vec2i* blockTextures[] = {
     [BLOCK_REDSTONE_TORCH] = (vec2i[2]) {{5, 3}, {5, 4}},
     [BLOCK_COBBLESTONE] = (vec2i[1]) {{6, 3}},
 
-    [BLOCK_CRAFTING_TABLE] = (vec2i[6]) {{1, 5}, {1, 5}, {2, 5}, {2, 5}, {0, 5}, {0, 1}}
+    [BLOCK_CRAFTING_TABLE] = (vec2i[6]) {{1, 5}, {1, 5}, {2, 5}, {2, 5}, {0, 5}, {0, 1}},
+
+    [BLOCK_FURNACE] = (vec2i[6]) {{0, 6}, {1, 0}, {1, 0}, {1, 0}, {1, 0}, {1, 0}}
 };
 
 vec2 getBlockTexture(BlockType type, uint8_t index)
@@ -261,8 +263,8 @@ void drawDoor(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
 void drawFlatBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
 {
     //Get texture position
-    //TODO: Different texture for powered, also "connected textures"?
-    vec2 tex = getBlockTexture(block->type, block->data);
+    //TODO: "connected textures"?
+    vec2 tex = getBlockTexture(block->type, block->data & BLOCK_DATA_TEXTURE);
     float texX1 = PTCL(tex.x);
     float texX2 = PTCH(tex.x + 8);
     float texY1 = PTCL(tex.y);

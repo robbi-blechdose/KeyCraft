@@ -30,7 +30,9 @@ const char* blockNames[] = {
     [BLOCK_REDSTONE_TORCH] = "Redstone torch",
     [BLOCK_COBBLESTONE] = "Cobblestone",
 
-    [BLOCK_CRAFTING_TABLE] = "Crafting table"
+    [BLOCK_CRAFTING_TABLE] = "Crafting table",
+
+    [BLOCK_FURNACE] = "Furnace"
 };
 
 void drawBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
@@ -41,6 +43,7 @@ void drawBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
         case BLOCK_WOOD:
         case BLOCK_BOOKSHELF:
         case BLOCK_CRAFTING_TABLE:
+        case BLOCK_FURNACE:
         {
             drawMultitexBlock(block, x, y, z, occlusion);
             break;

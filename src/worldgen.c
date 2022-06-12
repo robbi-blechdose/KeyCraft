@@ -8,7 +8,7 @@
 
 #define TREE_SIZE 5
 #define TREE_HEIGHT 6
-#define TREE_LEAVES_START 3
+#define TREE_LEAVES_START 2
 
 #define RAND_FLOWER     0
 #define RAND_TALLGRASS  8
@@ -42,7 +42,10 @@ float getNoiseRand(int16_t chunkX, int16_t chunkZ, uint8_t x, uint8_t z, uint8_t
 
 void generateTree(Chunk* chunk, uint8_t baseX, uint8_t baseY, uint8_t baseZ)
 {
-    for(uint8_t j = baseY; j < baseY + TREE_HEIGHT; j++)
+    uint8_t height = TREE_HEIGHT - getNoiseRand(chunk->position.x, chunk->position.z, 4, 4, RAND_TREE) * (TREE_HEIGHT / 3);
+    uint8_t leavesStart = TREE_LEAVES_START + getNoiseRand(chunk->position.x, chunk->position.z, 4, 4, RAND_TREE) * (TREE_LEAVES_START / 2);
+
+    for(uint8_t j = baseY; j < baseY + height; j++)
     {
         //Generate leaves
         if(j > TREE_LEAVES_START)
@@ -53,7 +56,7 @@ void generateTree(Chunk* chunk, uint8_t baseX, uint8_t baseY, uint8_t baseZ)
                 {
                     //Exclude corners, exclude outer ring on top layer
                     if(!((i == baseX || i == baseX + TREE_SIZE - 1) && (k == baseZ || k == baseZ + TREE_SIZE - 1)) &&
-                        !(j == baseY + TREE_HEIGHT - 1 && (i <= baseX || i >= baseX + TREE_SIZE - 1 || k <= baseZ || k >= baseZ + TREE_SIZE - 1)))
+                        !(j == baseY + height - 1 && (i <= baseX || i >= baseX + TREE_SIZE - 1 || k <= baseZ || k >= baseZ + TREE_SIZE - 1)))
                     {
                         CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_LEAVES;
                     }
@@ -61,7 +64,7 @@ void generateTree(Chunk* chunk, uint8_t baseX, uint8_t baseY, uint8_t baseZ)
             }
         }
         //Generate trunk
-        if(j < baseY + TREE_HEIGHT - 1)
+        if(j < baseY + height - 1)
         {
             CHUNK_BLOCK(chunk, baseX + (TREE_SIZE / 2), j, baseZ + (TREE_SIZE / 2)).type = BLOCK_WOOD;
         }

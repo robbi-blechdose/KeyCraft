@@ -21,17 +21,23 @@ uint8_t hasAdjacentWater(Chunk* chunk, uint8_t x, uint8_t y, uint8_t z)
 
 uint8_t getAdjacentPower(Chunk* chunk, uint8_t x, uint8_t y, uint8_t z)
 {
+    uint8_t maxPower;
+    uint8_t tempPower;
+
     BlockPos blockPos = {.chunk = chunk->position, .x = x - 1, .y = y, .z = z};
-    uint8_t data = getWorldBlock(&blockPos)->data & BLOCK_DATA_POWER; //x-1,z
+    maxPower = getWorldBlock(&blockPos)->data & BLOCK_DATA_POWER; //x-1,z
     blockPos.x += 2;
-    data |= getWorldBlock(&blockPos)->data & BLOCK_DATA_POWER; //x+1,z
+    tempPower = getWorldBlock(&blockPos)->data & BLOCK_DATA_POWER; //x+1,z
+    maxPower = tempPower > maxPower ? tempPower : maxPower;
     blockPos.x--;
     blockPos.z++;
-    data |= getWorldBlock(&blockPos)->data & BLOCK_DATA_POWER; //x,z+1
+    tempPower = getWorldBlock(&blockPos)->data & BLOCK_DATA_POWER; //x,z+1
+    maxPower = tempPower > maxPower ? tempPower : maxPower;
     blockPos.z -= 2;
-    data |= getWorldBlock(&blockPos)->data & BLOCK_DATA_POWER; //x,z-1
+    tempPower = getWorldBlock(&blockPos)->data & BLOCK_DATA_POWER; //x,z-1
+    maxPower = tempPower > maxPower ? tempPower : maxPower;
 
-    return data;
+    return maxPower;
 }
 
 void tickBlock(Chunk* chunk, Block* block, uint8_t x, uint8_t y, uint8_t z)
@@ -78,7 +84,31 @@ void tickBlock(Chunk* chunk, Block* block, uint8_t x, uint8_t y, uint8_t z)
         }
         case BLOCK_REDSTONE_WIRE:
         {
-            //TODO
+            uint8_t adjacentPower = getAdjacentPower(chunk, x, y, z);
+            uint8_t blockPower = (block->data & BLOCK_DATA_POWER);
+            //Check if something changed
+            if(adjacentPower != blockPower + BLOCK_DATA_POWER1 && !(adjacentPower == 0 && blockPower == 0))
+            {
+                if(blockPower == 0)
+                {
+                    //Used to be off, turn on
+                    block->data |= BLOCK_DATA_TEXTURE1;
+                    chunk->modified = 1;
+                }
+
+                block->data &= ~BLOCK_DATA_POWER;
+                if(adjacentPower > 0)
+                {
+                    block->data |= adjacentPower - BLOCK_DATA_POWER1;
+                }
+
+                if((block->data & BLOCK_DATA_POWER) == 0)
+                {
+                    //Used to be on, turn off
+                    block->data &= ~BLOCK_DATA_TEXTURE;
+                    chunk->modified = 1;
+                }
+            }
             break;
         }
         case BLOCK_REDSTONE_TORCH:
@@ -92,7 +122,7 @@ void tickBlock(Chunk* chunk, Block* block, uint8_t x, uint8_t y, uint8_t z)
             {
                 if(!powerBelow)
                 {
-                    block->data |= BLOCK_DATA_POWERA;
+                    block->data |= BLOCK_DATA_POWER;
                     block->data |= BLOCK_DATA_TEXTURE1;
                 }
                 else

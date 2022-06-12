@@ -37,6 +37,8 @@ typedef enum {
 
     BLOCK_CRAFTING_TABLE,
 
+    BLOCK_FURNACE,
+
     BLOCK_LAST
 } BlockType;
 
@@ -55,7 +57,7 @@ typedef struct {
  * DD        - Direction, determines which way the block is facing. Used by: Door
  *         P - Part, determines which part of a "multiblock" this is. Used by: Door
  *        S  - State. Used by: Door
- *      PP   - Power, can be passive (1) or active (2). Used by: Redstone wire, torch, lamp.
+ *   PP PP   - Power, between 0 and 15. 15 is "active" level and only used by power sources Used by: Redstone wire, torch.
  **/
 
 /** ---------- Block data definitions ---------- **/
@@ -77,9 +79,8 @@ typedef struct {
 
 #define BLOCK_DATA_STATE     0b00000010
 
-#define BLOCK_DATA_POWER     0b00001100
-#define BLOCK_DATA_POWERP    0b00000100
-#define BLOCK_DATA_POWERA    0b00001000
+#define BLOCK_DATA_POWER     0b00111100
+#define BLOCK_DATA_POWER1    0b00000100
 
 /** -------------------------------------------- **/
 
