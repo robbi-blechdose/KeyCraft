@@ -3,26 +3,14 @@
 
 #include "blocks/block.h"
 
-#define HOTBAR_SIZE 3
-#define HOTBAR_INITIAL {BLOCK_PLANKS, BLOCK_GLASS, BLOCK_WHEAT}
-
-#define INVENTORY_SIZE_X 6
-#define INVENTORY_SIZE_Y 4
-#define INVENTORY_INITIAL { \
-    BLOCK_STONE, BLOCK_SAND, BLOCK_DIRT, BLOCK_GRASS, BLOCK_WOOD, BLOCK_PLANKS, \
-    BLOCK_COAL_ORE, BLOCK_IRON_ORE, BLOCK_GOLD_ORE, BLOCK_REDSTONE_ORE, BLOCK_DIAMOND_ORE, BLOCK_FLOWER, \
-    BLOCK_TALL_GRASS, BLOCK_GLASS, BLOCK_LEAVES, BLOCK_BOOKSHELF, BLOCK_WHEAT, BLOCK_WATER, \
-    BLOCK_DOOR, BLOCK_REDSTONE_LAMP, BLOCK_REDSTONE_WIRE, BLOCK_REDSTONE_TORCH, BLOCK_COBBLESTONE, BLOCK_CRAFTING_TABLE \
-}
-
 void drawHotbar();
 
 void scrollHotbar();
-uint8_t getHotbarSelection();
+Block getHotbarSelection();
 
 void drawInventory();
 
-void scrollInventory(int8_t dirX, int8_t dirY);
+void scrollInventory(int8_t dirX, int8_t dirY, int8_t dirTab);
 void selectInventorySlot();
 
 void saveHotbar();

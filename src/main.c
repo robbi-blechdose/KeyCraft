@@ -140,12 +140,11 @@ void calcFrameGame(uint32_t ticks)
             below.y -= BLOCK_SIZE;
             BlockPos above = block;
             above.y += BLOCK_SIZE;
-            if(canPlaceBlock(getHotbarSelection(), getWorldBlock(&below)->type) &&
-                !(getHotbarSelection() == BLOCK_DOOR && getWorldBlock(&above)->type != BLOCK_AIR)) //Check if we can place the door upper (yes, this is a special case)
+            Block toPlace = getHotbarSelection();
+            if(canPlaceBlock(toPlace.type, getWorldBlock(&below)->type) &&
+                !(toPlace.type == BLOCK_DOOR && getWorldBlock(&above)->type != BLOCK_AIR)) //Check if we can place the door upper (yes, this is a special case)
             {
-                uint8_t blockData = 0;
-
-                if(isBlockOriented(getHotbarSelection()))
+                if(isBlockOriented(toPlace.type))
                 {
                     uint8_t orientation = BLOCK_DATA_DIR_RIGHT;
                     float rotation = player.rotation.y - M_PI_4;
@@ -164,16 +163,16 @@ void calcFrameGame(uint32_t ticks)
                         orientation = BLOCK_DATA_DIR_BACK;
                     }
                     //4th case is covered by the original assignment
-                    blockData += orientation;
+                    toPlace.data |= orientation;
                 }
 
-                setWorldBlock(&block, (Block) {getHotbarSelection(), blockData});
+                setWorldBlock(&block, toPlace);
                 //Check if the block intersects with the player. If so, don't place it
                 if(playerIntersectsWorld(&player))
                 {
                     setWorldBlock(&block, (Block) {BLOCK_AIR, 0});
                     //Remove door upper as well (yes, this is a special case)
-                    if(getHotbarSelection() == BLOCK_DOOR)
+                    if(toPlace.type == BLOCK_DOOR)
                     {
                         setWorldBlock(&above, (Block) {BLOCK_AIR, 0});
                     }
@@ -235,6 +234,7 @@ void calcFrame(uint32_t ticks)
         {
             int8_t dirX = 0;
             int8_t dirY = 0;
+            int8_t dirTab = 0;
             if(keyUp(B_UP))
             {
                 dirY = -1;
@@ -251,7 +251,15 @@ void calcFrame(uint32_t ticks)
             {
                 dirX = 1;
             }
-            scrollInventory(dirX, dirY);
+            if(keyUp(B_TL))
+            {
+                dirTab = -1;
+            }
+            else if(keyUp(B_TR))
+            {
+                dirTab = 1;
+            }
+            scrollInventory(dirX, dirY, dirTab);
 
             if(keyUp(B_A))
             {
