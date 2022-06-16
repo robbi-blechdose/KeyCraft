@@ -397,6 +397,7 @@ int main(int argc, char **argv)
     }
 
     //Run one frame to build geometry for the first time etc.
+    //TODO: Load chunks directly (currently we're only swapping chunks which breaks here because it can only do steps of one)
     calcFrameGame(1);
 
     //Run main loop

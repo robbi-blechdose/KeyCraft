@@ -6,13 +6,16 @@
 #include "engine/includes/FastNoiseLite.h"
 #include "engine/util.h"
 
-#define TREE_SIZE 5
-#define TREE_HEIGHT 6
-#define TREE_LEAVES_START 2
+#define TREE_SIZE             5
+#define TREE_HEIGHT           6
+#define TREE_LEAVES_START     2
+
+#define MAX_SUGAR_CANE_HEIGHT 3
 
 #define RAND_FLOWER     0
 #define RAND_TALLGRASS  8
 #define RAND_TREE      16
+#define RAND_SUGARCANE 24
 #define RAND_ORE      128
 
 #define WATER_LEVEL 6
@@ -150,6 +153,17 @@ void generateChunk(Chunk* chunk)
                         CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_SAND;
                     }
                 }
+                //Generate sugar canes
+                else
+                {
+                    int8_t sugarcaneHeight = getNoiseRand(x, z, i, k, RAND_SUGARCANE) * 30 - 5;
+                    sugarcaneHeight = sugarcaneHeight <= MAX_SUGAR_CANE_HEIGHT ? sugarcaneHeight : MAX_SUGAR_CANE_HEIGHT;
+
+                    if(pos <= WATER_LEVEL + sugarcaneHeight && pos >= height && height == WATER_LEVEL + 1) //&& pos > WATER_LEVEL (implicitly true because of the else above)
+                    {
+                        CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_SUGAR_CANE;
+                    }
+                }
             }
         }
     }
@@ -163,8 +177,7 @@ void generateChunk(Chunk* chunk)
         uint8_t baseY = 255;
         for(uint8_t j = 0; j < CHUNK_SIZE; j++)
         {
-            //TODO: Also exclude placement on tall grass or flowers
-            if(CHUNK_BLOCK(chunk, baseX + (TREE_SIZE / 2), j, baseZ + (TREE_SIZE / 2)).type != BLOCK_AIR)
+            if(CHUNK_BLOCK(chunk, baseX + (TREE_SIZE / 2), j, baseZ + (TREE_SIZE / 2)).type == BLOCK_GRASS)
             {
                 baseY = j + 1;
             }

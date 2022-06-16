@@ -52,6 +52,7 @@ const vec2i* blockTextures[] = {
     [BLOCK_REDSTONE_TORCH] = (vec2i[2]) {{5, 3}, {5, 4}},
     [BLOCK_COBBLESTONE] = (vec2i[1]) {{6, 3}},
 
+    [BLOCK_SUGAR_CANE] = (vec2i[1]) {{0, 4}},
     [BLOCK_CRAFTING_TABLE] = (vec2i[6]) {{1, 5}, {1, 5}, {2, 5}, {2, 5}, {0, 5}, {0, 1}},
 
     [BLOCK_FURNACE] = (vec2i[6]) {{0, 6}, {1, 0}, {1, 0}, {1, 0}, {1, 0}, {1, 0}}
@@ -298,6 +299,13 @@ void drawSwitch(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion
         {&v[3], &v[2], &v[7], &v[6]},
         {&v[5], &v[4], &v[1], &v[0]}
     };
+
+    for(uint8_t i = 0; i < 5; i++)
+    {
+        //TODO
+    }
+
+    //Lever
 
     //TODO
 }

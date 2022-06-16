@@ -117,19 +117,16 @@ void tickBlock(Chunk* chunk, Block* block, uint8_t x, uint8_t y, uint8_t z)
             //Check if the torch is powered from below - if so, turn it off
             uint8_t powerBelow = 0; //TODO
             //Check if something changed
-            //TODO
-            if(1) //!((!powerBelow && !oldState) || (powerBelow && oldState)))
+            if(powerBelow == 0 && (block->data & BLOCK_DATA_POWER) > 0)
             {
-                if(!powerBelow)
-                {
-                    block->data |= BLOCK_DATA_POWER;
-                    block->data |= BLOCK_DATA_TEXTURE1;
-                }
-                else
-                {
-                    block->data &= ~BLOCK_DATA_POWER;
-                    block->data &= ~BLOCK_DATA_TEXTURE;
-                }
+                block->data |= BLOCK_DATA_POWER;
+                block->data |= BLOCK_DATA_TEXTURE1;
+                chunk->modified = 1;
+            }
+            else if(powerBelow > 0 && (block->data & BLOCK_DATA_POWER) == 0)
+            {
+                block->data &= ~BLOCK_DATA_POWER;
+                block->data &= ~BLOCK_DATA_TEXTURE;
                 chunk->modified = 1;
             }
             break;

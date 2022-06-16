@@ -30,6 +30,7 @@ const char* blockNames[] = {
     [BLOCK_REDSTONE_TORCH] = "Redstone torch",
     [BLOCK_COBBLESTONE] = "Cobblestone",
 
+    [BLOCK_SUGAR_CANE] = "Sugar cane",
     [BLOCK_CRAFTING_TABLE] = "Crafting table",
 
     [BLOCK_FURNACE] = "Furnace"
@@ -52,6 +53,7 @@ void drawBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
         case BLOCK_TALL_GRASS:
         case BLOCK_WHEAT:
         case BLOCK_REDSTONE_TORCH:
+        case BLOCK_SUGAR_CANE:
         {
             drawXBlock(block, x, y, z, occlusion);
             break;
@@ -105,6 +107,7 @@ uint8_t isOpaqueBlock(BlockType type)
         case BLOCK_DOOR:
         case BLOCK_REDSTONE_TORCH:
         case BLOCK_REDSTONE_WIRE:
+        case BLOCK_SUGAR_CANE:
         {
             return 0;
         }
@@ -124,6 +127,10 @@ uint8_t canPlaceBlock(BlockType toPlace, BlockType below)
         case BLOCK_TALL_GRASS:
         {
             return (below == BLOCK_DIRT || below == BLOCK_GRASS);
+        }
+        case BLOCK_SUGAR_CANE:
+        {
+            return (below == BLOCK_SAND || below == BLOCK_SUGAR_CANE);
         }
         case BLOCK_DOOR:
         case BLOCK_REDSTONE_TORCH:
@@ -149,6 +156,7 @@ uint8_t isBlockCollidable(BlockType type)
         case BLOCK_WATER:
         case BLOCK_REDSTONE_TORCH:
         case BLOCK_REDSTONE_WIRE:
+        case BLOCK_SUGAR_CANE:
         {
             return 0;
         }
