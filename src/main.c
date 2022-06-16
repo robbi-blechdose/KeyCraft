@@ -33,6 +33,8 @@ typedef enum {
     STATE_MENU
 } State;
 
+#define SAVE_VERSION 10
+
 //---------- Main game stuff ----------//
 uint8_t running = 1;
 State state = STATE_MENU;
@@ -134,7 +136,7 @@ void calcFrameGame(uint32_t ticks)
         }
 
         //Place new block
-        if(getWorldBlock(&block)->type == BLOCK_AIR && canPlace)
+        if(canPlace && getWorldBlock(&block)->type == BLOCK_AIR)
         {
             BlockPos below = block;
             below.y -= BLOCK_SIZE;
@@ -299,13 +301,24 @@ void calcFrame(uint32_t ticks)
                     }
                     case MENU_SELECTION_NEW_GAME:
                     {
+                        state = STATE_GAME;
+
+                        //Destroy old game, initialize new one
+                        quitWorld();
+                        initWorld();
+                        player.position = (vec3) {0, 0, 0};
+                        player.rotation = (vec3) {0, 0, 0};
+                        //TODO: reinit hotbar
+                        //Run one frame to build geometry for the first time etc.
+                        calcFrameGame(1);
+
                         break;
                     }
                     case MENU_SELECTION_OPTIONS:
                     {
+                        //TODO
                         break;
                     }
-                    //TODO
                 }
             }
             break;
@@ -363,10 +376,24 @@ int main(int argc, char **argv)
 
     if(openSave(".keycraft", "game.sav", 0))
     {
-        loadPlayer(&player);
-        loadWorld();
-        loadHotbar();
+        uint16_t saveVersion;
+        readElement(&saveVersion, sizeof(uint16_t));
+
+        if(saveVersion / 10 == SAVE_VERSION / 10)
+        {
+            loadPlayer(&player);
+            loadWorld();
+            loadHotbar();
+        }
+        else
+        {
+            setMenuFlag(MENU_FLAG_LOADFAIL);
+        }
         closeSave();
+    }
+    else
+    {
+        setMenuFlag(MENU_FLAG_NOSAVE);
     }
 
     //Run one frame to build geometry for the first time etc.
@@ -411,6 +438,8 @@ int main(int argc, char **argv)
     //Save game
     if(openSave(".keycraft", "game.sav", 1))
     {
+        uint16_t saveVersion = SAVE_VERSION;
+        writeElement(&saveVersion, sizeof(uint16_t));
         savePlayer(&player);
         saveWorld();
         saveHotbar();

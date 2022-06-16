@@ -47,6 +47,7 @@ void initWorld()
 
 void quitWorld()
 {
+    deleteRGBTexture(terrainTexture);
     freeOctree(modifiedChunks);
 }
 

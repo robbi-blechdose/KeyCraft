@@ -13,6 +13,8 @@
 #define MENU_SIZE 3
 int8_t menuCursor = 0;
 
+uint8_t menuFlags = 0;
+
 const char* menuStrings[] = {
     "Continue",
     "New game",
@@ -29,6 +31,18 @@ void drawMenu()
     glTextSize(GL_TEXT_SIZE8x8);
     for(uint8_t i = 0; i < MENU_SIZE; i++)
     {
+        if(i == MENU_SELECTION_CONTINUE)
+        {
+            if(menuFlags & MENU_FLAG_NOSAVE)
+            {
+                continue;
+            }
+            else if(menuFlags & MENU_FLAG_LOADFAIL)
+            {
+                glDrawText("Failed to load save.", CENTER(20), 96 + i * 16, TEXT_WHITE);
+                continue;
+            }
+        }
         glDrawText(menuStrings[i], CENTER(strlen(menuStrings[i])), 96 + i * 16, menuCursor == i ? TEXT_YELLOW : TEXT_WHITE);
     }
 
@@ -46,11 +60,27 @@ void scrollMenu(int8_t dir)
     }
     else if(menuCursor >= MENU_SIZE)
     {
-        menuCursor = 0;
+        if(menuFlags & (MENU_FLAG_NOSAVE | MENU_FLAG_LOADFAIL))
+        {
+            menuCursor = 1;
+        }
+        else
+        {
+            menuCursor = 0;
+        }
     }
 }
 
 uint8_t getMenuCursor()
 {
     return menuCursor;
+}
+
+void setMenuFlag(uint8_t flag)
+{
+    menuFlags |= flag;
+    if((flag == MENU_FLAG_NOSAVE || flag == MENU_FLAG_LOADFAIL) && menuCursor == 0)
+    {
+        menuCursor = 1;
+    }
 }

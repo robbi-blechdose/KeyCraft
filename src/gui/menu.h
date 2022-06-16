@@ -12,4 +12,9 @@ void scrollMenu(int8_t dir);
 #define MENU_SELECTION_OPTIONS  2
 uint8_t getMenuCursor();
 
+#define MENU_FLAG_NOSAVE   0b00000001
+#define MENU_FLAG_LOADFAIL 0b00000010
+
+void setMenuFlag(uint8_t flag);
+
 #endif
