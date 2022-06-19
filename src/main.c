@@ -33,7 +33,7 @@ typedef enum {
     STATE_MENU
 } State;
 
-#define SAVE_VERSION 10
+#define SAVE_VERSION 20
 
 //---------- Main game stuff ----------//
 uint8_t running = 1;
@@ -364,16 +364,21 @@ void drawFrame()
     flipFrame();
 }
 
-int main(int argc, char **argv)
+void saveGame()
 {
-    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
-    initVideo((vec4) {.d = {0, 0.8f, 1.0f, 1.0f}}, (vec4) {.d = {0, 0, WINX, WINY}}, 70, 0.3f, 8 * VIEW_DISTANCE);
-    initAudio(MIX_MAX_VOLUME, 2, 2);
+    if(openSave(".keycraft", "game.sav", 1))
+    {
+        uint16_t saveVersion = SAVE_VERSION;
+        writeElement(&saveVersion, sizeof(uint16_t));
+        savePlayer(&player);
+        saveWorld();
+        saveHotbar();
+        closeSave();
+    }
+}
 
-    player.position = (vec3) {0, 0, 0};
-
-    initWorld();
-
+void loadGame()
+{
     if(openSave(".keycraft", "game.sav", 0))
     {
         uint16_t saveVersion;
@@ -395,6 +400,19 @@ int main(int argc, char **argv)
     {
         setMenuFlag(MENU_FLAG_NOSAVE);
     }
+}
+
+int main(int argc, char **argv)
+{
+    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
+    initVideo((vec4) {.d = {0, 0.8f, 1.0f, 1.0f}}, (vec4) {.d = {0, 0, WINX, WINY}}, 70, 0.3f, 8 * VIEW_DISTANCE);
+    initAudio(MIX_MAX_VOLUME, 2, 2);
+
+    player.position = (vec3) {0, 0, 0};
+
+    initWorld();
+
+    loadGame();
 
     //Run one frame to build geometry for the first time etc.
     //TODO: Load chunks directly (currently we're only swapping chunks which breaks here because it can only do steps of one)
@@ -436,16 +454,7 @@ int main(int argc, char **argv)
 		tLastFrame = tNow;
     }
 
-    //Save game
-    if(openSave(".keycraft", "game.sav", 1))
-    {
-        uint16_t saveVersion = SAVE_VERSION;
-        writeElement(&saveVersion, sizeof(uint16_t));
-        savePlayer(&player);
-        saveWorld();
-        saveHotbar();
-        closeSave();
-    }
+    saveGame();
 
     //Cleanup
     quitWorld();

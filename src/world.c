@@ -1,6 +1,7 @@
 #include "world.h"
 
 #include "engine/image.h"
+#include "engine/savegame.h"
 
 #include "chunk.h"
 #include "worldgen.h"
@@ -520,6 +521,8 @@ uint8_t intersectsAABBWorld(AABB* aabb)
 
 void saveWorld()
 {
+    writeElement(&chunkPos, sizeof(ChunkPos));
+
     //Store all modified chunks into octree
     for(uint8_t i = 0; i < VIEW_DISTANCE; i++)
     {
@@ -546,6 +549,8 @@ void saveWorld()
 
 void loadWorld()
 {
+    readElement(&chunkPos, sizeof(ChunkPos));
+
     if(modifiedChunks != NULL)
     {
         freeOctree(modifiedChunks);
@@ -560,13 +565,22 @@ void loadWorld()
         {
             for(uint8_t k = 0; k < VIEW_DISTANCE; k++)
             {
-                ChunkPos pos = {i, j, k};
+                //Destroy existing world
+                destroyChunk(VIEW_CHUNK(i, j, k));
+                free(VIEW_CHUNK(i, j, k));
+                
+                //Load chunk from octree or generate if not present
+                ChunkPos pos = {chunkPos.x + i, chunkPos.y + j, chunkPos.z + k};
                 Chunk* chunk = findOctree(modifiedChunks, &pos);
                 if(chunk != NULL)
                 {
-                    destroyChunk(VIEW_CHUNK(i, j, k));
-                    free(VIEW_CHUNK(i, j, k));
                     VIEW_CHUNK(i, j, k) = chunk;
+                }
+                else
+                {
+                    VIEW_CHUNK(i, j, k) = calloc(1, sizeof(Chunk));
+                    VIEW_CHUNK(i, j, k)->position = pos;
+                    generateChunk(VIEW_CHUNK(i, j, k));
                 }
             }
         }
