@@ -42,7 +42,11 @@ void initWorld()
 
     worldTicks = 0;
 
+    #ifdef FUNKEY
+    terrainTexture = loadRGBTexture("/opk/res/tex/terrain.png");
+    #else
     terrainTexture = loadRGBTexture("res/tex/terrain.png");
+    #endif
     glBindTexture(GL_TEXTURE_2D, terrainTexture);
 }
 

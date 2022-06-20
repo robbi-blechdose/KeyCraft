@@ -1,5 +1,7 @@
 #include <SDL/SDL.h>
 #include <GL/gl.h>
+#include <signal.h>
+#include <unistd.h>
 
 #include "engine/video.h"
 #include "engine/audio.h"
@@ -35,8 +37,14 @@ typedef enum {
 
 #define SAVE_VERSION 20
 
+#define SHELL_CMD_POWERDOWN_HANDLE "powerdown handle"
+#define SHELL_CMD_INSTANT_PLAY     "instant_play"
+
+char* programName = NULL;
+
 //---------- Main game stuff ----------//
 uint8_t running = 1;
+uint8_t quickSaveAndPoweroff = 0;
 State state = STATE_MENU;
 Player player;
 
@@ -343,7 +351,7 @@ void drawFrame()
     if(state == STATE_GAME)
     {
         //Crosshair
-        drawTexQuad(WINX / 2 - 8, WINY / 2 - 8, 16, 16, 10, PTC(240), PTC(64), PTC(240 + 15), PTC(64 + 15));
+        drawTexQuad(WINX / 2 - 8, WINY / 2 - 8, 16, 16, 20, PTC(240), PTC(64), PTC(240 + 15), PTC(64 + 15));
         drawHotbar();
     }
     else if(state == STATE_INVENTORY)
@@ -402,8 +410,17 @@ void loadGame()
     }
 }
 
+void handleSigusr1(int sig)
+{
+    running = 0;
+    quickSaveAndPoweroff = 1;
+}
+
 int main(int argc, char **argv)
 {
+    //Save program name for instant play
+    programName = argv[0];
+    
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
     initVideo((vec4) {.d = {0, 0.8f, 1.0f, 1.0f}}, (vec4) {.d = {0, 0, WINX, WINY}}, 70, 0.3f, 8 * VIEW_DISTANCE);
     initAudio(MIX_MAX_VOLUME, 2, 2);
@@ -415,8 +432,15 @@ int main(int argc, char **argv)
     loadGame();
 
     //Run one frame to build geometry for the first time etc.
-    //TODO: Load chunks directly (currently we're only swapping chunks which breaks here because it can only do steps of one)
     calcFrameGame(1);
+
+    //Register signal handler for SIGUSR1 (closing the console)
+	signal(SIGUSR1, handleSigusr1);
+
+    if(argc > 1 && strcmp(argv[1], "-skipmenu") == 0)
+    {
+        state = STATE_GAME;
+    }
 
     //Run main loop
 	uint32_t tNow = SDL_GetTicks();
@@ -454,7 +478,28 @@ int main(int argc, char **argv)
 		tLastFrame = tNow;
     }
 
-    saveGame();
+    if(quickSaveAndPoweroff)
+    {
+        //Console is closed, perform instant play save
+
+        //Try to cancel shutdown
+        FILE* fp = popen(SHELL_CMD_POWERDOWN_HANDLE, "r");
+        if(fp != NULL)
+        {
+            pclose(fp);
+
+            saveGame();
+
+            //Perform instant play save
+            execlp(SHELL_CMD_INSTANT_PLAY, SHELL_CMD_INSTANT_PLAY, "save", programName, "-skipmenu", NULL);
+        }
+        //else: failed to cancel shutdown
+    }
+    else
+    {
+        //Normal exit, save game
+        saveGame();
+    }
 
     //Cleanup
     quitWorld();

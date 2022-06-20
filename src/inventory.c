@@ -51,7 +51,7 @@ uint8_t inventoryTab = 0;
 uint8_t inventoryCursorX = 0;
 uint8_t inventoryCursorY = 0;
 
-#define UIBH 10
+#define UIBH 20
 
 #define PTCL(X) PTC(X) + 0.001f
 #define PTCH(X) PTC(X) - 0.001f
