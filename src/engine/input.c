@@ -31,6 +31,7 @@ uint8_t handleInput()
         }
         switch(event.key.keysym.sym)
         {
+            #ifdef FUNKEY
             case SDLK_u:
             {
                 keys[B_UP] = state;
@@ -96,6 +97,73 @@ uint8_t handleInput()
                 keys[B_START] = state;
                 break;
             }
+            #else
+            case SDLK_UP:
+            {
+                keys[B_UP] = state;
+                break;
+            }
+            case SDLK_DOWN:
+            {
+                keys[B_DOWN] = state;
+                break;
+            }
+            case SDLK_LEFT:
+            {
+                keys[B_LEFT] = state;
+                break;
+            }
+            case SDLK_RIGHT:
+            {
+                keys[B_RIGHT] = state;
+                break;
+            }
+            case SDLK_a:
+            {
+                keys[B_A] = state;
+                break;
+            }
+            case SDLK_s:
+            {
+                keys[B_B] = state;
+                break;
+            }
+            case SDLK_x:
+            {
+                keys[B_X] = state;
+                break;
+            }
+            case SDLK_y:
+            {
+                keys[B_Y] = state;
+                break;
+            }
+            case SDLK_u:
+            {
+                keys[B_TL] = state;
+                break;
+            }
+            case SDLK_i:
+            {
+                keys[B_TR] = state;
+                break;
+            }
+            case SDLK_q:
+            {
+                running = 0;
+                break;
+            }
+            case SDLK_n:
+            {
+                keys[B_SELECT] = state;
+                break;
+            }
+            case SDLK_m:
+            {
+                keys[B_START] = state;
+                break;
+            }
+            #endif
         }
     }
     return running;
