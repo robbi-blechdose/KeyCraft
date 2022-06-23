@@ -36,6 +36,8 @@ typedef enum {
 } State;
 
 #define SAVE_VERSION 20
+#define SAVE_NAME             "game.sav"
+#define INSTANTPLAY_SAVE_NAME "instantplay.sav"
 
 #define SHELL_CMD_POWERDOWN_HANDLE "powerdown handle"
 #define SHELL_CMD_INSTANT_PLAY     "instant_play"
@@ -313,7 +315,7 @@ void calcFrame(uint32_t ticks)
 
                         //Destroy old game, initialize new one
                         quitWorld();
-                        initWorld();
+                        initWorld(0);
                         player.position = (vec3) {0, 0, 0};
                         player.rotation = (vec3) {0, 0, 0};
                         //TODO: reinit hotbar
@@ -372,9 +374,9 @@ void drawFrame()
     flipFrame();
 }
 
-void saveGame()
+void saveGame(char* name)
 {
-    if(openSave(".keycraft", "game.sav", 1))
+    if(openSave(".keycraft", name, 1))
     {
         uint16_t saveVersion = SAVE_VERSION;
         writeElement(&saveVersion, sizeof(uint16_t));
@@ -385,9 +387,9 @@ void saveGame()
     }
 }
 
-void loadGame()
+void loadGame(char* name)
 {
-    if(openSave(".keycraft", "game.sav", 0))
+    if(openSave(".keycraft", name, 0))
     {
         uint16_t saveVersion;
         readElement(&saveVersion, sizeof(uint16_t));
@@ -427,20 +429,23 @@ int main(int argc, char **argv)
 
     player.position = (vec3) {0, 0, 0};
 
-    initWorld();
+    initWorld(0);
 
-    loadGame();
+    if(argc > 1 && strcmp(argv[1], "-skipmenu") == 0)
+    {
+        state = STATE_GAME;
+        loadGame(INSTANTPLAY_SAVE_NAME);
+    }
+    else
+    {
+        loadGame(SAVE_NAME);
+    }
 
     //Run one frame to build geometry for the first time etc.
     calcFrameGame(1);
 
     //Register signal handler for SIGUSR1 (closing the console)
 	signal(SIGUSR1, handleSigusr1);
-
-    if(argc > 1 && strcmp(argv[1], "-skipmenu") == 0)
-    {
-        state = STATE_GAME;
-    }
 
     //Run main loop
 	uint32_t tNow = SDL_GetTicks();
@@ -488,7 +493,7 @@ int main(int argc, char **argv)
         {
             pclose(fp);
 
-            saveGame();
+            saveGame(INSTANTPLAY_SAVE_NAME);
 
             //Perform instant play save
             execlp(SHELL_CMD_INSTANT_PLAY, SHELL_CMD_INSTANT_PLAY, "save", programName, "-skipmenu", NULL);
@@ -498,7 +503,7 @@ int main(int argc, char **argv)
     else
     {
         //Normal exit, save game
-        saveGame();
+        saveGame(SAVE_NAME);
     }
 
     //Cleanup

@@ -9,7 +9,11 @@ uint8_t isWorldBlockOpaque(Chunk* chunk, uint8_t i, uint8_t j, uint8_t k)
 {
     BlockPos testPos = {.chunk = chunk->position, .x = i, .y = j, .z = k};
     Block* testBlock = getWorldBlock(&testPos);
-    if(testBlock != NULL && isOpaqueBlock(testBlock->type))
+    if(testBlock == NULL)
+    {
+        return 1;
+    }
+    else if(isOpaqueBlock(testBlock->type))
     {
         return 1;
     }
@@ -219,9 +223,6 @@ uint8_t intersectsAABBChunk(Chunk* chunk, AABB* aabb)
     {
         return 0;
     }
-
-    //printf("%f %f %f\n", chunk->aabb.min.x, chunk->aabb.min.y, chunk->aabb.min.z);
-    //printf("%f %f %f\n", aabb->max.x, aabb->max.y, aabb->max.z);
 
     //Check against chunk AABB
     if(!aabbIntersectsAABB(&chunk->aabb, aabb))

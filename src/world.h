@@ -19,7 +19,7 @@
 
 #define TICK_RATE 250
 
-void initWorld();
+void initWorld(uint32_t seed);
 void quitWorld();
 
 void calcWorld(vec3* playerPos, uint32_t ticks);

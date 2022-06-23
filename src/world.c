@@ -20,9 +20,9 @@ GLuint terrainTexture;
 
 uint32_t worldTicks;
 
-void initWorld()
+void initWorld(uint32_t seed)
 {
-    initWorldgen(0);
+    initWorldgen(seed);
 
     for(uint8_t i = 0; i < VIEW_DISTANCE; i++)
     {
@@ -178,16 +178,21 @@ void swapChunks(SwapSide side, SwapDir direction)
                 newChunk->modified = 1;
             }
             
+            //Set new chunk, mark adjacent chunk to be rebuilt
+            int8_t dir = direction == SWP_FORE ? -1 : 1;
             if(side == SWP_FB)
             {
+                VIEW_CHUNK(in + dir, i, j)->modified = 1;
                 VIEW_CHUNK(in, i, j) = newChunk;
             }
             else if(side == SWP_LR)
             {
+                VIEW_CHUNK(i, j, in + dir)->modified = 1;
                 VIEW_CHUNK(i, j, in) = newChunk;
             }
             else
             {
+                VIEW_CHUNK(i, j, in + dir)->modified = 1;
                 VIEW_CHUNK(i, j, in) = newChunk;
             }
         }
