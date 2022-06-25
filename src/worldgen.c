@@ -12,11 +12,15 @@
 
 #define MAX_SUGAR_CANE_HEIGHT 3
 
-#define RAND_FLOWER     0
-#define RAND_TALLGRASS  8
-#define RAND_TREE      16
-#define RAND_SUGARCANE 24
-#define RAND_ORE      128
+#define RAND_FLOWER         0
+#define RAND_TALLGRASS      8
+#define RAND_TREE          16
+#define RAND_SUGARCANE     24
+#define RAND_ORE_COAL     128
+#define RAND_ORE_IRON     144
+#define RAND_ORE_GOLD     160
+#define RAND_ORE_REDSTONE 176
+#define RAND_ORE_DIAMOND  192
 
 #define WATER_LEVEL 6
 
@@ -124,15 +128,25 @@ void generateChunk(Chunk* chunk)
                     }
                     else
                     {
-                        float rand = getNoiseRand(x, z, i, k, RAND_ORE);
-
-                        if(rand < 0.05f)
+                        if(getNoiseRand(x, z, i, k, RAND_ORE_COAL + j) < 0.03f)
                         {
                             CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_IRON_ORE;
                         }
-                        else if(rand < 0.1f)
+                        else if(getNoiseRand(x, z, i, k, RAND_ORE_IRON + j) < 0.02f)
                         {
                             CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_COAL_ORE;
+                        }
+                        else if(getNoiseRand(x, z, i, k, RAND_ORE_GOLD + j) < 0.015f)
+                        {
+                            CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_GOLD_ORE;
+                        }
+                        else if(getNoiseRand(x, z, i, k, RAND_ORE_REDSTONE + j) < 0.015f)
+                        {
+                            CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_REDSTONE_ORE;
+                        }
+                        else if(getNoiseRand(x, z, i, k, RAND_ORE_DIAMOND + j) < 0.01f)
+                        {
+                            CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_DIAMOND_ORE;
                         }
                         else
                         {
