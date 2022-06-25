@@ -36,9 +36,12 @@ typedef enum {
     BLOCK_COBBLESTONE,
 
     BLOCK_SUGAR_CANE,
+    BLOCK_TNT,
     BLOCK_CRAFTING_TABLE,
 
     BLOCK_FURNACE,
+
+    BLOCK_LEVER,
 
     BLOCK_LAST
 } BlockType;

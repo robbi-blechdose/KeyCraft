@@ -131,6 +131,35 @@ void tickBlock(Chunk* chunk, Block* block, uint8_t x, uint8_t y, uint8_t z)
             }
             break;
         }
+        case BLOCK_TNT:
+        {
+            if(getAdjacentPower(chunk, x, y, z))
+            {
+                BlockPos pos = {chunk->position, x, y, z};
+                for(int8_t i = x - TNT_RADIUS; i <= x + TNT_RADIUS; i++)
+                {
+                    for(int8_t j = y - TNT_RADIUS; j <= y + TNT_RADIUS; j++)
+                    {
+                        for(int8_t k = z - TNT_RADIUS; k <= z + TNT_RADIUS; k++)
+                        {
+                            if(sqrtf(powf(i - x, 2) + powf(j - y, 2) + powf(k - z, 2)) <= TNT_RADIUS)
+                            {
+                                pos.chunk = chunk->position;
+                                pos.x = i;
+                                pos.y = j;
+                                pos.z = k;
+                                Block* block = getWorldBlock(&pos);
+                                if(block != NULL && block->type != BLOCK_BEDROCK)
+                                {
+                                    setWorldBlock(&pos, (Block) {BLOCK_AIR, 0});
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            break;
+        }
     }
 }
 

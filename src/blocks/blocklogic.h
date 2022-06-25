@@ -4,6 +4,8 @@
 #include "block.h"
 #include "../chunk.h"
 
+#define TNT_RADIUS 3
+
 void tickChunk(Chunk* chunk);
 
 #endif

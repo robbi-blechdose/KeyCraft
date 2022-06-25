@@ -40,9 +40,9 @@ const InventoryTab inventory[NUM_INVENTORY_TABS] = {
         }
     },
     {
-        "Redstone", 3,
+        "Redstone", 5,
         {
-            B(BLOCK_REDSTONE_LAMP), B(BLOCK_REDSTONE_WIRE), {BLOCK_REDSTONE_TORCH, BLOCK_DATA_POWER}
+            B(BLOCK_REDSTONE_LAMP), B(BLOCK_REDSTONE_WIRE), {BLOCK_REDSTONE_TORCH, BLOCK_DATA_POWER}, B(BLOCK_LEVER), B(BLOCK_TNT)
         }
     }
 };

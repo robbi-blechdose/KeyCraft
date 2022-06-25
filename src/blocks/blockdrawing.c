@@ -53,6 +53,7 @@ const vec2i* blockTextures[] = {
     [BLOCK_COBBLESTONE] = (vec2i[1]) {{6, 3}},
 
     [BLOCK_SUGAR_CANE] = (vec2i[1]) {{0, 4}},
+    [BLOCK_TNT] = (vec2i[6]) {{6, 4}, {6, 4}, {6, 4}, {6, 4}, {6, 5}, {6, 5}},
     [BLOCK_CRAFTING_TABLE] = (vec2i[6]) {{1, 5}, {1, 5}, {2, 5}, {2, 5}, {0, 5}, {0, 1}},
 
     [BLOCK_FURNACE] = (vec2i[6]) {{0, 6}, {1, 0}, {1, 0}, {1, 0}, {1, 0}, {1, 0}}
@@ -300,9 +301,27 @@ void drawSwitch(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion
         {&v[5], &v[4], &v[1], &v[0]}
     };
 
+    vec2 tex = getBlockTexture(BLOCK_COBBLESTONE, 0);
+    float texX1 = PTCL(tex.x);
+    float texY1 = PTCL(tex.y);
+    vec2 faceTextures[5] = {
+        {PTCH(tex.x + 6), PTCH(tex.y + 4)},
+        {PTCH(tex.x + 6), PTCH(tex.y + 4)},
+        {PTCH(tex.x + 6), PTCH(tex.y + 4)},
+        {PTCH(tex.x + 6), PTCH(tex.y + 4)},
+        {PTCH(tex.x + 6), PTCH(tex.y + 4)},
+    };
+
     for(uint8_t i = 0; i < 5; i++)
     {
-        //TODO
+        glTexCoord2f(faceTextures[i].x, faceTextures[i].y);
+        glVectorV3(*(faces[i][0]));
+        glTexCoord2f(texX1, faceTextures[i].y);
+        glVectorV3(*(faces[i][1]));
+        glTexCoord2f(texX1, texY1);
+        glVectorV3(*(faces[i][2]));
+        glTexCoord2f(faceTextures[i].x, texY1);
+        glVectorV3(*(faces[i][3]));
     }
 
     //Lever

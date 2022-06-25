@@ -31,9 +31,12 @@ const char* blockNames[] = {
     [BLOCK_COBBLESTONE] = "Cobblestone",
 
     [BLOCK_SUGAR_CANE] = "Sugar cane",
+    [BLOCK_TNT] = "TNT",
     [BLOCK_CRAFTING_TABLE] = "Crafting table",
 
-    [BLOCK_FURNACE] = "Furnace"
+    [BLOCK_FURNACE] = "Furnace",
+
+    [BLOCK_LEVER] = "Lever"
 };
 
 void drawBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
@@ -45,6 +48,7 @@ void drawBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
         case BLOCK_BOOKSHELF:
         case BLOCK_CRAFTING_TABLE:
         case BLOCK_FURNACE:
+        case BLOCK_TNT:
         {
             drawMultitexBlock(block, x, y, z, occlusion);
             break;
@@ -88,6 +92,10 @@ vec2 getInventoryTextureForBlock(Block block)
         {
             return getBlockTexture(block.type, 3);
         }
+        case BLOCK_LEVER:
+        {
+            return (vec2) {64, 0};
+        }
         default:
         {
             return getBlockTexture(block.type, block.data & BLOCK_DATA_TEXTURE);
@@ -108,6 +116,7 @@ uint8_t isOpaqueBlock(BlockType type)
         case BLOCK_REDSTONE_TORCH:
         case BLOCK_REDSTONE_WIRE:
         case BLOCK_SUGAR_CANE:
+        case BLOCK_LEVER:
         {
             return 0;
         }
@@ -135,6 +144,7 @@ uint8_t canPlaceBlock(BlockType toPlace, BlockType below)
         case BLOCK_DOOR:
         case BLOCK_REDSTONE_TORCH:
         case BLOCK_REDSTONE_WIRE:
+        case BLOCK_LEVER:
         {
             return isBlockCollidable(below);
         }
@@ -157,6 +167,7 @@ uint8_t isBlockCollidable(BlockType type)
         case BLOCK_REDSTONE_TORCH:
         case BLOCK_REDSTONE_WIRE:
         case BLOCK_SUGAR_CANE:
+        case BLOCK_LEVER:
         {
             return 0;
         }
@@ -172,6 +183,7 @@ uint8_t isBlockOriented(BlockType type)
     switch(type)
     {
         case BLOCK_DOOR:
+        case BLOCK_LEVER:
         {
             return 1;
         }
