@@ -4,38 +4,56 @@
 
 #include "../engine/util.h"
 
+/**
+ * Differences from the center position to the adjacent blocks:
+ *  3
+ * 0X1
+ *  2
+ */
+int8_t adjacentDiffs[4][2] = {
+    {-1, 0},
+    { 2, 0},
+    {-1, 1},
+    {0, -2}
+};
+
 uint8_t hasAdjacentWater(Chunk* chunk, uint8_t x, uint8_t y, uint8_t z)
 {
-    BlockPos blockPos = {.chunk = chunk->position, .x = x - 1, .y = y, .z = z};
-    uint8_t result = getWorldBlock(&blockPos)->type == BLOCK_WATER; //x-1,z
-    blockPos.x += 2;
-    result += getWorldBlock(&blockPos)->type == BLOCK_WATER; //x+1,z
-    blockPos.x--;
-    blockPos.z++;
-    result += getWorldBlock(&blockPos)->type == BLOCK_WATER; //x,z+1
-    blockPos.z -= 2;
-    result += getWorldBlock(&blockPos)->type == BLOCK_WATER; //x,z-1
+    BlockPos blockPos = {chunk->position, x, y, z};
+    uint8_t result = 0;
+
+    for(uint8_t i = 0; i < 4; i++)
+    {
+        blockPos.x += adjacentDiffs[i][0];
+        blockPos.z += adjacentDiffs[i][1];
+        Block* block = getWorldBlock(&blockPos);
+        if(block != NULL && block->type == BLOCK_WATER)
+        {
+            result++;
+        }
+    }
 
     return result;
 }
 
 uint8_t getAdjacentPower(Chunk* chunk, uint8_t x, uint8_t y, uint8_t z)
 {
-    uint8_t maxPower;
-    uint8_t tempPower;
+    uint8_t maxPower = 0;
+    uint8_t tempPower = 0;
 
-    BlockPos blockPos = {.chunk = chunk->position, .x = x - 1, .y = y, .z = z};
-    maxPower = getWorldBlock(&blockPos)->data & BLOCK_DATA_POWER; //x-1,z
-    blockPos.x += 2;
-    tempPower = getWorldBlock(&blockPos)->data & BLOCK_DATA_POWER; //x+1,z
-    maxPower = tempPower > maxPower ? tempPower : maxPower;
-    blockPos.x--;
-    blockPos.z++;
-    tempPower = getWorldBlock(&blockPos)->data & BLOCK_DATA_POWER; //x,z+1
-    maxPower = tempPower > maxPower ? tempPower : maxPower;
-    blockPos.z -= 2;
-    tempPower = getWorldBlock(&blockPos)->data & BLOCK_DATA_POWER; //x,z-1
-    maxPower = tempPower > maxPower ? tempPower : maxPower;
+    BlockPos blockPos = {chunk->position, x, y, z};
+
+    for(uint8_t i = 0; i < 4; i++)
+    {
+        blockPos.x += adjacentDiffs[i][0];
+        blockPos.z += adjacentDiffs[i][1];
+        Block* block = getWorldBlock(&blockPos);
+        if(block != NULL)
+        {
+            tempPower = block->data & BLOCK_DATA_POWER;
+            maxPower = tempPower > maxPower ? tempPower : maxPower;
+        }
+    }
 
     return maxPower;
 }
