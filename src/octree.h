@@ -1,6 +1,8 @@
 #ifndef _OCTREE_H
 #define _OCTREE_H
 
+#include <stdbool.h>
+
 #include "chunk.h"
 #include "aabb.h"
 
@@ -15,7 +17,7 @@ typedef struct Octree {
 Octree* createOctree(vec3 pos, float size, Chunk* chunk);
 void insertOctree(Octree* octree, Chunk* chunk);
 Chunk* findOctree(Octree* octree, ChunkPos* pos);
-uint8_t octreeEmpty(Octree* octree);
+bool octreeEmpty(Octree* octree);
 
 void freeOctree(Octree* octree);
 

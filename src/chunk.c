@@ -217,17 +217,17 @@ AABBSide intersectsRayChunk(Chunk* chunk, vec3* origin, vec3* direction, BlockPo
     return minSide;
 }
 
-uint8_t intersectsAABBChunk(Chunk* chunk, AABB* aabb)
+bool intersectsAABBChunk(Chunk* chunk, AABB* aabb)
 {
     if(chunk->isEmpty)
     {
-        return 0;
+        return false;
     }
 
     //Check against chunk AABB
     if(!aabbIntersectsAABB(&chunk->aabb, aabb))
     {
-        return 0;
+        return false;
     }
 
     //Check against individual block AABBs
@@ -244,14 +244,14 @@ uint8_t intersectsAABBChunk(Chunk* chunk, AABB* aabb)
 
                     if(aabbIntersectsAABB(&blockAABB, aabb))
                     {
-                        return 1;
+                        return true;
                     }
                 }
             }
         }
     }
 
-    return 0;
+    return false;
 }
 
 void saveChunk(Chunk* chunk)

@@ -1,6 +1,7 @@
 #ifndef _INPUT_H
 #define _INPUT_H
 
+#include <stdbool.h>
 #include <SDL/SDL.h>
 
 #define NUM_KEYS 12
@@ -25,8 +26,8 @@ typedef enum {
     B_START
 } Key;
 
-uint8_t handleInput();
-uint8_t keyPressed(Key key);
-uint8_t keyUp(Key key);
+bool handleInput();
+bool keyPressed(Key key);
+bool keyUp(Key key);
 
 #endif

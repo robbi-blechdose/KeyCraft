@@ -1,13 +1,13 @@
 #include "aabb.h"
 
-uint8_t aabbIntersectsPoint(AABB* box, vec3* point)
+bool aabbIntersectsPoint(AABB* box, vec3* point)
 {
     return (point->x >= box->min.x && point->x <= box->max.x) &&
             (point->y >= box->min.y && point->y <= box->max.y) &&
             (point->z >= box->min.z && point->z <= box->max.z);
 }
 
-uint8_t aabbIntersectsAABB(AABB* box1, AABB* box2)
+bool aabbIntersectsAABB(AABB* box1, AABB* box2)
 {
     return (box1->min.x <= box2->max.x && box1->max.x >= box2->min.x) &&
             (box1->min.y <= box2->max.y && box1->max.y >= box2->min.y) &&

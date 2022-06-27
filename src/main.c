@@ -2,6 +2,7 @@
 #include <GL/gl.h>
 #include <signal.h>
 #include <unistd.h>
+#include <stdbool.h>
 
 #include "engine/video.h"
 #include "engine/audio.h"
@@ -45,8 +46,8 @@ typedef enum {
 char* programName = NULL;
 
 //---------- Main game stuff ----------//
-uint8_t running = 1;
-uint8_t quickSaveAndPoweroff = 0;
+bool running = true;
+bool quickSaveAndPoweroff = false;
 State state = STATE_MENU;
 Player player;
 
@@ -414,8 +415,8 @@ void loadGame(char* name)
 
 void handleSigusr1(int sig)
 {
-    running = 0;
-    quickSaveAndPoweroff = 1;
+    running = false;
+    quickSaveAndPoweroff = true;
 }
 
 int main(int argc, char **argv)

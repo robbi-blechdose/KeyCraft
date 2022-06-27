@@ -1,9 +1,11 @@
 #ifndef _BLOCK_ACTIONS_H
 #define _BLOCK_ACTIONS_H
 
+#include <stdbool.h>
+
 #include "../chunk.h"
 #include "block.h"
 
-uint8_t actBlock(Chunk* chunk, Block* block);
+bool actBlock(Chunk* chunk, Block* block);
 
 #endif

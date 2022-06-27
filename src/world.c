@@ -430,16 +430,16 @@ void setWorldBlock(BlockPos* pos, Block block)
     }
 }
 
-uint8_t actWorldBlock(BlockPos* pos)
+bool actWorldBlock(BlockPos* pos)
 {
     Block* block = getWorldBlock(pos);
     if(block == NULL)
     {
-        return 0;
+        return false;
     }
 
     Chunk* chunk = WORLD_CHUNK(pos->chunk.x, pos->chunk.y, pos->chunk.z);
-    uint8_t ret = actBlock(chunk, block);
+    bool ret = actBlock(chunk, block);
 
     if(block->type == BLOCK_DOOR)
     {
@@ -504,7 +504,7 @@ AABBSide intersectsRayWorld(vec3* origin, vec3* direction, BlockPos* block, floa
     return minSide;
 }
 
-uint8_t intersectsAABBWorld(AABB* aabb)
+bool intersectsAABBWorld(AABB* aabb)
 {
     //Exclude outer chunks
     for(uint8_t i = 0; i < VIEW_DISTANCE; i++)
@@ -518,14 +518,14 @@ uint8_t intersectsAABBWorld(AABB* aabb)
                 {
                     if(intersectsAABBChunk(VIEW_CHUNK(i, j, k), aabb))
                     {
-                        return 1;
+                        return true;
                     }
                 }
             }
         }
     }
 
-    return 0;
+    return false;
 }
 
 void saveWorld()

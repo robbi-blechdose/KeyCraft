@@ -122,20 +122,20 @@ uint8_t octreeCount(Octree* octree)
     }
 }
 
-uint8_t octreeEmpty(Octree* octree)
+bool octreeEmpty(Octree* octree)
 {
     if(octree == NULL)
     {
-        return 1;
+        return true;
     }
     //Since we always insert into an octree first, the children have to be NULL if the chunk is NULL
     else if(octree->chunk == NULL)
     {
-        return 1;
+        return false;
     }
     else
     {
-        return 0;
+        return true;
     }
 }
 

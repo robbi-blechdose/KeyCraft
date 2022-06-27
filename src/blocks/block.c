@@ -108,7 +108,7 @@ vec2 getInventoryTextureForBlock(Block block)
     }
 }
 
-uint8_t isOpaqueBlock(BlockType type)
+bool isOpaqueBlock(BlockType type)
 {
     switch(type)
     {
@@ -123,16 +123,16 @@ uint8_t isOpaqueBlock(BlockType type)
         case BLOCK_SUGAR_CANE:
         case BLOCK_LEVER:
         {
-            return 0;
+            return false;
         }
         default:
         {
-            return 1;
+            return true;
         }
     }
 }
 
-uint8_t canPlaceBlock(BlockType toPlace, BlockType below)
+bool canPlaceBlock(BlockType toPlace, BlockType below)
 {
     switch(toPlace)
     {
@@ -155,12 +155,12 @@ uint8_t canPlaceBlock(BlockType toPlace, BlockType below)
         }
         default:
         {
-            return 1;
+            return true;
         }
     }
 }
 
-uint8_t isBlockCollidable(BlockType type)
+bool isBlockCollidable(BlockType type)
 {
     switch(type)
     {
@@ -174,27 +174,27 @@ uint8_t isBlockCollidable(BlockType type)
         case BLOCK_SUGAR_CANE:
         case BLOCK_LEVER:
         {
-            return 0;
+            return false;
         }
         default:
         {
-            return 1;
+            return true;
         }
     }
 }
 
-uint8_t isBlockOriented(BlockType type)
+bool isBlockOriented(BlockType type)
 {
     switch(type)
     {
         case BLOCK_DOOR:
         case BLOCK_LEVER:
         {
-            return 1;
+            return true;
         }
         default:
         {
-            return 0;
+            return false;
         }
     }
 }

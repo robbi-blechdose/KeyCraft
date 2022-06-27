@@ -1,6 +1,7 @@
 #ifndef _WORLD_H
 #define _WORLD_H
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #include "engine/includes/3dMath.h"
@@ -27,10 +28,10 @@ void drawWorld(vec3* playerPosition, vec3* playerRotation);
 
 Block* getWorldBlock(BlockPos* pos);
 void setWorldBlock(BlockPos* pos, Block block);
-uint8_t actWorldBlock(BlockPos* pos);
+bool actWorldBlock(BlockPos* pos);
 
 AABBSide intersectsRayWorld(vec3* origin, vec3* direction, BlockPos* block, float* distance);
-uint8_t intersectsAABBWorld(AABB* aabb);
+bool intersectsAABBWorld(AABB* aabb);
 
 void saveWorld();
 void loadWorld();

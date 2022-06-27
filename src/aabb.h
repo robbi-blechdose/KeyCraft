@@ -1,7 +1,7 @@
 #ifndef _AABB_H
 #define _AABB_H
 
-#include <stdint.h>
+#include <stdbool.h>
 
 #include "engine/includes/3dMath.h"
 
@@ -20,8 +20,8 @@ typedef enum {
     AABB_BOTTOM
 } AABBSide;
 
-uint8_t aabbIntersectsPoint(AABB* box, vec3* point);
-uint8_t aabbIntersectsAABB(AABB* box1, AABB* box2);
+bool aabbIntersectsPoint(AABB* box, vec3* point);
+bool aabbIntersectsAABB(AABB* box1, AABB* box2);
 AABBSide aabbIntersectsRay(AABB* box, vec3* origin, vec3* direction, float* distance);
 
 #endif

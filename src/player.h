@@ -1,6 +1,7 @@
 #ifndef _PLAYER_H
 #define _PLAYER_H
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #include "engine/includes/3dMath.h"
@@ -32,7 +33,7 @@ typedef struct {
 void playerMove(Player* player, int8_t dir, uint32_t ticks);
 void playerLook(Player* player, int8_t dirX, int8_t dirY, uint32_t ticks);
 
-uint8_t playerIntersectsWorld(Player* player);
+bool playerIntersectsWorld(Player* player);
 void calcPlayer(Player* player, uint32_t ticks);
 
 void savePlayer(Player* player);

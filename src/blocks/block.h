@@ -1,6 +1,7 @@
 #ifndef _BLOCK_H
 #define _BLOCK_H
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #include "../engine/util.h"
@@ -107,9 +108,9 @@ void drawBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
 
 vec2 getInventoryTextureForBlock(Block block);
 
-uint8_t isOpaqueBlock(BlockType type);
-uint8_t canPlaceBlock(BlockType toPlace, BlockType below);
-uint8_t isBlockCollidable(BlockType type);
-uint8_t isBlockOriented(BlockType type);
+bool isOpaqueBlock(BlockType type);
+bool canPlaceBlock(BlockType toPlace, BlockType below);
+bool isBlockCollidable(BlockType type);
+bool isBlockOriented(BlockType type);
 
 #endif

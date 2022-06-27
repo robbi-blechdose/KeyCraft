@@ -1,6 +1,6 @@
 #include "blockactions.h"
 
-uint8_t actBlock(Chunk* chunk, Block* block)
+bool actBlock(Chunk* chunk, Block* block)
 {
     if(block->type == BLOCK_DOOR)
     {
@@ -67,7 +67,7 @@ uint8_t actBlock(Chunk* chunk, Block* block)
         block->data ^= BLOCK_DATA_STATE;
         
         chunk->modified = 1;
-        return 1;
+        return true;
     }
     else if(block->type == BLOCK_LEVER)
     {
@@ -81,7 +81,7 @@ uint8_t actBlock(Chunk* chunk, Block* block)
         }
         
         chunk->modified = 1;
-        return 1;
+        return true;
     }
-    return 0;
+    return false;
 }

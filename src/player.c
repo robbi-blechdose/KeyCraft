@@ -52,7 +52,7 @@ void calcPlayerAABB(Player* player)
                                 .z = player->position.z + PLAYER_WIDTH / 2 + VIEW_TRANSLATION};
 }
 
-uint8_t playerIntersectsWorld(Player* player)
+bool playerIntersectsWorld(Player* player)
 {
     calcPlayerAABB(player);
     return intersectsAABBWorld(&player->aabb);

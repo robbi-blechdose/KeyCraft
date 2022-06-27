@@ -1,11 +1,11 @@
 #include "input.h"
 
-uint8_t keysLast[NUM_KEYS];
-uint8_t keys[NUM_KEYS];
+bool keysLast[NUM_KEYS];
+bool keys[NUM_KEYS];
 
-uint8_t handleInput()
+bool handleInput()
 {
-    uint8_t running = 1;
+    bool running = true;
 
     for(uint8_t i = 0; i < NUM_KEYS; i++)
     {
@@ -17,17 +17,17 @@ uint8_t handleInput()
     {
         if(event.type == SDL_QUIT)
         {
-            running = 0;
+            running = false;
         }
         else if(event.type != SDL_KEYDOWN && event.type != SDL_KEYUP)
         {
             continue;
         }
 
-        uint8_t state = 0;
+        bool state = false;
         if(event.type == SDL_KEYDOWN)
         {
-            state = 1;
+            state = true;
         }
         switch(event.key.keysym.sym)
         {
@@ -169,12 +169,12 @@ uint8_t handleInput()
     return running;
 }
 
-uint8_t keyPressed(Key key)
+bool keyPressed(Key key)
 {
     return keys[key];
 }
 
-uint8_t keyUp(Key key)
+bool keyUp(Key key)
 {
     if(keysLast[key] == 1 && keys[key] == 0)
     {
