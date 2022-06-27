@@ -289,26 +289,27 @@ void drawFlatBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlus
 //TODO: Rotation
 void drawSwitch(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
 {
-    //Base
+    //5 faces (bottom isn't needed)
     vec3 v[8];
-    calcBlockVertices(v, x + BP, y, z + BP * 2, BP * 6, BP * 2, BP * 4);
-
     vec3* faces[5][4] = {
+        {&v[0], &v[1], &v[2], &v[3]},
         {&v[4], &v[5], &v[6], &v[7]},
         {&v[5], &v[0], &v[3], &v[6]},
         {&v[1], &v[4], &v[7], &v[2]},
-        {&v[3], &v[2], &v[7], &v[6]},
-        {&v[5], &v[4], &v[1], &v[0]}
+        {&v[3], &v[2], &v[7], &v[6]}
     };
+
+    //Base
+    calcBlockVertices(v, x + BP, y, z + BP * 2, BP * 6, BP * 2, BP * 4);
 
     vec2 tex = getBlockTexture(BLOCK_COBBLESTONE, 0);
     float texX1 = PTCL(tex.x);
     float texY1 = PTCL(tex.y);
     vec2 faceTextures[5] = {
-        {PTCH(tex.x + 6), PTCH(tex.y + 4)},
-        {PTCH(tex.x + 6), PTCH(tex.y + 4)},
-        {PTCH(tex.x + 6), PTCH(tex.y + 4)},
-        {PTCH(tex.x + 6), PTCH(tex.y + 4)},
+        {PTCH(tex.x + 6), PTCH(tex.y + 2)},
+        {PTCH(tex.x + 6), PTCH(tex.y + 2)},
+        {PTCH(tex.x + 6), PTCH(tex.y + 2)},
+        {PTCH(tex.x + 6), PTCH(tex.y + 2)},
         {PTCH(tex.x + 6), PTCH(tex.y + 4)},
     };
 
@@ -325,6 +326,40 @@ void drawSwitch(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion
     }
 
     //Lever
+    calcBlockVertices(v, -BP, -BP * 2.5f, -BP, BP * 2, BP * 5, BP * 2);
 
-    //TODO
+    //Rotate lever
+    float angle = (block->data & BLOCK_DATA_POWER) ? DEG_TO_RAD(45) : DEG_TO_RAD(-45);
+    float xPos = x + BP * 4 + ((block->data & BLOCK_DATA_POWER) ? -BP * 2 : BP * 2);
+    for(uint8_t i = 0; i < 8; i++)
+    {
+        v[i] = rotatev3(v[i], (vec3) {0, 0, 1}, angle);
+
+        v[i].x += xPos;
+        v[i].y += y + BP * 3.1f;
+        v[i].z += z + BP * 4;
+    }
+
+    tex = getBlockTexture(BLOCK_PLANKS, 0);
+    texX1 = PTCL(tex.x);
+    texY1 = PTCL(tex.y);
+    vec2 faceTextures2[5] = {
+        {PTCH(tex.x + 2), PTCH(tex.y + 5)},
+        {PTCH(tex.x + 2), PTCH(tex.y + 5)},
+        {PTCH(tex.x + 2), PTCH(tex.y + 5)},
+        {PTCH(tex.x + 2), PTCH(tex.y + 5)},
+        {PTCH(tex.x + 2), PTCH(tex.y + 2)},
+    };
+    
+    for(uint8_t i = 0; i < 5; i++)
+    {
+        glTexCoord2f(faceTextures2[i].x, faceTextures2[i].y);
+        glVectorV3(*(faces[i][0]));
+        glTexCoord2f(texX1, faceTextures2[i].y);
+        glVectorV3(*(faces[i][1]));
+        glTexCoord2f(texX1, texY1);
+        glVectorV3(*(faces[i][2]));
+        glTexCoord2f(faceTextures2[i].x, texY1);
+        glVectorV3(*(faces[i][3]));
+    }
 }

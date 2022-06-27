@@ -72,6 +72,11 @@ void drawBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
             drawFlatBlock(block, x, y, z, occlusion);
             break;
         }
+        case BLOCK_LEVER:
+        {
+            drawSwitch(block, x, y, z, occlusion);
+            break;
+        }
         default:
         {
             drawNormalBlock(block, x, y, z, occlusion);

@@ -69,5 +69,19 @@ uint8_t actBlock(Chunk* chunk, Block* block)
         chunk->modified = 1;
         return 1;
     }
+    else if(block->type == BLOCK_LEVER)
+    {
+        if(block->data & BLOCK_DATA_POWER)
+        {
+            block->data &= ~BLOCK_DATA_POWER;
+        }
+        else
+        {
+            block->data |= BLOCK_DATA_POWER;
+        }
+        
+        chunk->modified = 1;
+        return 1;
+    }
     return 0;
 }

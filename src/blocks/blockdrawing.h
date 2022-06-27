@@ -10,5 +10,6 @@ void drawMultitexBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t oc
 void drawXBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion);
 void drawDoor(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion);
 void drawFlatBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion);
+void drawSwitch(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion);
 
 #endif

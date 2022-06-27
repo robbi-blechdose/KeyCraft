@@ -39,8 +39,7 @@ uint8_t hasAdjacentWater(Chunk* chunk, uint8_t x, uint8_t y, uint8_t z)
 uint8_t getAdjacentPower(Chunk* chunk, uint8_t x, uint8_t y, uint8_t z)
 {
     uint8_t maxPower = 0;
-    uint8_t tempPower = 0;
-
+    
     BlockPos blockPos = {chunk->position, x, y, z};
 
     for(uint8_t i = 0; i < 4; i++)
@@ -50,7 +49,7 @@ uint8_t getAdjacentPower(Chunk* chunk, uint8_t x, uint8_t y, uint8_t z)
         Block* block = getWorldBlock(&blockPos);
         if(block != NULL)
         {
-            tempPower = block->data & BLOCK_DATA_POWER;
+            uint8_t tempPower = block->data & BLOCK_DATA_POWER;
             maxPower = tempPower > maxPower ? tempPower : maxPower;
         }
     }
