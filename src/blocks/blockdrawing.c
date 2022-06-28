@@ -300,7 +300,14 @@ void drawSwitch(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion
     };
 
     //Base
-    calcBlockVertices(v, x + BP, y, z + BP * 2, BP * 6, BP * 2, BP * 4);
+    if((block->data & BLOCK_DATA_DIRECTION) == BLOCK_DATA_DIR_FRONT || (block->data & BLOCK_DATA_DIRECTION) == BLOCK_DATA_DIR_BACK)
+    {
+        calcBlockVertices(v, x + BP, y, z + BP * 2, BP * 6, BP * 2, BP * 4);
+    }
+    else
+    {
+        calcBlockVertices(v, x + BP * 2, y, z + BP, BP * 4, BP * 2, BP * 6);
+    }
 
     vec2 tex = getBlockTexture(BLOCK_COBBLESTONE, 0);
     float texX1 = PTCL(tex.x);
@@ -331,13 +338,25 @@ void drawSwitch(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion
     //Rotate lever
     float angle = (block->data & BLOCK_DATA_POWER) ? DEG_TO_RAD(45) : DEG_TO_RAD(-45);
     float xPos = x + BP * 4 + ((block->data & BLOCK_DATA_POWER) ? -BP * 2 : BP * 2);
+    float zPos = z + BP * 4 + ((block->data & BLOCK_DATA_POWER) ? BP * 2 : -BP * 2);
     for(uint8_t i = 0; i < 8; i++)
     {
-        v[i] = rotatev3(v[i], (vec3) {0, 0, 1}, angle);
+        if((block->data & BLOCK_DATA_DIRECTION) == BLOCK_DATA_DIR_FRONT || (block->data & BLOCK_DATA_DIRECTION) == BLOCK_DATA_DIR_BACK)
+        {
+            v[i] = rotatev3(v[i], (vec3) {0, 0, 1}, angle);
 
-        v[i].x += xPos;
-        v[i].y += y + BP * 3.1f;
-        v[i].z += z + BP * 4;
+            v[i].x += xPos;
+            v[i].y += y + BP * 3.1f;
+            v[i].z += z + BP * 4;
+        }
+        else
+        {
+            v[i] = rotatev3(v[i], (vec3) {1, 0, 0}, angle);
+
+            v[i].x += x + BP * 4;
+            v[i].y += y + BP * 3.1f;
+            v[i].z += zPos;
+        }
     }
 
     tex = getBlockTexture(BLOCK_PLANKS, 0);
