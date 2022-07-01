@@ -57,6 +57,45 @@ uint8_t getAdjacentPower(Chunk* chunk, uint8_t x, uint8_t y, uint8_t z)
     return maxPower;
 }
 
+void explodeTNT(ChunkPos chunk, uint8_t x, uint8_t y, uint8_t z)
+{
+    BlockPos pos = {chunk, x, y, z};
+                
+    //Remove this TNT block
+    setWorldBlock(&pos, (Block) {BLOCK_AIR, 0});
+
+    //Remove blocks in explosion radius
+    for(int8_t i = x - TNT_RADIUS; i <= x + TNT_RADIUS; i++)
+    {
+        for(int8_t j = y - TNT_RADIUS; j <= y + TNT_RADIUS; j++)
+        {
+            for(int8_t k = z - TNT_RADIUS; k <= z + TNT_RADIUS; k++)
+            {
+                if(sqrtf(powf(i - x, 2) + powf(j - y, 2) + powf(k - z, 2)) <= TNT_RADIUS)
+                {
+                    pos.chunk = chunk;
+                    pos.x = i;
+                    pos.y = j;
+                    pos.z = k;
+                    Block* block = getWorldBlock(&pos);
+                    if(block != NULL)
+                    {
+                        if(block->type == BLOCK_TNT)
+                        {
+                            //Explode other TNT blocks as well (chain reaction)
+                            explodeTNT(pos.chunk, pos.x, pos.y, pos.z);
+                        }
+                        else if(block->type != BLOCK_BEDROCK)
+                        {
+                            setWorldBlock(&pos, (Block) {BLOCK_AIR, 0});
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 void tickBlock(Chunk* chunk, Block* block, uint8_t x, uint8_t y, uint8_t z)
 {
     switch(block->type)
@@ -132,18 +171,18 @@ void tickBlock(Chunk* chunk, Block* block, uint8_t x, uint8_t y, uint8_t z)
         {
             uint8_t oldState = block->data & BLOCK_DATA_POWER;
             //Check if the torch is powered from below - if so, turn it off
-            uint8_t powerBelow = 0; //TODO
+            uint8_t powerBelow = getAdjacentPower(chunk, x, y - 1, z);
             //Check if something changed
-            if(powerBelow == 0 && (block->data & BLOCK_DATA_POWER) > 0)
-            {
-                block->data |= BLOCK_DATA_POWER;
-                block->data |= BLOCK_DATA_TEXTURE1;
-                chunk->modified = 1;
-            }
-            else if(powerBelow > 0 && (block->data & BLOCK_DATA_POWER) == 0)
+            if((block->data & BLOCK_DATA_POWER) && powerBelow)
             {
                 block->data &= ~BLOCK_DATA_POWER;
                 block->data &= ~BLOCK_DATA_TEXTURE;
+                chunk->modified = 1;
+            }
+            else if((block->data & BLOCK_DATA_POWER) == 0 && powerBelow == 0)
+            {
+                block->data |= BLOCK_DATA_POWER;
+                block->data |= BLOCK_DATA_TEXTURE1;
                 chunk->modified = 1;
             }
             break;
@@ -152,28 +191,7 @@ void tickBlock(Chunk* chunk, Block* block, uint8_t x, uint8_t y, uint8_t z)
         {
             if(getAdjacentPower(chunk, x, y, z))
             {
-                BlockPos pos = {chunk->position, x, y, z};
-                for(int8_t i = x - TNT_RADIUS; i <= x + TNT_RADIUS; i++)
-                {
-                    for(int8_t j = y - TNT_RADIUS; j <= y + TNT_RADIUS; j++)
-                    {
-                        for(int8_t k = z - TNT_RADIUS; k <= z + TNT_RADIUS; k++)
-                        {
-                            if(sqrtf(powf(i - x, 2) + powf(j - y, 2) + powf(k - z, 2)) <= TNT_RADIUS)
-                            {
-                                pos.chunk = chunk->position;
-                                pos.x = i;
-                                pos.y = j;
-                                pos.z = k;
-                                Block* block = getWorldBlock(&pos);
-                                if(block != NULL && block->type != BLOCK_BEDROCK)
-                                {
-                                    setWorldBlock(&pos, (Block) {BLOCK_AIR, 0});
-                                }
-                            }
-                        }
-                    }
-                }
+                explodeTNT(chunk->position, x, y, z);
             }
             break;
         }
