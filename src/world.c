@@ -38,7 +38,7 @@ void initWorld(uint32_t seed)
     }
     chunkPos = (ChunkPos) {0, 0, 0};
 
-    modifiedChunks = createOctree((vec3) {0, 0, 0}, INT16_MAX * 2, NULL);
+    modifiedChunks = createOctree((vec3) {0, VIEW_DISTANCE / 2, 0}, INT16_MAX * 2, NULL);
 
     worldTicks = 0;
 
@@ -545,12 +545,6 @@ void saveWorld()
                 }
             }
         }
-    }
-
-    //Don't save anything if we didn't modify anything
-    if(octreeEmpty(modifiedChunks))
-    {
-        return;
     }
 
     saveOctree(modifiedChunks);

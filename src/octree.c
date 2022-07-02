@@ -131,11 +131,11 @@ bool octreeEmpty(Octree* octree)
     //Since we always insert into an octree first, the children have to be NULL if the chunk is NULL
     else if(octree->chunk == NULL)
     {
-        return false;
+        return true;
     }
     else
     {
-        return true;
+        return false;
     }
 }
 

@@ -36,7 +36,7 @@ typedef enum {
     STATE_MENU
 } State;
 
-#define SAVE_VERSION 20
+#define SAVE_VERSION 30
 #define SAVE_NAME             "game.sav"
 #define INSTANTPLAY_SAVE_NAME "instantplay.sav"
 
@@ -382,8 +382,8 @@ void saveGame(char* name)
         uint16_t saveVersion = SAVE_VERSION;
         writeElement(&saveVersion, sizeof(uint16_t));
         savePlayer(&player);
-        saveWorld();
         saveHotbar();
+        saveWorld();
         closeSave();
     }
 }
@@ -398,8 +398,8 @@ void loadGame(char* name)
         if(saveVersion / 10 == SAVE_VERSION / 10)
         {
             loadPlayer(&player);
-            loadWorld();
             loadHotbar();
+            loadWorld();
         }
         else
         {

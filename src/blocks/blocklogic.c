@@ -36,7 +36,7 @@ uint8_t hasAdjacentWater(Chunk* chunk, uint8_t x, uint8_t y, uint8_t z)
     return result;
 }
 
-uint8_t getAdjacentPower(Chunk* chunk, uint8_t x, uint8_t y, uint8_t z)
+uint8_t getAdjacentPower(Chunk* chunk, uint8_t x, uint8_t y, uint8_t z, bool onlyWire)
 {
     uint8_t maxPower = 0;
     
@@ -49,8 +49,11 @@ uint8_t getAdjacentPower(Chunk* chunk, uint8_t x, uint8_t y, uint8_t z)
         Block* block = getWorldBlock(&blockPos);
         if(block != NULL)
         {
-            uint8_t tempPower = block->data & BLOCK_DATA_POWER;
-            maxPower = tempPower > maxPower ? tempPower : maxPower;
+            if(!onlyWire || (onlyWire && block->type == BLOCK_REDSTONE_WIRE))
+            {
+                uint8_t tempPower = block->data & BLOCK_DATA_POWER;
+                maxPower = tempPower > maxPower ? tempPower : maxPower;
+            }
         }
     }
 
@@ -123,7 +126,7 @@ void tickBlock(Chunk* chunk, Block* block, uint8_t x, uint8_t y, uint8_t z)
         }
         case BLOCK_REDSTONE_LAMP:
         {
-            uint8_t adjacentPower = getAdjacentPower(chunk, x, y, z);
+            uint8_t adjacentPower = getAdjacentPower(chunk, x, y, z, false);
             //Check if something changed
             if((block->data & BLOCK_DATA_TEXTURE) == 0 && adjacentPower)
             {
@@ -140,8 +143,16 @@ void tickBlock(Chunk* chunk, Block* block, uint8_t x, uint8_t y, uint8_t z)
         }
         case BLOCK_REDSTONE_WIRE:
         {
-            uint8_t adjacentPower = getAdjacentPower(chunk, x, y, z);
+            //Check for power around block
+            uint8_t adjacentPower = getAdjacentPower(chunk, x, y, z, false);
             uint8_t blockPower = (block->data & BLOCK_DATA_POWER);
+
+            //Check specifically for redstone wire one block higher and lower
+            uint8_t tempPower = getAdjacentPower(chunk, x, y - 1, z, true);
+            adjacentPower = tempPower > adjacentPower ? tempPower : adjacentPower;
+            tempPower = getAdjacentPower(chunk, x, y + 1, z, true);
+            adjacentPower = tempPower > adjacentPower ? tempPower : adjacentPower;
+
             //Check if something changed
             if(adjacentPower != blockPower + BLOCK_DATA_POWER1 && !(adjacentPower == 0 && blockPower == 0))
             {
@@ -171,7 +182,7 @@ void tickBlock(Chunk* chunk, Block* block, uint8_t x, uint8_t y, uint8_t z)
         {
             uint8_t oldState = block->data & BLOCK_DATA_POWER;
             //Check if the torch is powered from below - if so, turn it off
-            uint8_t powerBelow = getAdjacentPower(chunk, x, y - 1, z);
+            uint8_t powerBelow = getAdjacentPower(chunk, x, y - 1, z, false);
             //Check if something changed
             if((block->data & BLOCK_DATA_POWER) && powerBelow)
             {
@@ -189,7 +200,7 @@ void tickBlock(Chunk* chunk, Block* block, uint8_t x, uint8_t y, uint8_t z)
         }
         case BLOCK_TNT:
         {
-            if(getAdjacentPower(chunk, x, y, z))
+            if(getAdjacentPower(chunk, x, y, z, false))
             {
                 explodeTNT(chunk->position, x, y, z);
             }

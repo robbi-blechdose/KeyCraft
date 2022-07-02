@@ -128,23 +128,23 @@ void generateChunk(Chunk* chunk)
                     }
                     else
                     {
-                        if(getNoiseRand(x, z, i, k, RAND_ORE_COAL + j) < 0.03f)
+                        if(getNoiseRand(x, z, i, k, RAND_ORE_COAL + j * 4) < 0.05f)
                         {
                             CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_IRON_ORE;
                         }
-                        else if(getNoiseRand(x, z, i, k, RAND_ORE_IRON + j) < 0.02f)
+                        else if(getNoiseRand(x, z, i, k, RAND_ORE_IRON + j * 4) < 0.03f)
                         {
                             CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_COAL_ORE;
                         }
-                        else if(getNoiseRand(x, z, i, k, RAND_ORE_GOLD + j) < 0.015f)
+                        else if(getNoiseRand(x, z, i, k, RAND_ORE_GOLD + j * 4) < 0.015f)
                         {
                             CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_GOLD_ORE;
                         }
-                        else if(getNoiseRand(x, z, i, k, RAND_ORE_REDSTONE + j) < 0.015f)
+                        else if(getNoiseRand(x, z, i, k, RAND_ORE_REDSTONE + j * 4) < 0.015f)
                         {
                             CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_REDSTONE_ORE;
                         }
-                        else if(getNoiseRand(x, z, i, k, RAND_ORE_DIAMOND + j) < 0.01f)
+                        else if(getNoiseRand(x, z, i, k, RAND_ORE_DIAMOND + j * 4) < 0.01f)
                         {
                             CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_DIAMOND_ORE;
                         }

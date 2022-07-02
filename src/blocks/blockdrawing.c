@@ -284,9 +284,9 @@ void drawFlatBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlus
     glVertex3f(x, y + (BLOCK_SIZE / 20), z);
 }
 
+//"block pixel", basically 1/8th of a block length
 #define BP (BLOCK_SIZE / 8.0f)
 
-//TODO: Rotation
 void drawSwitch(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
 {
     //5 faces (bottom isn't needed)
