@@ -16,4 +16,6 @@ typedef struct {
     int8_t z;
 } BlockPos;
 
+void getBlockPosByDirection(uint8_t dir, BlockPos* pos);
+
 #endif

@@ -28,11 +28,13 @@ const char* blockNames[] = {
     [BLOCK_REDSTONE_LAMP] = "Redstone lamp",
     [BLOCK_REDSTONE_WIRE] = "Redstone wire",
     [BLOCK_REDSTONE_TORCH] = "Redstone torch",
-    [BLOCK_COBBLESTONE] = "Cobblestone",
+    //[BLOCK_REDSTONE_REPEATER] = "Redstone repeater",
+    [BLOCK_TNT] = "TNT",
 
     [BLOCK_SUGAR_CANE] = "Sugar cane",
-    [BLOCK_TNT] = "TNT",
     [BLOCK_CRAFTING_TABLE] = "Crafting table",
+    [BLOCK_COBBLESTONE] = "Cobblestone",
+    [BLOCK_PISTON] = "Piston",
 
     [BLOCK_FURNACE] = "Furnace",
 
@@ -59,7 +61,7 @@ void drawBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
         case BLOCK_REDSTONE_TORCH:
         case BLOCK_SUGAR_CANE:
         {
-            drawXBlock(block, x, y, z, occlusion);
+            drawXBlock(block, x, y, z);
             break;
         }
         case BLOCK_DOOR:
@@ -74,7 +76,23 @@ void drawBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
         }
         case BLOCK_LEVER:
         {
-            drawSwitch(block, x, y, z, occlusion);
+            drawSwitch(block, x, y, z);
+            break;
+        }
+        case BLOCK_PISTON:
+        {
+            //TODO: Rotation, correct texture orientation
+            drawMultitexBlock(block, x, y, z, occlusion);
+            break;
+        }
+        case BLOCK_PISTON_BASE:
+        {
+            drawPistonBase(block, x, y, z, occlusion);
+            break;
+        }
+        case BLOCK_PISTON_HEAD:
+        {
+            drawPistonHead(block, x, y, z, occlusion);
             break;
         }
         default:
@@ -101,6 +119,10 @@ vec2 getInventoryTextureForBlock(Block block)
         {
             return (vec2) {64, 0};
         }
+        case BLOCK_PISTON:
+        {
+            return (vec2) {72, 0};
+        }
         default:
         {
             return getBlockTexture(block.type, block.data & BLOCK_DATA_TEXTURE);
@@ -122,6 +144,8 @@ bool isOpaqueBlock(BlockType type)
         case BLOCK_REDSTONE_WIRE:
         case BLOCK_SUGAR_CANE:
         case BLOCK_LEVER:
+        case BLOCK_PISTON_BASE:
+        case BLOCK_PISTON_HEAD:
         {
             return false;
         }
@@ -189,6 +213,7 @@ bool isBlockOriented(BlockType type)
     {
         case BLOCK_DOOR:
         case BLOCK_LEVER:
+        case BLOCK_PISTON:
         {
             return true;
         }

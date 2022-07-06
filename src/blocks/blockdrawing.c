@@ -5,7 +5,18 @@
 #include "../engine/includes/3dMath.h"
 #include "../engine/image.h"
 
+//TODO: Fix textures being skewed on "rotated" blocks
+
 #define glVectorV3(vec) glVertex3f((vec).x, (vec).y, (vec).z)
+
+#define BLOCK_ALL_FACES(V)  {\
+        {&V[0], &V[1], &V[2], &V[3]},\
+        {&V[4], &V[5], &V[6], &V[7]},\
+        {&V[5], &V[0], &V[3], &V[6]},\
+        {&V[1], &V[4], &V[7], &V[2]},\
+        {&V[3], &V[2], &V[7], &V[6]},\
+        {&V[5], &V[4], &V[1], &V[0]}\
+    }
 
 /**
  * PTCL - Pointer to texture Low - "lower" corner
@@ -50,11 +61,15 @@ const vec2i* blockTextures[] = {
     [BLOCK_REDSTONE_LAMP] = (vec2i[2]) {{2, 3}, {2, 4}},
     [BLOCK_REDSTONE_WIRE] = (vec2i[2]) {{4, 3}, {4, 4}},
     [BLOCK_REDSTONE_TORCH] = (vec2i[2]) {{5, 3}, {5, 4}},
-    [BLOCK_COBBLESTONE] = (vec2i[1]) {{6, 3}},
+    //[BLOCK_REDSTONE_REPEATER] = (vec2i[2]) {},
+    [BLOCK_TNT] = (vec2i[6]) {{7, 3}, {7, 3}, {7, 3}, {7, 3}, {7, 4}, {7, 4}},
 
     [BLOCK_SUGAR_CANE] = (vec2i[1]) {{0, 4}},
-    [BLOCK_TNT] = (vec2i[6]) {{6, 4}, {6, 4}, {6, 4}, {6, 4}, {6, 5}, {6, 5}},
     [BLOCK_CRAFTING_TABLE] = (vec2i[6]) {{1, 5}, {1, 5}, {2, 5}, {2, 5}, {0, 5}, {0, 1}},
+    [BLOCK_COBBLESTONE] = (vec2i[1]) {{3, 5}},
+    [BLOCK_PISTON] = (vec2i[6]) {{6, 5}, {1, 0}, {5, 5}, {5, 5}, {5, 5}, {5, 5}},
+    [BLOCK_PISTON_BASE] = (vec2i[3]) {{4, 5}, {5, 5}, {1, 0}},
+    [BLOCK_PISTON_HEAD] = (vec2i[2]) {{6, 5}, {0, 1}},
 
     [BLOCK_FURNACE] = (vec2i[6]) {{0, 6}, {1, 0}, {1, 0}, {1, 0}, {1, 0}, {1, 0}}
 };
@@ -86,15 +101,7 @@ void drawNormalBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occl
 {
     vec3 v[8];
     calcBlockCorners(v, x, y, z);
-
-    vec3* faces[6][4] = {
-        {&v[0], &v[1], &v[2], &v[3]},
-        {&v[4], &v[5], &v[6], &v[7]},
-        {&v[5], &v[0], &v[3], &v[6]},
-        {&v[1], &v[4], &v[7], &v[2]},
-        {&v[3], &v[2], &v[7], &v[6]},
-        {&v[5], &v[4], &v[1], &v[0]}
-    };
+    vec3* faces[6][4] = BLOCK_ALL_FACES(v);
 
     //Get texture position
     vec2 tex = getBlockTexture(block->type, block->data & BLOCK_DATA_TEXTURE);
@@ -129,15 +136,7 @@ void drawMultitexBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t oc
 {
     vec3 v[8];
     calcBlockCorners(v, x, y, z);
-
-    vec3* faces[6][4] = {
-        {&v[0], &v[1], &v[2], &v[3]},
-        {&v[4], &v[5], &v[6], &v[7]},
-        {&v[5], &v[0], &v[3], &v[6]},
-        {&v[1], &v[4], &v[7], &v[2]},
-        {&v[3], &v[2], &v[7], &v[6]},
-        {&v[5], &v[4], &v[1], &v[0]}
-    };
+    vec3* faces[6][4] = BLOCK_ALL_FACES(v);
 
     //Get texture positions
     vec2 tex[6];
@@ -168,7 +167,7 @@ void drawMultitexBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t oc
     }
 }
 
-void drawXBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
+void drawXBlock(Block* block, uint8_t x, uint8_t y, uint8_t z)
 {
     vec3 v[8];
     calcBlockCorners(v, x, y, z);
@@ -201,53 +200,74 @@ void drawXBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion
     glEnable(GL_CULL_FACE);
 }
 
-void drawDoor(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
+void swapTextures(vec2 textures[6][2], uint8_t a, uint8_t b)
+{
+    vec2 temp[2];
+    temp[0] = textures[a][0];
+    temp[1] = textures[a][1];
+    textures[a][0] = textures[b][0];
+    textures[a][1] = textures[b][1];
+    textures[b][0] = temp[0];
+    textures[b][1] = temp[1];
+}
+
+void drawPartBlock(uint8_t dir, uint8_t x, uint8_t y, uint8_t z, float size, bool startFront, vec2 textures[6][2])
 {
     //Calculate vertices
-    uint8_t front = (block->data & BLOCK_DATA_DIRECTION) == BLOCK_DATA_DIR_FRONT;
-    uint8_t back = (block->data & BLOCK_DATA_DIRECTION) == BLOCK_DATA_DIR_BACK;
-    uint8_t left = (block->data & BLOCK_DATA_DIRECTION) == BLOCK_DATA_DIR_LEFT;
-    uint8_t right = (block->data & BLOCK_DATA_DIRECTION) == BLOCK_DATA_DIR_RIGHT;
-    float x1 = (front || !back) ? x : x + 1 - DOOR_WIDTH;
-    float xS = (front || back) ? DOOR_WIDTH : BLOCK_SIZE;
-    float z1 = (left || !right) ? z : z + 1 - DOOR_WIDTH;
-    float zS = (left || right) ? DOOR_WIDTH : BLOCK_SIZE;
+    uint8_t front = dir == BLOCK_DATA_DIR_FRONT;
+    uint8_t back = dir == BLOCK_DATA_DIR_BACK;
+    uint8_t left = dir == BLOCK_DATA_DIR_LEFT;
+    uint8_t right = dir == BLOCK_DATA_DIR_RIGHT;
+    float x1;
+    float xS;
+    float z1;
+    float zS;
+    if(startFront)
+    {
+        x1 = (front || !back) ? x : x + 1 - size;
+        xS = (front || back) ? size : BLOCK_SIZE;
+        z1 = (left || !right) ? z : z + 1 - size;
+        zS = (left || right) ? size : BLOCK_SIZE;
+    }
+    else
+    {
+        x1 = (!front || back) ? x : x + 1 - size;
+        xS = (front || back) ? size : BLOCK_SIZE;
+        z1 = (!left || right) ? z : z + 1 - size;
+        zS = (left || right) ? size : BLOCK_SIZE;
+    }
 
     vec3 v[8];
     calcBlockVertices(v, x1, y, z1, xS, BLOCK_SIZE, zS);
+    vec3* faces[6][4] = BLOCK_ALL_FACES(v);
 
-    vec3* faces[6][4] = {
-        {&v[0], &v[1], &v[2], &v[3]},
-        {&v[4], &v[5], &v[6], &v[7]},
-        {&v[5], &v[0], &v[3], &v[6]},
-        {&v[1], &v[4], &v[7], &v[2]},
-        {&v[3], &v[2], &v[7], &v[6]},
-        {&v[5], &v[4], &v[1], &v[0]}
-    };
+    //Do nothing for front (standard texture order)
+    if(back)
+    {
+        //Swap f+b
+        swapTextures(textures, 0, 1);
+        //Swap l+r
+        swapTextures(textures, 2, 3);
+    }
+    else if(left)
+    {
+        //Swap b+r
+        swapTextures(textures, 0, 3);
+        //Swap f+l
+        swapTextures(textures, 1, 2);
+    }
+    else if(right)
+    {
+        //Swap b+l
+        swapTextures(textures, 0, 2);
+        //Swap f+r
+        swapTextures(textures, 1, 3);
+    }
 
-    //Door texture positions
-    vec2 texFB0 = getBlockTexture(block->type, block->data & BLOCK_DATA_PART ? 1 : 2);
-    vec2 texFB1 = {texFB0.x + 8, texFB0.y + 8};
-    vec2 texLR0 = getBlockTexture(block->type, 0);
-    vec2 texLR1 = {texLR0.x + 1, texLR0.y + 8};
-
-    uint8_t occlusionCheck = BS_FRONT;
     for(uint8_t i = 0; i < 6; i++)
     {
-        if(occlusion & occlusionCheck)
-        {
-            occlusionCheck <<= 1;
-            //continue;
-        }
-
-        vec2 tex0 = texLR0;
-        vec2 tex1 = texLR1;
-        if(((front || back) && (i == 2 || i == 3)) ||
-            ((left || right) && (i == 0 || i == 1)))
-        {
-            tex0 = texFB0;
-            tex1 = texFB1;
-        }
+        vec2 tex0 = textures[i][0];
+        vec2 tex1 = textures[i][1];
 
         glTexCoord2f(PTCH(tex1.x), PTCH(tex1.y));
         glVectorV3(*(faces[i][0]));
@@ -257,9 +277,26 @@ void drawDoor(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
         glVectorV3(*(faces[i][2]));
         glTexCoord2f(PTCH(tex1.x), PTCL(tex0.y));
         glVectorV3(*(faces[i][3]));
-
-        occlusionCheck <<= 1;
     }
+}
+
+void drawDoor(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
+{
+    vec2 texFB0 = getBlockTexture(block->type, block->data & BLOCK_DATA_PART ? 1 : 2);
+    vec2 texFB1 = {texFB0.x + 8, texFB0.y + 8};
+    vec2 texLR0 = getBlockTexture(block->type, 0);
+    vec2 texLR1 = {texLR0.x + 1, texLR0.y + 8};
+
+    vec2 textures[6][2] = {
+        texLR0, texLR1,
+        texLR0, texLR1,
+        texFB0, texFB1,
+        texFB0, texFB1,
+        texLR0, texLR1,
+        texLR0, texLR1
+    };
+
+    drawPartBlock(block->data & BLOCK_DATA_DIRECTION, x, y, z, DOOR_WIDTH, true, textures);
 }
 
 void drawFlatBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
@@ -284,10 +321,7 @@ void drawFlatBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlus
     glVertex3f(x, y + (BLOCK_SIZE / 20), z);
 }
 
-//"block pixel", basically 1/8th of a block length
-#define BP (BLOCK_SIZE / 8.0f)
-
-void drawSwitch(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
+void drawSwitch(Block* block, uint8_t x, uint8_t y, uint8_t z)
 {
     //5 faces (bottom isn't needed)
     vec3 v[8];
@@ -302,11 +336,11 @@ void drawSwitch(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion
     //Base
     if((block->data & BLOCK_DATA_DIRECTION) == BLOCK_DATA_DIR_FRONT || (block->data & BLOCK_DATA_DIRECTION) == BLOCK_DATA_DIR_BACK)
     {
-        calcBlockVertices(v, x + BP, y, z + BP * 2, BP * 6, BP * 2, BP * 4);
+        calcBlockVertices(v, x + BLOCK_PIXEL(1), y, z + BLOCK_PIXEL(2), BLOCK_PIXEL(6), BLOCK_PIXEL(2), BLOCK_PIXEL(4));
     }
     else
     {
-        calcBlockVertices(v, x + BP * 2, y, z + BP, BP * 4, BP * 2, BP * 6);
+        calcBlockVertices(v, x + BLOCK_PIXEL(2), y, z + BLOCK_PIXEL(1), BLOCK_PIXEL(4), BLOCK_PIXEL(2), BLOCK_PIXEL(6));
     }
 
     vec2 tex = getBlockTexture(BLOCK_COBBLESTONE, 0);
@@ -333,12 +367,12 @@ void drawSwitch(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion
     }
 
     //Lever
-    calcBlockVertices(v, -BP, -BP * 2.5f, -BP, BP * 2, BP * 5, BP * 2);
+    calcBlockVertices(v, -BLOCK_PIXEL(1), -BLOCK_PIXEL(2.5f), -BLOCK_PIXEL(1), BLOCK_PIXEL(2), BLOCK_PIXEL(5), BLOCK_PIXEL(2));
 
     //Rotate lever
     float angle = (block->data & BLOCK_DATA_POWER) ? DEG_TO_RAD(45) : DEG_TO_RAD(-45);
-    float xPos = x + BP * 4 + ((block->data & BLOCK_DATA_POWER) ? -BP * 2 : BP * 2);
-    float zPos = z + BP * 4 + ((block->data & BLOCK_DATA_POWER) ? BP * 2 : -BP * 2);
+    float xPos = x + BLOCK_PIXEL(4) + ((block->data & BLOCK_DATA_POWER) ? -BLOCK_PIXEL(2) : BLOCK_PIXEL(2));
+    float zPos = z + BLOCK_PIXEL(4) + ((block->data & BLOCK_DATA_POWER) ? BLOCK_PIXEL(2) : -BLOCK_PIXEL(2));
     for(uint8_t i = 0; i < 8; i++)
     {
         if((block->data & BLOCK_DATA_DIRECTION) == BLOCK_DATA_DIR_FRONT || (block->data & BLOCK_DATA_DIRECTION) == BLOCK_DATA_DIR_BACK)
@@ -346,15 +380,15 @@ void drawSwitch(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion
             v[i] = rotatev3(v[i], (vec3) {0, 0, 1}, angle);
 
             v[i].x += xPos;
-            v[i].y += y + BP * 3.1f;
-            v[i].z += z + BP * 4;
+            v[i].y += y + BLOCK_PIXEL(3.1f);
+            v[i].z += z + BLOCK_PIXEL(4);
         }
         else
         {
             v[i] = rotatev3(v[i], (vec3) {1, 0, 0}, angle);
 
-            v[i].x += x + BP * 4;
-            v[i].y += y + BP * 3.1f;
+            v[i].x += x + BLOCK_PIXEL(4);
+            v[i].y += y + BLOCK_PIXEL(3.1f);
             v[i].z += zPos;
         }
     }
@@ -379,6 +413,103 @@ void drawSwitch(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion
         glTexCoord2f(texX1, texY1);
         glVectorV3(*(faces[i][2]));
         glTexCoord2f(faceTextures2[i].x, texY1);
+        glVectorV3(*(faces[i][3]));
+    }
+}
+
+void drawPistonBase(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
+{
+    vec2 texF0 = getBlockTexture(block->type, 0);
+    vec2 texF1 = {texF0.x + 8, texF0.y + 8};
+    vec2 texB0 = getBlockTexture(block->type, 2);
+    vec2 texB1 = {texB0.x + 8, texB0.y + 8};
+    vec2 texS0 = getBlockTexture(block->type, 1);
+    vec2 texS1 = {texS0.x + 6, texS0.y + 8};
+
+    vec2 textures[6][2] = {
+        texS0, texS1,
+        texS0, texS1,
+        texB0, texB1,
+        texF0, texF1,
+        texS0, texS1,
+        texS0, texS1
+    };
+
+    drawPartBlock(block->data & BLOCK_DATA_DIRECTION, x, y, z, BLOCK_PIXEL(6), true, textures);
+
+    //We don't draw a rod part here, since the piston head takes care of it for us
+    //This is okay since the base and head *always* appear together
+}
+
+void drawPistonHead(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
+{
+    vec2 texF0 = getBlockTexture(block->type, 0);
+    vec2 texF1 = {texF0.x + 8, texF0.y + 8};
+    vec2 texS0 = getBlockTexture(block->type, 1);
+    vec2 texS1 = {texS0.x + 8, texS0.y + 8};
+    vec2 texS2 = {texS0.x + 2, texS0.y + 8};
+
+    vec2 textures[6][2] = {
+        texS0, texS2,
+        texS0, texS2,
+        texS0, texS1,
+        texF0, texF1,
+        texS0, texS2,
+        texS0, texS2
+    };
+
+    drawPartBlock(block->data & BLOCK_DATA_DIRECTION, x, y, z, BLOCK_PIXEL(2), false, textures);
+
+    //Draw piston rod (one block length to connect to the base)
+    vec2 texR0 = texS0;
+    vec2 texR1 = {texS0.x + 8, texS0.y + 2};
+
+    //Calculate vertices
+    uint8_t dir = block->data & BLOCK_DATA_DIRECTION;
+    uint8_t front = dir == BLOCK_DATA_DIR_FRONT;
+    uint8_t back = dir == BLOCK_DATA_DIR_BACK;
+    uint8_t left = dir == BLOCK_DATA_DIR_LEFT;
+    uint8_t right = dir == BLOCK_DATA_DIR_RIGHT;
+
+    float x1 = x - BLOCK_PIXEL(2);
+    float xS = BLOCK_SIZE;
+    float z1 = z + BLOCK_PIXEL(3);
+    float zS = BLOCK_PIXEL(2);
+    //Front is covered by the default case
+    if(back)
+    {
+        x1 = x + BLOCK_PIXEL(2);
+    }
+    else if(left)
+    {
+        x1 = x + BLOCK_PIXEL(3);
+        xS = BLOCK_PIXEL(2);
+        z1 = z - BLOCK_PIXEL(2);
+        zS = BLOCK_SIZE;
+    }
+    else if(right)
+    {
+        x1 = x + BLOCK_PIXEL(3);
+        xS = BLOCK_PIXEL(2);
+        z1 = z + BLOCK_PIXEL(2);
+        zS = BLOCK_SIZE;
+    }
+
+    vec3 v[8];
+    calcBlockVertices(v, x1, y + BLOCK_PIXEL(3), z1, xS, BLOCK_PIXEL(2), zS);
+    vec3* faces[6][4] = BLOCK_ALL_FACES(v);
+
+    for(uint8_t i = 0; i < 6; i++)
+    {
+        vec2 tex1 = texR1;
+
+        glTexCoord2f(PTCH(tex1.x), PTCH(tex1.y));
+        glVectorV3(*(faces[i][0]));
+        glTexCoord2f(PTCL(texR0.x), PTCH(tex1.y));
+        glVectorV3(*(faces[i][1]));
+        glTexCoord2f(PTCL(texR0.x), PTCL(texR0.y));
+        glVectorV3(*(faces[i][2]));
+        glTexCoord2f(PTCH(tex1.x), PTCL(texR0.y));
         glVectorV3(*(faces[i][3]));
     }
 }

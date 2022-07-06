@@ -8,6 +8,7 @@
 
 typedef enum {
     BLOCK_AIR = 0,
+
     BLOCK_BEDROCK,
     BLOCK_STONE,
     BLOCK_SAND,
@@ -34,11 +35,15 @@ typedef enum {
     BLOCK_REDSTONE_LAMP,
     BLOCK_REDSTONE_WIRE,
     BLOCK_REDSTONE_TORCH,
-    BLOCK_COBBLESTONE,
+    //BLOCK_REDSTONE_REPEATER,
+    BLOCK_TNT,
 
     BLOCK_SUGAR_CANE,
-    BLOCK_TNT,
     BLOCK_CRAFTING_TABLE,
+    BLOCK_COBBLESTONE,
+    BLOCK_PISTON,
+    BLOCK_PISTON_BASE,
+    BLOCK_PISTON_HEAD,
 
     BLOCK_FURNACE,
 
@@ -90,7 +95,8 @@ typedef struct {
 /** -------------------------------------------- **/
 
 #define BLOCK_SIZE 1.0f
-#define DOOR_WIDTH 0.1f
+#define BLOCK_PIXEL(X) ((BLOCK_SIZE / 8) * (X))
+#define DOOR_WIDTH (BLOCK_SIZE / 8)
 
 typedef enum {
     BS_FRONT  = 0b00000001,

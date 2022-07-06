@@ -109,7 +109,7 @@ void calcFrameGame(uint32_t ticks)
     //Place block
     if(keyUp(B_A) && result)
     {
-        uint8_t canPlace = !actWorldBlock(&block);
+        bool canPlace = !actWorldBlock(&block);
 
         //Calc position
         switch(result)

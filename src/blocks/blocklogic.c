@@ -1,8 +1,9 @@
 #include "blocklogic.h"
 
-#include "../world.h"
-
 #include "../engine/util.h"
+
+#include "../world.h"
+#include "blockutils.h"
 
 /**
  * Differences from the center position to the adjacent blocks:
@@ -203,6 +204,80 @@ void tickBlock(Chunk* chunk, Block* block, uint8_t x, uint8_t y, uint8_t z)
             if(getAdjacentPower(chunk, x, y, z, false))
             {
                 explodeTNT(chunk->position, x, y, z);
+            }
+            break;
+        }
+        case BLOCK_PISTON:
+        {
+            //Piston block can only extend
+            if(getAdjacentPower(chunk, x, y, z, false))
+            {
+                uint8_t dir = block->data & BLOCK_DATA_DIRECTION;
+                BlockPos pos = {chunk->position, x, y, z};
+                BlockPos pos2;
+                
+                getBlockPosByDirection(dir, &pos);
+                Block* front = getWorldBlock(&pos);
+                pos2 = pos;
+                getBlockPosByDirection(dir, &pos2);
+                Block* front2 = getWorldBlock(&pos2);
+
+                if(front != NULL)
+                {
+                    if(front->type == BLOCK_AIR)
+                    {
+                        //No block in front of piston, extend
+                        block->type = BLOCK_PISTON_BASE;
+                        setWorldBlock(&pos, (Block) {BLOCK_PISTON_HEAD, dir});
+                        chunk->modified = 1;
+                    }
+                    else if(front2->type == BLOCK_AIR)
+                    {
+                        //One block in front of piston, extend and push
+                        Block temp = *front;
+                        block->type = BLOCK_PISTON_BASE;
+                        setWorldBlock(&pos, (Block) {BLOCK_PISTON_HEAD, dir});
+                        setWorldBlock(&pos2, temp);
+                        chunk->modified = 1;
+                    }
+                }
+            }
+            break;
+        }
+        case BLOCK_PISTON_BASE:
+        {
+            //Piston base block can only retract
+            if(!getAdjacentPower(chunk, x, y, z, false))
+            {
+                uint8_t dir = block->data & BLOCK_DATA_DIRECTION;
+                BlockPos pos = {chunk->position, x, y, z};
+                BlockPos pos2;
+                
+                getBlockPosByDirection(dir, &pos);
+                Block* front = getWorldBlock(&pos);
+                pos2 = pos;
+                getBlockPosByDirection(dir, &pos2);
+                Block* front2 = getWorldBlock(&pos2);
+                
+                if(front != NULL && front2 != NULL)
+                {
+                    if(front2->type == BLOCK_AIR)
+                    {
+                        //No block in front of piston, retract
+                        block->type = BLOCK_PISTON;
+                        setWorldBlock(&pos, (Block) {BLOCK_AIR, 0});
+                        chunk->modified = 1;
+                    }
+                    else
+                    {
+                        //One block in front of piston, retract and pull
+                        Block temp = *front2;
+                        block->type = BLOCK_PISTON;
+                        setWorldBlock(&pos, temp);
+                        setWorldBlock(&pos2, (Block) {BLOCK_AIR, 0});
+                        chunk->modified = 1;
+                    }
+                }
             }
             break;
         }
