@@ -64,10 +64,11 @@ typedef struct {
  * XXXX XXXX
  *        TT - Texture, if set block uses normal texture + offset. Used by: Flower, Wheat, Water
  *      CC   - Counter. Used by: Wheat, Water
- * DD        - Direction, determines which way the block is facing. Used by: Door
+ * DD        - Direction, determines which way the block is facing. Used by: Door, piston
  *         P - Part, determines which part of a "multiblock" this is. Used by: Door
  *        S  - State. Used by: Door
- *   PP PP   - Power, between 0 and 15. 15 is "active" level and only used by power sources. Used by: Redstone wire, torch
+ *      R    - Redstone power. Used by: Redstone wire, torch, lever
+ *       V   - Visited, used for block traversal logic. Used by: Redstone wire
  **/
 
 /** ---------- Block data definitions ---------- **/
@@ -89,8 +90,9 @@ typedef struct {
 
 #define BLOCK_DATA_STATE     0b00000010
 
-#define BLOCK_DATA_POWER     0b00111100
-#define BLOCK_DATA_POWER1    0b00000100
+#define BLOCK_DATA_POWER     0b00001000
+
+#define BLOCK_DATA_VISITED   0b00000100
 
 /** -------------------------------------------- **/
 

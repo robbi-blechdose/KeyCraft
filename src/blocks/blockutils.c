@@ -2,6 +2,13 @@
 
 #include "block.h"
 
+int8_t adjacentDiffs[4][2] = {
+    {-1, 0},
+    { 2, 0},
+    {-1, 1},
+    {0, -2}
+};
+
 void getBlockPosByDirection(uint8_t dir, BlockPos* pos)
 {
     switch(dir)
