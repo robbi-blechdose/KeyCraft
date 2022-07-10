@@ -61,7 +61,7 @@ const vec2i* blockTextures[] = {
     [BLOCK_REDSTONE_LAMP] = (vec2i[2]) {{2, 3}, {2, 4}},
     [BLOCK_REDSTONE_WIRE] = (vec2i[2]) {{4, 3}, {4, 4}},
     [BLOCK_REDSTONE_TORCH] = (vec2i[2]) {{5, 3}, {5, 4}},
-    //[BLOCK_REDSTONE_REPEATER] = (vec2i[2]) {},
+    [BLOCK_REDSTONE_REPEATER] = (vec2i[2]) {{6, 3}, {6, 4}},
     [BLOCK_TNT] = (vec2i[6]) {{7, 3}, {7, 3}, {7, 3}, {7, 3}, {7, 4}, {7, 4}},
 
     [BLOCK_SUGAR_CANE] = (vec2i[1]) {{0, 4}},
@@ -269,14 +269,29 @@ void drawPartBlock(uint8_t dir, uint8_t x, uint8_t y, uint8_t z, float size, boo
         vec2 tex0 = textures[i][0];
         vec2 tex1 = textures[i][1];
 
-        glTexCoord2f(PTCH(tex1.x), PTCH(tex1.y));
-        glVectorV3(*(faces[i][0]));
-        glTexCoord2f(PTCL(tex0.x), PTCH(tex1.y));
-        glVectorV3(*(faces[i][1]));
-        glTexCoord2f(PTCL(tex0.x), PTCL(tex0.y));
-        glVectorV3(*(faces[i][2]));
-        glTexCoord2f(PTCH(tex1.x), PTCL(tex0.y));
-        glVectorV3(*(faces[i][3]));
+        //"rotate" texture by 90° if we're at the top or bottom
+        if(i > 3 && (left || right))
+        {
+            glTexCoord2f(PTCH(tex1.x), PTCL(tex0.y));
+            glVectorV3(*(faces[i][0]));
+            glTexCoord2f(PTCH(tex1.x), PTCH(tex1.y));
+            glVectorV3(*(faces[i][1]));
+            glTexCoord2f(PTCL(tex0.x), PTCH(tex1.y));
+            glVectorV3(*(faces[i][2]));
+            glTexCoord2f(PTCL(tex0.x), PTCL(tex0.y));
+            glVectorV3(*(faces[i][3]));
+        }
+        else
+        {
+            glTexCoord2f(PTCH(tex1.x), PTCH(tex1.y));
+            glVectorV3(*(faces[i][0]));
+            glTexCoord2f(PTCL(tex0.x), PTCH(tex1.y));
+            glVectorV3(*(faces[i][1]));
+            glTexCoord2f(PTCL(tex0.x), PTCL(tex0.y));
+            glVectorV3(*(faces[i][2]));
+            glTexCoord2f(PTCH(tex1.x), PTCL(tex0.y));
+            glVectorV3(*(faces[i][3]));
+        }
     }
 }
 

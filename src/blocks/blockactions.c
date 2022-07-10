@@ -1,5 +1,9 @@
 #include "blockactions.h"
 
+#include "../engine/audio.h"
+
+#include "../sfx.h"
+
 bool actBlock(Chunk* chunk, Block* block)
 {
     if(block->type == BLOCK_DOOR)
@@ -79,8 +83,10 @@ bool actBlock(Chunk* chunk, Block* block)
         {
             block->data |= BLOCK_DATA_POWER;
         }
-        
         chunk->modified = 1;
+
+        playSample(SFX_LEVER);
+
         return true;
     }
     return false;

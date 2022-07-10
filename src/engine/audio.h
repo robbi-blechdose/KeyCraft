@@ -17,6 +17,7 @@ void stopMusic(uint16_t fadeOut);
 //Sample functions
 
 uint8_t loadSample(char* filename);
+void loadSampleIndex(uint8_t index, char* filename);
 void playSample(uint8_t index);
 
 #endif

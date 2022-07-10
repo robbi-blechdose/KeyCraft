@@ -1,0 +1,4 @@
+mus/curiouscritters.ogg - https://opengameart.org/content/curious-critters
+
+sfx/click20.ogg - https://opengameart.org/content/87-clickety-clips
+sfx/explosion.ogg - https://opengameart.org/content/q009s-weapon-sounds

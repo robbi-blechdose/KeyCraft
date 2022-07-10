@@ -28,7 +28,7 @@ const char* blockNames[] = {
     [BLOCK_REDSTONE_LAMP] = "Redstone lamp",
     [BLOCK_REDSTONE_WIRE] = "Redstone wire",
     [BLOCK_REDSTONE_TORCH] = "Redstone torch",
-    //[BLOCK_REDSTONE_REPEATER] = "Redstone repeater",
+    [BLOCK_REDSTONE_REPEATER] = "Redstone repeater",
     [BLOCK_TNT] = "TNT",
 
     [BLOCK_SUGAR_CANE] = "Sugar cane",
@@ -70,6 +70,7 @@ void drawBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
             break;
         }
         case BLOCK_REDSTONE_WIRE:
+        case BLOCK_REDSTONE_REPEATER:
         {
             drawFlatBlock(block, x, y, z, occlusion);
             break;
@@ -146,6 +147,7 @@ bool isOpaqueBlock(BlockType type)
         case BLOCK_LEVER:
         case BLOCK_PISTON_BASE:
         case BLOCK_PISTON_HEAD:
+        case BLOCK_REDSTONE_REPEATER:
         {
             return false;
         }
@@ -174,6 +176,7 @@ bool canPlaceBlock(BlockType toPlace, BlockType below)
         case BLOCK_REDSTONE_TORCH:
         case BLOCK_REDSTONE_WIRE:
         case BLOCK_LEVER:
+        case BLOCK_REDSTONE_REPEATER:
         {
             return isBlockCollidable(below);
         }
@@ -197,6 +200,7 @@ bool isBlockCollidable(BlockType type)
         case BLOCK_REDSTONE_WIRE:
         case BLOCK_SUGAR_CANE:
         case BLOCK_LEVER:
+        case BLOCK_REDSTONE_REPEATER:
         {
             return false;
         }
@@ -214,6 +218,7 @@ bool isBlockOriented(BlockType type)
         case BLOCK_DOOR:
         case BLOCK_LEVER:
         case BLOCK_PISTON:
+        case BLOCK_REDSTONE_REPEATER:
         {
             return true;
         }

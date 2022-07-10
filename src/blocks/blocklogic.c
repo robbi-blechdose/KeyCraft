@@ -1,9 +1,11 @@
 #include "blocklogic.h"
 
 #include "../engine/util.h"
+#include "../engine/audio.h"
 
 #include "../world.h"
 #include "blockutils.h"
+#include "../sfx.h"
 
 /**
  * Differences from the center position to the adjacent blocks:
@@ -204,6 +206,7 @@ void tickBlock(Chunk* chunk, Block* block, uint8_t x, uint8_t y, uint8_t z)
             if(getAdjacentPower(chunk, x, y, z, false))
             {
                 explodeTNT(chunk->position, x, y, z);
+                playSample(SFX_TNT);
             }
             break;
         }

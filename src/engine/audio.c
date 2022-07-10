@@ -12,9 +12,9 @@ void initAudio(uint8_t volume, uint8_t nm, uint8_t ns)
     numSamples = ns;
 
     Mix_Init(MIX_INIT_OGG);
-    Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 1, 1024);
-    Mix_VolumeMusic(volume);
+    Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, 1024);
     Mix_AllocateChannels(NUM_MIX_CHANNELS);
+    Mix_VolumeMusic(volume);
     Mix_Volume(-1, volume);
 
     music = malloc(sizeof(Mix_Music*) * numMusic);
@@ -96,6 +96,11 @@ uint8_t loadSample(char* filename)
 {
     samples[sampleIndex] = Mix_LoadWAV(filename);
     return sampleIndex++;
+}
+
+void loadSampleIndex(uint8_t index, char* filename)
+{
+    samples[index] = Mix_LoadWAV(filename);
 }
 
 void playSample(uint8_t index)
