@@ -10,15 +10,16 @@
  **/
 #define CENTER(X) (WINX / 2 - (X) * 4)
 
-#define MENU_SIZE 3
+#define MENU_SIZE 4
 int8_t menuCursor = 0;
 
 uint8_t menuFlags = 0;
 
-const char* menuStrings[] = {
+const char* mainMenuStrings[] = {
     "Continue",
     "New game",
-    "Options"
+    "Options",
+    "Quit"
 };
 
 void drawMenu()

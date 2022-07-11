@@ -226,10 +226,13 @@ void calcFrameGame(uint32_t ticks)
     {
         scrollHotbar();
     }
-
-    if(keyUp(B_START))
+    else if(keyUp(B_START))
     {
         state = STATE_INVENTORY;
+    }
+    else if(keyUp(B_MENU))
+    {
+        state = STATE_MENU;
     }
 
     calcWorld(&player.position, ticks);
@@ -284,8 +287,7 @@ void calcFrame(uint32_t ticks)
             {
                 scrollHotbar();
             }
-
-            if(keyUp(B_START))
+            else if(keyUp(B_START))
             {
                 state = STATE_GAME;
             }
@@ -329,6 +331,11 @@ void calcFrame(uint32_t ticks)
                     case MENU_SELECTION_OPTIONS:
                     {
                         //TODO
+                        break;
+                    }
+                    case MENU_SELECTION_QUIT:
+                    {
+                        running = false;
                         break;
                     }
                 }

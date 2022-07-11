@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <SDL/SDL.h>
 
-#define NUM_KEYS 12
+#define NUM_KEYS 13
 
 typedef enum {
     //Keypad
@@ -20,8 +20,8 @@ typedef enum {
     //Shoulder (trigger) buttons
     B_TL,
     B_TR,
-    //Power, Start, Select
-    //Q,
+    //Menu, Start, Select
+    B_MENU,
     B_SELECT,
     B_START
 } Key;
