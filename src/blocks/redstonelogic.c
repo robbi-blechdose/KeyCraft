@@ -59,6 +59,7 @@ bool hasCircuitPowerSource(ChunkPos chunk, uint8_t x, uint8_t y, uint8_t z)
         blockPos.y++;
         blockPos.x = x;
         blockPos.z = z;
+        blockPos.chunk = chunk;
     }
 
     bp->data &= ~BLOCK_DATA_VISITED;
@@ -101,6 +102,7 @@ void updateCircuit(ChunkPos chunk, uint8_t x, uint8_t y, uint8_t z, bool powered
         blockPos.y++;
         blockPos.x = x;
         blockPos.z = z;
+        blockPos.chunk = chunk;
     }
 }
 
