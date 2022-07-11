@@ -71,7 +71,8 @@ const vec2i* blockTextures[] = {
     [BLOCK_PISTON_BASE] = (vec2i[3]) {{4, 5}, {5, 5}, {1, 0}},
     [BLOCK_PISTON_HEAD] = (vec2i[2]) {{6, 5}, {0, 1}},
 
-    [BLOCK_FURNACE] = (vec2i[6]) {{0, 6}, {1, 0}, {1, 0}, {1, 0}, {1, 0}, {1, 0}}
+    [BLOCK_FURNACE] = (vec2i[6]) {{0, 6}, {1, 0}, {1, 0}, {1, 0}, {1, 0}, {1, 0}},
+    [BLOCK_CACTUS] = (vec2i[6]) {{2, 6}, {2, 6}, {2, 6}, {2, 6}, {3, 6}, {3, 6}}
 };
 
 vec2 getBlockTexture(BlockType type, uint8_t index)

@@ -46,6 +46,7 @@ typedef enum {
     BLOCK_PISTON_HEAD,
 
     BLOCK_FURNACE,
+    BLOCK_CACTUS,
 
     BLOCK_LEVER,
 

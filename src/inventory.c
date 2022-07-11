@@ -34,9 +34,9 @@ const InventoryTab inventory[NUM_INVENTORY_TABS] = {
         }
     },
     {
-        "Plants", 5,
+        "Plants", 6,
         {
-            B(BLOCK_FLOWER), {BLOCK_FLOWER, BLOCK_DATA_TEXTURE1}, B(BLOCK_TALL_GRASS), B(BLOCK_WHEAT), B(BLOCK_SUGAR_CANE)
+            B(BLOCK_FLOWER), {BLOCK_FLOWER, BLOCK_DATA_TEXTURE1}, B(BLOCK_TALL_GRASS), B(BLOCK_WHEAT), B(BLOCK_SUGAR_CANE), B(BLOCK_CACTUS)
         }
     },
     {

@@ -37,6 +37,7 @@ const char* blockNames[] = {
     [BLOCK_PISTON] = "Piston",
 
     [BLOCK_FURNACE] = "Furnace",
+    [BLOCK_CACTUS] = "Cactus",
 
     [BLOCK_LEVER] = "Lever"
 };
@@ -51,6 +52,7 @@ void drawBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
         case BLOCK_CRAFTING_TABLE:
         case BLOCK_FURNACE:
         case BLOCK_TNT:
+        case BLOCK_CACTUS:
         {
             drawMultitexBlock(block, x, y, z, occlusion);
             break;
@@ -171,6 +173,10 @@ bool canPlaceBlock(BlockType toPlace, BlockType below)
         case BLOCK_SUGAR_CANE:
         {
             return (below == BLOCK_SAND || below == BLOCK_SUGAR_CANE);
+        }
+        case BLOCK_CACTUS:
+        {
+            return (below == BLOCK_SAND || below == BLOCK_CACTUS);
         }
         case BLOCK_DOOR:
         case BLOCK_REDSTONE_TORCH:
