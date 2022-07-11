@@ -15,7 +15,7 @@ int8_t menuCursor = 0;
 
 uint8_t menuFlags = 0;
 
-const char* mainMenuStrings[] = {
+const char* menuStrings[] = {
     "Continue",
     "New game",
     "Options",
