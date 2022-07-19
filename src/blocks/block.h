@@ -48,6 +48,7 @@ typedef enum {
     BLOCK_FURNACE,
     BLOCK_CACTUS,
     BLOCK_DEAD_SHRUB,
+    BLOCK_COMPUTER,
 
     BLOCK_LEVER,
 

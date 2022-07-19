@@ -85,7 +85,7 @@ void tickBlock(Chunk* chunk, Block* block, uint8_t x, uint8_t y, uint8_t z)
                     {
                         (block->data)++;
                         block->data &= ~BLOCK_DATA_COUNTER; //Clear counter
-                        chunk->modified = 1;
+                        CHUNK_SET_FLAG(chunk, CHUNK_MODIFIED);
                     }
                 }
             }
@@ -98,12 +98,12 @@ void tickBlock(Chunk* chunk, Block* block, uint8_t x, uint8_t y, uint8_t z)
             if((block->data & BLOCK_DATA_TEXTURE) == 0 && adjacentPower)
             {
                 block->data |= BLOCK_DATA_TEXTURE1;
-                chunk->modified = 1;
+                CHUNK_SET_FLAG(chunk, CHUNK_MODIFIED);
             }
             else if((block->data & BLOCK_DATA_TEXTURE) == BLOCK_DATA_TEXTURE1 && !adjacentPower)
             {
                 block->data &= ~BLOCK_DATA_TEXTURE;
-                chunk->modified = 1;
+                CHUNK_SET_FLAG(chunk, CHUNK_MODIFIED);
             }
             //else no change
             break;
@@ -123,13 +123,13 @@ void tickBlock(Chunk* chunk, Block* block, uint8_t x, uint8_t y, uint8_t z)
             {
                 block->data &= ~BLOCK_DATA_POWER;
                 block->data &= ~BLOCK_DATA_TEXTURE;
-                chunk->modified = 1;
+                CHUNK_SET_FLAG(chunk, CHUNK_MODIFIED);
             }
             else if((block->data & BLOCK_DATA_POWER) == 0 && !powerBelow)
             {
                 block->data |= BLOCK_DATA_POWER;
                 block->data |= BLOCK_DATA_TEXTURE1;
-                chunk->modified = 1;
+                CHUNK_SET_FLAG(chunk, CHUNK_MODIFIED);
             }
             break;
         }
@@ -164,7 +164,7 @@ void tickBlock(Chunk* chunk, Block* block, uint8_t x, uint8_t y, uint8_t z)
                         //No block in front of piston, extend
                         block->type = BLOCK_PISTON_BASE;
                         setWorldBlock(&pos, (Block) {BLOCK_PISTON_HEAD, dir});
-                        chunk->modified = 1;
+                        CHUNK_SET_FLAG(chunk, CHUNK_MODIFIED);
                     }
                     else if(front2->type == BLOCK_AIR)
                     {
@@ -173,7 +173,7 @@ void tickBlock(Chunk* chunk, Block* block, uint8_t x, uint8_t y, uint8_t z)
                         block->type = BLOCK_PISTON_BASE;
                         setWorldBlock(&pos, (Block) {BLOCK_PISTON_HEAD, dir});
                         setWorldBlock(&pos2, temp);
-                        chunk->modified = 1;
+                        CHUNK_SET_FLAG(chunk, CHUNK_MODIFIED);
                     }
                 }
             }
@@ -201,7 +201,7 @@ void tickBlock(Chunk* chunk, Block* block, uint8_t x, uint8_t y, uint8_t z)
                         //No block in front of piston, retract
                         block->type = BLOCK_PISTON;
                         setWorldBlock(&pos, (Block) {BLOCK_AIR, 0});
-                        chunk->modified = 1;
+                        CHUNK_SET_FLAG(chunk, CHUNK_MODIFIED);
                     }
                     else
                     {
@@ -210,10 +210,15 @@ void tickBlock(Chunk* chunk, Block* block, uint8_t x, uint8_t y, uint8_t z)
                         block->type = BLOCK_PISTON;
                         setWorldBlock(&pos, temp);
                         setWorldBlock(&pos2, (Block) {BLOCK_AIR, 0});
-                        chunk->modified = 1;
+                        CHUNK_SET_FLAG(chunk, CHUNK_MODIFIED);
                     }
                 }
             }
+            break;
+        }
+        case BLOCK_COMPUTER:
+        {
+            //TODO
             break;
         }
     }
@@ -222,7 +227,7 @@ void tickBlock(Chunk* chunk, Block* block, uint8_t x, uint8_t y, uint8_t z)
 void tickChunk(Chunk* chunk)
 {
     //Don't tick chunk if we're also recalculating the geometry
-    if(!chunk->modified)
+    if(!CHUNK_GET_FLAG(chunk, CHUNK_MODIFIED))
     {
         for(uint8_t i = 0; i < CHUNK_SIZE; i++)
         {

@@ -101,7 +101,7 @@ uint8_t getOcclusionForBlock(Chunk* chunk, uint8_t i, uint8_t j, uint8_t k)
 
 void generateDrawData(Chunk* chunk)
 {
-    chunk->isEmpty = 1;
+    CHUNK_SET_FLAG(chunk, CHUNK_IS_EMPTY);
     chunk->drawList = glGenLists(1);
 	glNewList(chunk->drawList, GL_COMPILE);
 	glBegin(GL_QUADS);
@@ -114,7 +114,7 @@ void generateDrawData(Chunk* chunk)
             {
                 if(CHUNK_BLOCK(chunk, i, j, k).type != BLOCK_AIR)
                 {
-                    chunk->isEmpty = 0;
+                    CHUNK_CLEAR_FLAG(chunk, CHUNK_IS_EMPTY);
 
                     uint8_t occlusion = getOcclusionForBlock(chunk, i, j, k);
 
@@ -133,14 +133,15 @@ void generateDrawData(Chunk* chunk)
 
 void calcChunk(Chunk* chunk)
 {
-    if(chunk->modified)
+    if(CHUNK_GET_FLAG(chunk, CHUNK_MODIFIED))
     {
-        if(!chunk->modified & CHUNK_MODIFIED_INITIAL)
+        if(!CHUNK_GET_FLAG(chunk, CHUNK_MODIFIED_INITIAL))
         {
             glDeleteList(chunk->drawList);
+            CHUNK_CLEAR_FLAG(chunk, CHUNK_MODIFIED_INITIAL);
         }
         generateDrawData(chunk);
-        chunk->modified = 0;
+        CHUNK_CLEAR_FLAG(chunk, CHUNK_MODIFIED);
     }
 }
 
@@ -166,7 +167,7 @@ void calcChunkAABB(Chunk* chunk)
 
 AABBSide intersectsRayChunk(Chunk* chunk, vec3* origin, vec3* direction, BlockPos* block, float* distance)
 {
-    if(chunk->isEmpty)
+    if(CHUNK_GET_FLAG(chunk, CHUNK_IS_EMPTY))
     {
         return 0;
     }
@@ -219,7 +220,7 @@ AABBSide intersectsRayChunk(Chunk* chunk, vec3* origin, vec3* direction, BlockPo
 
 bool intersectsAABBChunk(Chunk* chunk, AABB* aabb)
 {
-    if(chunk->isEmpty)
+    if(CHUNK_GET_FLAG(chunk, CHUNK_IS_EMPTY))
     {
         return false;
     }
@@ -266,9 +267,10 @@ void loadChunk(Chunk* chunk)
     readElement(&chunk->blocks, sizeof(Block) * CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE);
 
     //Since we loaded the chunk it's been player-modified (otherwise saving + loading doesn't take place)
-    chunk->initial = 0;
+    CHUNK_CLEAR_FLAG(chunk, CHUNK_IS_INITIAL);
     //Mark to build geometry
-    chunk->modified = CHUNK_MODIFIED_INITIAL;
+    CHUNK_SET_FLAG(chunk, CHUNK_MODIFIED);
+    CHUNK_SET_FLAG(chunk, CHUNK_MODIFIED_INITIAL);
     //Calculate basic AABB
     calcChunkAABB(chunk);
 }

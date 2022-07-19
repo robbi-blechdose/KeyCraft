@@ -73,7 +73,8 @@ const vec2i* blockTextures[] = {
 
     [BLOCK_FURNACE] = (vec2i[6]) {{0, 6}, {1, 0}, {1, 0}, {1, 0}, {1, 0}, {1, 0}},
     [BLOCK_CACTUS] = (vec2i[6]) {{2, 6}, {2, 6}, {2, 6}, {2, 6}, {3, 6}, {3, 6}},
-    [BLOCK_DEAD_SHRUB] = (vec2i[1]) {{4, 6}}
+    [BLOCK_DEAD_SHRUB] = (vec2i[1]) {{4, 6}},
+    [BLOCK_COMPUTER] = (vec2i[6]) {{5, 6}, {6, 6}, {7, 6}, {7, 6}, {7, 6}, {7, 6}}
 };
 
 vec2 getBlockTexture(BlockType type, uint8_t index)

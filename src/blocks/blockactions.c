@@ -70,7 +70,7 @@ bool actBlock(Chunk* chunk, Block* block)
         //Invert state
         block->data ^= BLOCK_DATA_STATE;
         
-        chunk->modified = 1;
+        CHUNK_SET_FLAG(chunk, CHUNK_MODIFIED_INITIAL);
         return true;
     }
     else if(block->type == BLOCK_LEVER)
@@ -83,10 +83,15 @@ bool actBlock(Chunk* chunk, Block* block)
         {
             block->data |= BLOCK_DATA_POWER;
         }
-        chunk->modified = 1;
+        CHUNK_SET_FLAG(chunk, CHUNK_MODIFIED_INITIAL);
 
         playSample(SFX_LEVER);
 
+        return true;
+    }
+    else if(block->type == BLOCK_COMPUTER)
+    {
+        //TODO: open GUI
         return true;
     }
     return false;

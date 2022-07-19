@@ -197,9 +197,9 @@ void generateChunkDesert(Chunk* chunk, uint8_t i, uint8_t j, uint8_t k, uint8_t 
     int16_t z = chunk->position.z;
 
     //Clamp to water level to prevent issues on biome transitions
-    if(height < WATER_LEVEL)
+    if(height <= WATER_LEVEL)
     {
-        height = WATER_LEVEL;
+        height = WATER_LEVEL + 1;
     }
 
     if(pos == height)
@@ -234,6 +234,9 @@ void generateChunk(Chunk* chunk)
     int16_t x = chunk->position.x;
     int16_t y = chunk->position.y;
     int16_t z = chunk->position.z;
+
+    //Clear chunk
+    memset(chunk->blocks, 0, CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE * sizeof(Block));
 
     //Generate base chunk
     for(uint8_t i = 0; i < CHUNK_SIZE; i++)
@@ -282,9 +285,10 @@ void generateChunk(Chunk* chunk)
     }
 
     //Mark chunk geometry to be built
-    chunk->modified = CHUNK_MODIFIED_INITIAL;
+    CHUNK_SET_FLAG(chunk, CHUNK_MODIFIED);
+    CHUNK_SET_FLAG(chunk, CHUNK_MODIFIED_INITIAL);
     //Mark chunk as initial - has been generated, no player-made modifications
-    chunk->initial = 1;
+    CHUNK_SET_FLAG(chunk, CHUNK_IS_INITIAL);
 
     //Calculate basic AABB
     calcChunkAABB(chunk);

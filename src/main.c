@@ -18,6 +18,7 @@
 #include "inventory.h"
 #include "gui/menu.h"
 #include "sfx.h"
+#include "gui/programming.h"
 
 #define DEBUG
 
@@ -34,7 +35,8 @@ uint32_t counterTime = 0;
 typedef enum {
     STATE_GAME,
     STATE_INVENTORY,
-    STATE_MENU
+    STATE_MENU,
+    STATE_PROGRAMMING,
 } State;
 
 #define SAVE_VERSION 30
@@ -238,6 +240,8 @@ void calcFrameGame(uint32_t ticks)
     calcWorld(&player.position, ticks);
 }
 
+ComputerData* c;
+
 void calcFrame(uint32_t ticks)
 {
     switch(state)
@@ -342,6 +346,42 @@ void calcFrame(uint32_t ticks)
             }
             break;
         }
+        case STATE_PROGRAMMING:
+        {
+            int8_t dirX = 0;
+            int8_t dirY = 0;
+            if(keyUp(B_UP))
+            {
+                dirY = -1;
+            }
+            else if(keyUp(B_DOWN))
+            {
+                dirY = 1;
+            }
+            if(keyUp(B_LEFT))
+            {
+                dirX = -1;
+            }
+            else if(keyUp(B_RIGHT))
+            {
+                dirX = 1;
+            }
+            moveProgrammingCursor(dirX, dirY);
+
+            if(keyUp(B_A))
+            {
+                enterProgrammingCursor(c);
+            }
+            else if(keyUp(B_B))
+            {
+                cancelProgrammingCursor();
+            }
+            else if(keyUp(B_START))
+            {
+                state = STATE_GAME;
+            }
+            break;
+        }
     }
 }
 
@@ -369,6 +409,11 @@ void drawFrame()
     {
         drawHotbar();
         drawInventory();
+    }
+    else if(state == STATE_PROGRAMMING)
+    {
+        drawProgrammingScreen(c);
+        //TODO
     }
     else //if(state == STATE_MENU)
     {
@@ -466,6 +511,9 @@ int main(int argc, char **argv)
 
     //Register signal handler for SIGUSR1 (closing the console)
 	signal(SIGUSR1, handleSigusr1);
+
+    c = createComputer();
+    state = STATE_PROGRAMMING;
 
     //Run main loop
 	uint32_t tNow = SDL_GetTicks();

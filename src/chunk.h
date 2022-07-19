@@ -18,13 +18,18 @@ typedef struct {
     Block blocks[CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE];
     GLuint drawList;
     //Flags
-    uint8_t isEmpty;
-    uint8_t modified;
-    uint8_t initial;
+    uint8_t flags;
 } Chunk;
 
 #define CHUNK_BLOCK(chunk, i, j, k) chunk->blocks[(i) + ((j) * CHUNK_SIZE) + ((k) * CHUNK_SIZE * CHUNK_SIZE)]
 
+#define CHUNK_GET_FLAG(chunk, flag) (chunk->flags & flag)
+#define CHUNK_SET_FLAG(chunk, flag) (chunk->flags |= flag)
+#define CHUNK_CLEAR_FLAG(chunk, flag) (chunk->flags &= ~flag)
+
+#define CHUNK_IS_EMPTY         0b00000001
+#define CHUNK_IS_INITIAL       0b00000010
+#define CHUNK_MODIFIED         0b01000000
 #define CHUNK_MODIFIED_INITIAL 0b10000000
 
 void calcChunk(Chunk* chunk);

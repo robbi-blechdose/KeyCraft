@@ -100,7 +100,7 @@ void swapChunks(SwapSide side, SwapDir direction)
                 toDestroy = VIEW_CHUNK(i, j, out);
             }
             //Check if chunk has been modified
-            if(toDestroy->initial)
+            if(CHUNK_GET_FLAG(toDestroy, CHUNK_IS_INITIAL))
             {
                 destroyChunk(toDestroy);
                 free(toDestroy);
@@ -175,24 +175,24 @@ void swapChunks(SwapSide side, SwapDir direction)
             else
             {
                 //Mark geometry to be rebuilt (in case adjacent chunks changed)
-                newChunk->modified = 1;
+                CHUNK_SET_FLAG(newChunk, CHUNK_MODIFIED);
             }
             
             //Set new chunk, mark adjacent chunk to be rebuilt
             int8_t dir = direction == SWP_FORE ? -1 : 1;
             if(side == SWP_FB)
             {
-                VIEW_CHUNK(in + dir, i, j)->modified = 1;
+                CHUNK_SET_FLAG(VIEW_CHUNK(in + dir, i, j), CHUNK_MODIFIED);
                 VIEW_CHUNK(in, i, j) = newChunk;
             }
             else if(side == SWP_LR)
             {
-                VIEW_CHUNK(i, j, in + dir)->modified = 1;
+                CHUNK_SET_FLAG(VIEW_CHUNK(i, j, in + dir), CHUNK_MODIFIED);
                 VIEW_CHUNK(i, j, in) = newChunk;
             }
             else
             {
-                VIEW_CHUNK(i, j, in + dir)->modified = 1;
+                CHUNK_SET_FLAG(VIEW_CHUNK(i, j, in + dir), CHUNK_MODIFIED);
                 VIEW_CHUNK(i, j, in) = newChunk;
             }
         }
@@ -263,7 +263,7 @@ void calcWorld(vec3* playerPos, uint32_t ticks)
             {
                 for(uint8_t k = 0; k < VIEW_DISTANCE; k++)
                 {
-                    if(!VIEW_CHUNK(i, j, k)->isEmpty)
+                    if(!CHUNK_GET_FLAG(VIEW_CHUNK(i, j, k), CHUNK_IS_EMPTY))
                     {
                         tickChunk(VIEW_CHUNK(i, j, k));
                     }
@@ -273,7 +273,6 @@ void calcWorld(vec3* playerPos, uint32_t ticks)
     }
 }
 
-//TODO: Skip chunks left or right of the screen player as well
 void drawWorld(vec3* playerPosition, vec3* playerRotation)
 {
     //y stays 0, we ignore the height for chunk culling
@@ -292,12 +291,16 @@ void drawWorld(vec3* playerPosition, vec3* playerRotation)
             chunkCenter.z = k * CHUNK_SIZE + (chunkPos.z * CHUNK_SIZE - playerPosition->z) - CHUNK_SIZE * 2;
 
             //Calculate "rotated" position (so that z is always in the camera direction)
-            //chunkCenterRot.x = chunkCenter.x * cosf(-playerRotation->y + M_PI) - chunkCenter.z * sinf(-playerRotation->y + M_PI);
+            chunkCenterRot.x = chunkCenter.x * cosf(-playerRotation->y + M_PI) - chunkCenter.z * sinf(-playerRotation->y + M_PI);
             chunkCenterRot.z = chunkCenter.x * sinf(-playerRotation->y + M_PI) + chunkCenter.z * cosf(-playerRotation->y + M_PI);
-            //vec3 chunkCenterRot = rotatev3(chunkCenter, (vec3) {.x = 0, .y = 1, .z = 0}, playerRotation->y - M_PI);
 
             //Skip drawing chunks behind the camera
             if(chunkCenterRot.z < -CHUNK_SIZE)
+            {
+                continue;
+            }
+            //Skip drawing chunks left/right of the camera
+            if(chunkCenterRot.z < 0 && (chunkCenterRot.x < -CHUNK_SIZE || chunkCenterRot.x > CHUNK_SIZE))
             {
                 continue;
             }
@@ -311,7 +314,7 @@ void drawWorld(vec3* playerPosition, vec3* playerRotation)
             for(uint8_t j = 0; j < VIEW_DISTANCE; j++)
             {
                 //Discard empty chunks
-                if(!VIEW_CHUNK(i, j, k)->isEmpty)
+                if(!CHUNK_GET_FLAG(VIEW_CHUNK(i, j, k), CHUNK_IS_EMPTY))
                 {
                     drawChunk(VIEW_CHUNK(i, j, k));
                 }
@@ -391,34 +394,34 @@ void setWorldBlock(BlockPos* pos, Block block)
     //Place block and mark chunk as modified
     Chunk* chunk = WORLD_CHUNK(pos->chunk.x, pos->chunk.y, pos->chunk.z);
     CHUNK_BLOCK(chunk, pos->x, pos->y, pos->z) = block;
-    chunk->modified = 1;
+    CHUNK_SET_FLAG(chunk, CHUNK_MODIFIED);
     //Mark chunk as player-modified
-    chunk->initial = 0;
+    CHUNK_CLEAR_FLAG(chunk, CHUNK_IS_INITIAL);
 
     //Mark adjacent chunks as modified if necessary
     if(pos->x == 0 && pos->chunk.x >= chunkPos.x)
     {
-        WORLD_CHUNK(pos->chunk.x - 1, pos->chunk.y, pos->chunk.z)->modified = 1;
+        CHUNK_SET_FLAG(WORLD_CHUNK(pos->chunk.x - 1, pos->chunk.y, pos->chunk.z), CHUNK_MODIFIED);
     }
     else if(pos->x == CHUNK_SIZE - 1 && pos->chunk.x < chunkPos.x + VIEW_DISTANCE)
     {
-        WORLD_CHUNK(pos->chunk.x + 1, pos->chunk.y, pos->chunk.z)->modified = 1;
+        CHUNK_SET_FLAG(WORLD_CHUNK(pos->chunk.x + 1, pos->chunk.y, pos->chunk.z), CHUNK_MODIFIED);
     }
     if(pos->y == 0 && pos->chunk.y >= chunkPos.y)
     {
-        WORLD_CHUNK(pos->chunk.x, pos->chunk.y - 1, pos->chunk.z)->modified = 1;
+        CHUNK_SET_FLAG(WORLD_CHUNK(pos->chunk.x, pos->chunk.y - 1, pos->chunk.z), CHUNK_MODIFIED);
     }
     else if(pos->y == CHUNK_SIZE - 1 && pos->chunk.y < chunkPos.y + VIEW_DISTANCE)
     {
-        WORLD_CHUNK(pos->chunk.x, pos->chunk.y + 1, pos->chunk.z)->modified = 1;
+        CHUNK_SET_FLAG(WORLD_CHUNK(pos->chunk.x, pos->chunk.y + 1, pos->chunk.z), CHUNK_MODIFIED);
     }
     if(pos->z == 0 && pos->chunk.z >= chunkPos.z)
     {
-        WORLD_CHUNK(pos->chunk.x, pos->chunk.y, pos->chunk.z - 1)->modified = 1;
+        CHUNK_SET_FLAG(WORLD_CHUNK(pos->chunk.x, pos->chunk.y, pos->chunk.z - 1), CHUNK_MODIFIED);
     }
     else if(pos->z == CHUNK_SIZE - 1 && pos->chunk.z < chunkPos.z + VIEW_DISTANCE)
     {
-        WORLD_CHUNK(pos->chunk.x, pos->chunk.y, pos->chunk.z + 1)->modified = 1;
+        CHUNK_SET_FLAG(WORLD_CHUNK(pos->chunk.x, pos->chunk.y, pos->chunk.z + 1), CHUNK_MODIFIED);
     }
 
     //Place door upper (yes, this is a special case)
@@ -477,7 +480,7 @@ AABBSide intersectsRayWorld(vec3* origin, vec3* direction, BlockPos* block, floa
             for(uint8_t k = 0; k < VIEW_DISTANCE; k++)
             {
                 //Discard empty chunks
-                if(!VIEW_CHUNK(i, j, k)->isEmpty)
+                if(!CHUNK_GET_FLAG(VIEW_CHUNK(i, j, k), CHUNK_IS_EMPTY))
                 {
                     AABBSide result = intersectsRayChunk(VIEW_CHUNK(i, j, k), origin, direction, block, distance);
                     if(result != AABB_NONE)
@@ -514,7 +517,7 @@ bool intersectsAABBWorld(AABB* aabb)
             for(uint8_t k = 0; k < VIEW_DISTANCE; k++)
             {
                 //Discard empty chunks
-                if(!VIEW_CHUNK(i, j, k)->isEmpty)
+                if(!CHUNK_GET_FLAG(VIEW_CHUNK(i, j, k), CHUNK_IS_EMPTY))
                 {
                     if(intersectsAABBChunk(VIEW_CHUNK(i, j, k), aabb))
                     {
@@ -539,7 +542,7 @@ void saveWorld()
         {
             for(uint8_t k = 0; k < VIEW_DISTANCE; k++)
             {
-                if(!VIEW_CHUNK(i, j, k)->initial)
+                if(!CHUNK_GET_FLAG(VIEW_CHUNK(i, j, k), CHUNK_IS_INITIAL))
                 {
                     insertOctree(modifiedChunks, VIEW_CHUNK(i, j, k));
                 }

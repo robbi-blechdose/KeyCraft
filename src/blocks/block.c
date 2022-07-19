@@ -39,6 +39,7 @@ const char* blockNames[] = {
     [BLOCK_FURNACE] = "Furnace",
     [BLOCK_CACTUS] = "Cactus",
     [BLOCK_DEAD_SHRUB] = "Dead shrub",
+    [BLOCK_COMPUTER] = "Computer",
 
     [BLOCK_LEVER] = "Lever"
 };
@@ -85,6 +86,7 @@ void drawBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
             break;
         }
         case BLOCK_PISTON:
+        case BLOCK_COMPUTER:
         {
             //TODO: Rotation, correct texture orientation
             drawMultitexBlock(block, x, y, z, occlusion);
@@ -233,6 +235,7 @@ bool isBlockOriented(BlockType type)
         case BLOCK_LEVER:
         case BLOCK_PISTON:
         case BLOCK_REDSTONE_REPEATER:
+        case BLOCK_COMPUTER:
         {
             return true;
         }
