@@ -97,6 +97,8 @@ typedef struct {
 
 #define BLOCK_DATA_VISITED   0b00000100
 
+#define BLOCK_DATA_COMPUTER  0b00001111
+
 /** -------------------------------------------- **/
 
 #define BLOCK_SIZE 1.0f

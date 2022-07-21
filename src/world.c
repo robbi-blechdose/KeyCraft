@@ -361,6 +361,22 @@ void normalizeBlockPos(BlockPos* pos)
     }
 }
 
+Chunk* getWorldChunk(BlockPos* pos)
+{
+    normalizeBlockPos(pos);
+    //Bounds check
+    if(pos->chunk.x >= chunkPos.x + VIEW_DISTANCE||
+        pos->chunk.x  < chunkPos.x ||
+        pos->chunk.y >= chunkPos.y + VIEW_DISTANCE ||
+        pos->chunk.y  < chunkPos.y ||
+        pos->chunk.z >= chunkPos.z + VIEW_DISTANCE ||
+        pos->chunk.z  < chunkPos.z)
+    {
+        return NULL;
+    }
+    return WORLD_CHUNK(pos->chunk.x, pos->chunk.y, pos->chunk.z);
+}
+
 Block* getWorldBlock(BlockPos* pos)
 {
     normalizeBlockPos(pos);
@@ -430,6 +446,19 @@ void setWorldBlock(BlockPos* pos, Block block)
         pos->y++;
         setWorldBlock(pos, (Block) {BLOCK_DOOR, block.data + BLOCK_DATA_PART});
         pos->y--;
+    }
+    else if(block.type == BLOCK_COMPUTER)
+    {
+        //Create computer data
+        for(uint8_t i = 0; i < NUM_COMPUTERS; i++)
+        {
+            if(chunk->computers[i] == NULL)
+            {
+                chunk->computers[i] = createComputer();
+                CHUNK_BLOCK(chunk, pos->x, pos->y, pos->z).data |= i;
+                break;
+            }
+        }
     }
 }
 

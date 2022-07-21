@@ -9,13 +9,16 @@
 #include "blocks/block.h"
 #include "aabb.h"
 #include "blocks/blockutils.h"
+#include "computer.h"
 
 #define CHUNK_SIZE 8
+#define NUM_COMPUTERS 8
 
 typedef struct {
     AABB aabb;
     ChunkPos position;
     Block blocks[CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE];
+    ComputerData* computers[NUM_COMPUTERS];
     GLuint drawList;
     //Flags
     uint8_t flags;

@@ -259,12 +259,40 @@ void saveChunk(Chunk* chunk)
 {
     writeElement(&chunk->position, sizeof(ChunkPos));
     writeElement(&chunk->blocks, sizeof(Block) * CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE);
+
+    uint8_t numComputers = 0;
+    for(uint8_t i = 0; i < NUM_COMPUTERS; i++)
+    {
+        if(chunk->computers[i] != NULL)
+        {
+            numComputers++;
+        }
+    }
+    writeElement(&numComputers, sizeof(uint8_t));
+    for(uint8_t i = 0; i < NUM_COMPUTERS; i++)
+    {
+        if(chunk->computers[i] != NULL)
+        {
+            writeElement(&i, sizeof(uint8_t));
+            writeElement(&chunk->computers[i]->program, PROGRAM_SIZE * sizeof(uint8_t));
+        }
+    }
 }
 
 void loadChunk(Chunk* chunk)
 {
     readElement(&chunk->position, sizeof(ChunkPos));
     readElement(&chunk->blocks, sizeof(Block) * CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE);
+
+    uint8_t numComputers;
+    readElement(&numComputers, sizeof(uint8_t));
+    for(uint8_t i = 0; i < numComputers; i++)
+    {
+        uint8_t index;
+        readElement(&index, sizeof(uint8_t));
+        chunk->computers[i] = createComputer();
+        readElement(&chunk->computers[i]->program, PROGRAM_SIZE * sizeof(uint8_t));
+    }
 
     //Since we loaded the chunk it's been player-modified (otherwise saving + loading doesn't take place)
     CHUNK_CLEAR_FLAG(chunk, CHUNK_IS_INITIAL);

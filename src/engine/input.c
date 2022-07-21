@@ -164,6 +164,10 @@ bool handleInput()
                 break;
             }
             #endif
+            default:
+            {
+                break;
+            }
         }
     }
     return running;

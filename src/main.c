@@ -53,6 +53,7 @@ bool running = true;
 bool quickSaveAndPoweroff = false;
 State state = STATE_MENU;
 Player player;
+ComputerData* programmingComputer;
 
 #ifdef DEBUG
 void drawFPS(uint16_t fps)
@@ -113,6 +114,12 @@ void calcFrameGame(uint32_t ticks)
     if(keyUp(B_A) && result)
     {
         bool canPlace = !actWorldBlock(&block);
+        if(getWorldBlock(&block)->type == BLOCK_COMPUTER)
+        {
+            programmingComputer = getWorldChunk(&block)->computers[getWorldBlock(&block)->data & BLOCK_DATA_COMPUTER];
+            state = STATE_PROGRAMMING;
+            canPlace = false;
+        }
 
         //Calc position
         switch(result)
@@ -199,12 +206,13 @@ void calcFrameGame(uint32_t ticks)
     //Remove block
     else if(keyUp(B_B) && result)
     {
-        if(getWorldBlock(&block)->type != BLOCK_BEDROCK)
+        Block* toRemove = getWorldBlock(&block);
+        if(toRemove->type != BLOCK_BEDROCK)
         {
             //Remove other door half (yes, this is a special case)
-            if(getWorldBlock(&block)->type == BLOCK_DOOR)
+            if(toRemove->type == BLOCK_DOOR)
             {
-                if(getWorldBlock(&block)->data & BLOCK_DATA_PART)
+                if(toRemove->data & BLOCK_DATA_PART)
                 {
                     //This is the upper part, remove lower
                     block.y--;
@@ -218,6 +226,12 @@ void calcFrameGame(uint32_t ticks)
                     setWorldBlock(&block, (Block) {BLOCK_AIR, 0});
                     block.y--;
                 }
+            }
+            else if(toRemove->type == BLOCK_COMPUTER)
+            {
+                //Remove computer data
+                uint8_t index = toRemove->data & BLOCK_DATA_COMPUTER;
+                //TODO
             }
 
             setWorldBlock(&block, (Block) {BLOCK_AIR, 0});
@@ -239,8 +253,6 @@ void calcFrameGame(uint32_t ticks)
 
     calcWorld(&player.position, ticks);
 }
-
-ComputerData* c;
 
 void calcFrame(uint32_t ticks)
 {
@@ -348,6 +360,8 @@ void calcFrame(uint32_t ticks)
         }
         case STATE_PROGRAMMING:
         {
+            calcWorld(&player.position, ticks);
+
             int8_t dirX = 0;
             int8_t dirY = 0;
             if(keyUp(B_UP))
@@ -370,16 +384,28 @@ void calcFrame(uint32_t ticks)
 
             if(keyUp(B_A))
             {
-                enterProgrammingCursor(c);
+                enterProgrammingCursor(programmingComputer);
             }
             else if(keyUp(B_B))
             {
                 cancelProgrammingCursor();
             }
+            else if(keyUp(B_X))
+            {
+                if(programmingComputer->af & COMPUTER_FLAG_RUNNING)
+                {
+                    programmingComputer->af &= ~COMPUTER_FLAG_RUNNING;
+                }
+                else
+                {
+                    programmingComputer->af |= COMPUTER_FLAG_RUNNING;
+                }
+            }
             else if(keyUp(B_START))
             {
                 state = STATE_GAME;
             }
+
             break;
         }
     }
@@ -412,8 +438,7 @@ void drawFrame()
     }
     else if(state == STATE_PROGRAMMING)
     {
-        drawProgrammingScreen(c);
-        //TODO
+        drawProgrammingScreen(programmingComputer);
     }
     else //if(state == STATE_MENU)
     {
@@ -511,9 +536,6 @@ int main(int argc, char **argv)
 
     //Register signal handler for SIGUSR1 (closing the console)
 	signal(SIGUSR1, handleSigusr1);
-
-    c = createComputer();
-    state = STATE_PROGRAMMING;
 
     //Run main loop
 	uint32_t tNow = SDL_GetTicks();

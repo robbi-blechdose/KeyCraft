@@ -7,6 +7,7 @@
 #include "blockutils.h"
 #include "../sfx.h"
 #include "redstonelogic.h"
+#include "../computer.h"
 
 uint8_t hasAdjacentWater(Chunk* chunk, uint8_t x, uint8_t y, uint8_t z)
 {
@@ -237,6 +238,15 @@ void tickChunk(Chunk* chunk)
                 {
                     tickBlock(chunk, &CHUNK_BLOCK(chunk, i, j, k), i, j, k);
                 }
+            }
+        }
+
+        //Calculate computers
+        for(uint8_t i = 0; i < NUM_COMPUTERS; i++)
+        {
+            if(chunk->computers[i] != NULL && (chunk->computers[i]->af & COMPUTER_FLAG_RUNNING))
+            {
+                runComputerCycle(chunk->computers[i]);
             }
         }
     }
