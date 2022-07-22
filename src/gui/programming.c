@@ -79,6 +79,16 @@ int16_t programCursor = 0;
 int8_t cursorX = 0;
 int8_t cursorY = 0;
 
+bool isPreviousInstructionJump(ComputerData* computer, uint8_t index)
+{
+    if(index > 0)
+    {
+        uint8_t prevInstruction = HIGH_NIBBLE(computer->program[index - 1]);
+        return prevInstruction == JP || prevInstruction == JPZ || prevInstruction == JPN;
+    }
+    return false;
+}
+
 void drawProgrammingScreen(ComputerData* computer)
 {
     //Draw screen
@@ -89,15 +99,28 @@ void drawProgrammingScreen(ComputerData* computer)
     uint8_t programScroll = programCursor < PROGRAM_SIZE - 15 ? programCursor : PROGRAM_SIZE - 15;
     for(uint8_t i = 0; i < 15; i++)
     {
-        sprintf(buffer, " %3d: %s", programScroll + i, instructionLabels[HIGH_NIBBLE(computer->program[programScroll + i])]);
+        uint8_t instruction = HIGH_NIBBLE(computer->program[programScroll + i]);
+
+        if(isPreviousInstructionJump(computer, programScroll + i))
+        {
+            //If the previous instruction was a jump, this is an address
+            sprintf(buffer, " %3d: %02x", programScroll + i, computer->program[programScroll + i]);
+        }
+        else
+        {
+            sprintf(buffer, " %3d: %s", programScroll + i, instructionLabels[instruction]);
+
+            if(instruction != NOP && instruction != JP && instruction != JPZ && instruction != JPN)
+            {
+                //Print instruction operand if required
+                sprintf(buffer + strlen(buffer), " %01X", LOW_NIBBLE(computer->program[programScroll + i]));
+            }
+        }
+
+        //Print PC cursor
         if(computer->pc == programScroll + i)
         {
             buffer[0] = '>';
-        }
-
-        if(HIGH_NIBBLE(computer->program[programScroll + i]) != NOP)
-        {
-            sprintf(buffer + strlen(buffer), " %01X", LOW_NIBBLE(computer->program[programScroll + i]));
         }
 
         if(!keyboardActive && programScroll + i == programCursor)
@@ -190,6 +213,16 @@ void enterProgrammingCursor(ComputerData* computer)
 {
     if(keyboardActive)
     {
+        if(isPreviousInstructionJump(computer, programCursor))
+        {
+            //This is the address to jump to, so we need to edit a full byte
+            if(cursorY == 2 && cursorX > 0)
+            {
+                computer->program[programCursor] = TO_HIGH_NIBBLE(LOW_NIBBLE(computer->program[programCursor]));
+                computer->program[programCursor] |= LOW_NIBBLE(keyboardChars[cursorX + cursorY * 6].instruction);
+            }
+        }
+
         if(cursorY == 2 && cursorX > 0)
         {
             //Number entry
@@ -204,6 +237,7 @@ void enterProgrammingCursor(ComputerData* computer)
     else
     {
         keyboardActive = true;
+        computer->program[programCursor] = 0;
     }
 }
 
