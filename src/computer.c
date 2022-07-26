@@ -122,14 +122,12 @@ void runComputerCycle(ComputerData* computer)
         }
         case IN:
         {
-            //TODO: shift?
-            setA(computer, HIGH_NIBBLE(computer->io) & (1 << data));
+            setA(computer, HIGH_NIBBLE(computer->io) & data);
             break;
         }
         case OUT:
         {
-            //TODO: Allow turning things off
-            computer->io = HIGH_NIBBLE(computer->af) | (1 << data);
+            computer->io = (computer->io & 0xF0) | (HIGH_NIBBLE(computer->af) & data) | (LOW_NIBBLE(computer->io) & ~data);
             break;
         }
     }

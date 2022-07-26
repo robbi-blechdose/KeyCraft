@@ -104,7 +104,7 @@ void drawProgrammingScreen(ComputerData* computer)
         if(isPreviousInstructionJump(computer, programScroll + i))
         {
             //If the previous instruction was a jump, this is an address
-            sprintf(buffer, " %3d: %02x", programScroll + i, computer->program[programScroll + i]);
+            sprintf(buffer, " %3d: %02X", programScroll + i, computer->program[programScroll + i]);
         }
         else
         {
@@ -149,8 +149,12 @@ void drawProgrammingScreen(ComputerData* computer)
         }
         glDrawText(buffer, 122, 62 + i * 8, TEXT_PROGRAM);
     }
+
+    sprintf(buffer, "I/O: %01X %01X", computer->io & 0x70, computer->io & 0x07);
+    glDrawText(buffer, 122, 94, TEXT_PROGRAM);
+
     sprintf(buffer, "Running: %d", LOW_NIBBLE(computer->af));
-    glDrawText(buffer, 122, 102, TEXT_PROGRAM);
+    glDrawText(buffer, 122, 110, TEXT_PROGRAM);
 
     //Draw instruction keyboard
     for(uint8_t i = 0; i < 3; i++)

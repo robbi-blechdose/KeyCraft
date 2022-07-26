@@ -219,7 +219,27 @@ void tickBlock(Chunk* chunk, Block* block, uint8_t x, uint8_t y, uint8_t z)
         }
         case BLOCK_COMPUTER:
         {
-            //TODO
+            //Read inputs
+            uint8_t inputs = 0;
+            
+            //TODO: Change read order by rotation
+            //TODO: Exclude front
+            BlockPos blockPos = {chunk->position, x, y, z};
+
+            for(uint8_t i = 0; i < 4; i++)
+            {
+                blockPos.x += adjacentDiffs[i][0];
+                blockPos.z += adjacentDiffs[i][1];
+                Block* block2 = getWorldBlock(&blockPos);
+                if(block2 != NULL && (block2->data & BLOCK_DATA_POWER))
+                {
+                    inputs |= (1 << 4 + i);
+                }
+            }
+
+            ComputerData* computer = chunk->computers[block->data & BLOCK_DATA_COMPUTER];
+            computer->io = LOW_NIBBLE(computer->io) | inputs;
+
             break;
         }
     }
@@ -241,7 +261,7 @@ void tickChunk(Chunk* chunk)
             }
         }
 
-        //Calculate computers
+        //Run computers
         for(uint8_t i = 0; i < NUM_COMPUTERS; i++)
         {
             if(chunk->computers[i] != NULL && (chunk->computers[i]->af & COMPUTER_FLAG_RUNNING))

@@ -230,8 +230,8 @@ void calcFrameGame(uint32_t ticks)
             else if(toRemove->type == BLOCK_COMPUTER)
             {
                 //Remove computer data
-                uint8_t index = toRemove->data & BLOCK_DATA_COMPUTER;
-                //TODO
+                free(getWorldChunk(&block)->computers[toRemove->data & BLOCK_DATA_COMPUTER]);
+                getWorldChunk(&block)->computers[toRemove->data & BLOCK_DATA_COMPUTER] = NULL;
             }
 
             setWorldBlock(&block, (Block) {BLOCK_AIR, 0});

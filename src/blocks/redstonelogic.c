@@ -12,11 +12,24 @@ bool hasAdjacentPower(ChunkPos chunk, uint8_t x, uint8_t y, uint8_t z, bool only
         blockPos.x += adjacentDiffs[i][0];
         blockPos.z += adjacentDiffs[i][1];
         Block* block = getWorldBlock(&blockPos);
-        if(block != NULL && (block->data & BLOCK_DATA_POWER))
+        if(block != NULL)
         {
-            if(!onlySource || (onlySource && block->type != BLOCK_REDSTONE_WIRE))
+            if(block->data & BLOCK_DATA_POWER)
             {
-                return true;
+                if(!onlySource || (onlySource && block->type != BLOCK_REDSTONE_WIRE))
+                {
+                    return true;
+                }
+            }
+            else if(block->type == BLOCK_COMPUTER)
+            {
+                //Hack to allow computers to output directional signals
+                ComputerData* computer = getWorldChunk(&blockPos)->computers[block->data & BLOCK_DATA_COMPUTER];
+                uint8_t out = LOW_NIBBLE(computer->io);
+                if(out & (1 << i) != 0)
+                {
+                    return true;
+                }
             }
         }
     }
