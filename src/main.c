@@ -39,7 +39,7 @@ typedef enum {
     STATE_PROGRAMMING,
 } State;
 
-#define SAVE_VERSION 30
+#define SAVE_VERSION 40
 #define SAVE_NAME             "game.sav"
 #define INSTANTPLAY_SAVE_NAME "instantplay.sav"
 

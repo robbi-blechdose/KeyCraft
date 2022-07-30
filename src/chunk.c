@@ -274,7 +274,7 @@ void saveChunk(Chunk* chunk)
         if(chunk->computers[i] != NULL)
         {
             writeElement(&i, sizeof(uint8_t));
-            writeElement(&chunk->computers[i]->program, PROGRAM_SIZE * sizeof(uint8_t));
+            saveComputer(chunk->computers[i]);
         }
     }
 }
@@ -291,7 +291,7 @@ void loadChunk(Chunk* chunk)
         uint8_t index;
         readElement(&index, sizeof(uint8_t));
         chunk->computers[i] = createComputer();
-        readElement(&chunk->computers[i]->program, PROGRAM_SIZE * sizeof(uint8_t));
+        loadComputer(chunk->computers[i]);
     }
 
     //Since we loaded the chunk it's been player-modified (otherwise saving + loading doesn't take place)

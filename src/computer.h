@@ -40,4 +40,7 @@ typedef enum {
 ComputerData* createComputer();
 void runComputerCycle(ComputerData* computer);
 
+void saveComputer(ComputerData* computer);
+void loadComputer(ComputerData* computer);
+
 #endif

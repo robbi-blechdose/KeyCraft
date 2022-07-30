@@ -2,6 +2,8 @@
 
 #include <stdlib.h>
 
+#include "engine/savegame.h"
+
 ComputerData* createComputer()
 {
     ComputerData* computer = malloc(sizeof(ComputerData));
@@ -161,3 +163,21 @@ void printComputerState(ComputerData* computer)
     printf("|\n");
     printf("+----------------+\n");
 }**/
+
+void saveComputer(ComputerData* computer)
+{
+    writeElement(&computer->program, PROGRAM_SIZE * sizeof(uint8_t));
+    writeElement(&computer->ram, RAM_SIZE * sizeof(uint8_t));
+    writeElement(&computer->pc, sizeof(uint8_t));
+    writeElement(&computer->af, sizeof(uint8_t));
+    writeElement(&computer->io, sizeof(uint8_t));
+}
+
+void loadComputer(ComputerData* computer)
+{
+    readElement(&computer->program, PROGRAM_SIZE * sizeof(uint8_t));
+    readElement(&computer->ram, RAM_SIZE * sizeof(uint8_t));
+    readElement(&computer->pc, sizeof(uint8_t));
+    readElement(&computer->af, sizeof(uint8_t));
+    readElement(&computer->io, sizeof(uint8_t));
+}
