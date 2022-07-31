@@ -37,6 +37,7 @@ typedef enum {
     STATE_INVENTORY,
     STATE_MENU,
     STATE_PROGRAMMING,
+    STATE_OPTIONS
 } State;
 
 #define SAVE_VERSION 40
@@ -55,6 +56,10 @@ State state = STATE_MENU;
 Player player;
 ComputerData* programmingComputer;
 
+//Options
+bool invertY = true;
+uint32_t newGameSeed = 0;
+
 #ifdef DEBUG
 void drawFPS(uint16_t fps)
 {
@@ -63,6 +68,99 @@ void drawFPS(uint16_t fps)
 	glDrawText(buffer, 2, 2, 0xFFFFFF);
 }
 #endif
+
+inline void tryPlaceBlockOrInteract(BlockPos* block, AABBSide result)
+{
+    bool canPlace = !actWorldBlock(block);
+    if(getWorldBlock(block)->type == BLOCK_COMPUTER)
+    {
+        programmingComputer = getWorldChunk(block)->computers[getWorldBlock(block)->data & BLOCK_DATA_COMPUTER];
+        state = STATE_PROGRAMMING;
+        canPlace = false;
+    }
+
+    //Calc position
+    switch(result)
+    {
+        case AABB_FRONT:
+        {
+            block->z -= BLOCK_SIZE;
+            break;
+        }
+        case AABB_BACK:
+        {
+            block->z += BLOCK_SIZE;
+            break;
+        }
+        case AABB_LEFT:
+        {
+            block->x -= BLOCK_SIZE;
+            break;
+        }
+        case AABB_RIGHT:
+        {
+            block->x += BLOCK_SIZE;
+            break;
+        }
+        case AABB_BOTTOM:
+        {
+            block->y -= BLOCK_SIZE;
+            break;
+        }
+        case AABB_TOP:
+        {
+            block->y += BLOCK_SIZE;
+            break;
+        }
+    }
+
+    //Place new block
+    if(canPlace && getWorldBlock(block)->type == BLOCK_AIR)
+    {
+        BlockPos below = *block;
+        below.y -= BLOCK_SIZE;
+        BlockPos above = *block;
+        above.y += BLOCK_SIZE;
+        Block toPlace = getHotbarSelection();
+        if(canPlaceBlock(toPlace.type, getWorldBlock(&below)->type) &&
+            !(toPlace.type == BLOCK_DOOR && getWorldBlock(&above)->type != BLOCK_AIR)) //Check if we can place the door upper (yes, this is a special case)
+        {
+            if(isBlockOriented(toPlace.type))
+            {
+                uint8_t orientation = BLOCK_DATA_DIR_RIGHT;
+                float rotation = player.rotation.y - M_PI_4;
+                clampAngle(&rotation);
+
+                if(rotation < M_PI_2)
+                {
+                    orientation = BLOCK_DATA_DIR_FRONT;
+                }
+                else if(rotation < M_PI)
+                {
+                    orientation = BLOCK_DATA_DIR_LEFT;
+                }
+                else if(rotation < M_PI + M_PI_2)
+                {
+                    orientation = BLOCK_DATA_DIR_BACK;
+                }
+                //4th case is covered by the original assignment
+                toPlace.data |= orientation;
+            }
+
+            setWorldBlock(block, toPlace);
+            //Check if the block intersects with the player. If so, don't place it
+            if(playerIntersectsWorld(&player))
+            {
+                setWorldBlock(block, (Block) {BLOCK_AIR, 0});
+                //Remove door upper as well (yes, this is a special case)
+                if(toPlace.type == BLOCK_DOOR)
+                {
+                    setWorldBlock(&above, (Block) {BLOCK_AIR, 0});
+                }
+            }
+        }
+    }
+}
 
 void calcFrameGame(uint32_t ticks)
 {
@@ -73,6 +171,7 @@ void calcFrameGame(uint32_t ticks)
         dirF = 1;
     }
     playerMove(&player, dirF, ticks);
+
     int8_t dirX = 0;
     int8_t dirY = 0;
     if(keyPressed(B_UP))
@@ -91,11 +190,17 @@ void calcFrameGame(uint32_t ticks)
     {
         dirY = 1;
     }
+    if(!invertY)
+    {
+        dirX *= -1;
+    }
     playerLook(&player, dirX, dirY, ticks);
+
     if(keyUp(B_Y) && !player.jumping)
     {
         player.jumping = JUMP_TIME;
     }
+
     calcPlayer(&player, ticks);
 
     //Cast ray
@@ -110,98 +215,9 @@ void calcFrameGame(uint32_t ticks)
     float distance;
     AABBSide result = intersectsRayWorld(&posWorld, &rayDir, &block, &distance);
 
-    //Place block
     if(keyUp(B_A) && result)
     {
-        bool canPlace = !actWorldBlock(&block);
-        if(getWorldBlock(&block)->type == BLOCK_COMPUTER)
-        {
-            programmingComputer = getWorldChunk(&block)->computers[getWorldBlock(&block)->data & BLOCK_DATA_COMPUTER];
-            state = STATE_PROGRAMMING;
-            canPlace = false;
-        }
-
-        //Calc position
-        switch(result)
-        {
-            case AABB_FRONT:
-            {
-                block.z -= BLOCK_SIZE;
-                break;
-            }
-            case AABB_BACK:
-            {
-                block.z += BLOCK_SIZE;
-                break;
-            }
-            case AABB_LEFT:
-            {
-                block.x -= BLOCK_SIZE;
-                break;
-            }
-            case AABB_RIGHT:
-            {
-                block.x += BLOCK_SIZE;
-                break;
-            }
-            case AABB_BOTTOM:
-            {
-                block.y -= BLOCK_SIZE;
-                break;
-            }
-            case AABB_TOP:
-            {
-                block.y += BLOCK_SIZE;
-                break;
-            }
-        }
-
-        //Place new block
-        if(canPlace && getWorldBlock(&block)->type == BLOCK_AIR)
-        {
-            BlockPos below = block;
-            below.y -= BLOCK_SIZE;
-            BlockPos above = block;
-            above.y += BLOCK_SIZE;
-            Block toPlace = getHotbarSelection();
-            if(canPlaceBlock(toPlace.type, getWorldBlock(&below)->type) &&
-                !(toPlace.type == BLOCK_DOOR && getWorldBlock(&above)->type != BLOCK_AIR)) //Check if we can place the door upper (yes, this is a special case)
-            {
-                if(isBlockOriented(toPlace.type))
-                {
-                    uint8_t orientation = BLOCK_DATA_DIR_RIGHT;
-                    float rotation = player.rotation.y - M_PI_4;
-                    clampAngle(&rotation);
-
-                    if(rotation < M_PI_2)
-                    {
-                        orientation = BLOCK_DATA_DIR_FRONT;
-                    }
-                    else if(rotation < M_PI)
-                    {
-                        orientation = BLOCK_DATA_DIR_LEFT;
-                    }
-                    else if(rotation < M_PI + M_PI_2)
-                    {
-                        orientation = BLOCK_DATA_DIR_BACK;
-                    }
-                    //4th case is covered by the original assignment
-                    toPlace.data |= orientation;
-                }
-
-                setWorldBlock(&block, toPlace);
-                //Check if the block intersects with the player. If so, don't place it
-                if(playerIntersectsWorld(&player))
-                {
-                    setWorldBlock(&block, (Block) {BLOCK_AIR, 0});
-                    //Remove door upper as well (yes, this is a special case)
-                    if(toPlace.type == BLOCK_DOOR)
-                    {
-                        setWorldBlock(&above, (Block) {BLOCK_AIR, 0});
-                    }
-                }
-            }
-        }
+        tryPlaceBlockOrInteract(&block, result);
     }
     //Remove block
     else if(keyUp(B_B) && result)
@@ -335,7 +351,7 @@ void calcFrame(uint32_t ticks)
 
                         //Destroy old game, initialize new one
                         quitWorld();
-                        initWorld(0);
+                        initWorld(newGameSeed);
                         player.position = (vec3) {0, 0, 0};
                         player.rotation = (vec3) {0, 0, 0};
                         //TODO: reinit hotbar
@@ -346,7 +362,7 @@ void calcFrame(uint32_t ticks)
                     }
                     case MENU_SELECTION_OPTIONS:
                     {
-                        //TODO
+                        state = STATE_OPTIONS;
                         break;
                     }
                     case MENU_SELECTION_QUIT:
@@ -355,6 +371,44 @@ void calcFrame(uint32_t ticks)
                         break;
                     }
                 }
+            }
+            break;
+        }
+        case STATE_OPTIONS:
+        {
+            if(keyUp(B_UP))
+            {
+                scrollMenu(-1);
+            }
+            else if(keyUp(B_DOWN))
+            {
+                scrollMenu(1);
+            }
+
+            if(keyUp(B_A))
+            {
+                switch(getMenuCursor())
+                {
+                    case OPTION_SELECTION_INVERTY:
+                    {
+                        invertY = !invertY;
+                        break;
+                    }
+                    case OPTION_SELECTION_SEED:
+                    {
+                        newGameSeed++;
+                        break;
+                    }
+                    case OPTION_SELECTION_BACK:
+                    {
+                        state = STATE_MENU;
+                        break;
+                    }
+                }
+            }
+            else if(keyUp(B_B) && getMenuCursor() == OPTION_SELECTION_SEED)
+            {
+                newGameSeed--;
             }
             break;
         }
@@ -440,9 +494,13 @@ void drawFrame()
     {
         drawProgrammingScreen(programmingComputer);
     }
-    else //if(state == STATE_MENU)
+    else if(state == STATE_MENU)
     {
         drawMenu();
+    }
+    else //if(state == STATE_OPTIONS)
+    {
+        drawOptions(invertY, newGameSeed);
     }
     glEnd();
 

@@ -10,7 +10,6 @@
  **/
 #define CENTER(X) (WINX / 2 - (X) * 4)
 
-#define MENU_SIZE 4
 int8_t menuCursor = 0;
 
 uint8_t menuFlags = 0;
@@ -50,6 +49,20 @@ void drawMenu()
     //Author notice
     glDrawText("2022", CENTER(4), 240 - 32, TEXT_WHITE);
     glDrawText("Robbi Blechdose", CENTER(15), 240 - 20, TEXT_WHITE);
+}
+
+void drawOptions(bool invertY, uint32_t seed)
+{
+    glDrawText("KeyCraft Options", CENTER(16), 64, TEXT_WHITE);
+
+    char buffer[31];
+    sprintf(buffer, "Invert Y: %s", invertY ? "On" : "Off");
+    glDrawText(buffer, CENTER(strlen(buffer)), 96, menuCursor == 0 ? TEXT_YELLOW : TEXT_WHITE);
+
+    sprintf(buffer, "Seed: %d", seed);
+    glDrawText(buffer, CENTER(strlen(buffer)), 96 + 16, menuCursor == 1 ? TEXT_YELLOW : TEXT_WHITE);
+
+    glDrawText("Back", CENTER(4), 96 + 16 * 2, menuCursor == 2 ? TEXT_YELLOW : TEXT_WHITE);
 }
 
 void scrollMenu(int8_t dir)
