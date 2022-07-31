@@ -263,7 +263,8 @@ void calcWorld(vec3* playerPos, uint32_t ticks)
             {
                 for(uint8_t k = 0; k < VIEW_DISTANCE; k++)
                 {
-                    if(!CHUNK_GET_FLAG(VIEW_CHUNK(i, j, k), CHUNK_IS_EMPTY))
+                    //Don't need to tick empty chunks or initial chunks (the latter because tickable blocks aren't part of worldgen)
+                    if(!CHUNK_GET_FLAG(VIEW_CHUNK(i, j, k), CHUNK_IS_EMPTY) && !CHUNK_GET_FLAG(VIEW_CHUNK(i, j, k), CHUNK_IS_INITIAL))
                     {
                         tickChunk(VIEW_CHUNK(i, j, k));
                     }
