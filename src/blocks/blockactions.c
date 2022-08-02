@@ -91,7 +91,6 @@ bool actBlock(Chunk* chunk, Block* block)
     }
     else if(block->type == BLOCK_COMPUTER)
     {
-        //TODO: open GUI
         return true;
     }
     return false;

@@ -20,9 +20,9 @@ void getBlockPosByDirection(uint8_t dir, BlockPos* pos);
 
 /**
  * Differences from the center position to the adjacent blocks:
+ *  1
+ * 0X2
  *  3
- * 0X1
- *  2
  */
 extern int8_t adjacentDiffs[4][2];
 

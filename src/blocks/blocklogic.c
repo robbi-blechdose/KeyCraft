@@ -9,10 +9,9 @@
 #include "redstonelogic.h"
 #include "../computer.h"
 
-uint8_t hasAdjacentWater(Chunk* chunk, uint8_t x, uint8_t y, uint8_t z)
+bool hasAdjacentWater(Chunk* chunk, uint8_t x, uint8_t y, uint8_t z)
 {
     BlockPos blockPos = {chunk->position, x, y, z};
-    uint8_t result = 0;
 
     for(uint8_t i = 0; i < 4; i++)
     {
@@ -21,11 +20,11 @@ uint8_t hasAdjacentWater(Chunk* chunk, uint8_t x, uint8_t y, uint8_t z)
         Block* block = getWorldBlock(&blockPos);
         if(block != NULL && block->type == BLOCK_WATER)
         {
-            result++;
+            return true;
         }
     }
 
-    return result;
+    return false;
 }
 
 void explodeTNT(ChunkPos chunk, uint8_t x, uint8_t y, uint8_t z)
@@ -222,18 +221,21 @@ void tickBlock(Chunk* chunk, Block* block, uint8_t x, uint8_t y, uint8_t z)
             //Read inputs
             uint8_t inputs = 0;
             
-            //TODO: Change read order by rotation
-            //TODO: Exclude front
             BlockPos blockPos = {chunk->position, x, y, z};
+
+            //Maps block rotation to input bit indices
+            uint8_t indexMapping[4] = {0, 2, 1, 3};
 
             for(uint8_t i = 0; i < 4; i++)
             {
+                uint8_t index = (i + indexMapping[(block->data & BLOCK_DATA_DIRECTION) >> 6]) % 4;
+                
                 blockPos.x += adjacentDiffs[i][0];
                 blockPos.z += adjacentDiffs[i][1];
                 Block* block2 = getWorldBlock(&blockPos);
                 if(block2 != NULL && (block2->data & BLOCK_DATA_POWER))
                 {
-                    inputs |= (1 << 4 + i);
+                    inputs |= (1 << 4 + index);
                 }
             }
 
@@ -248,26 +250,28 @@ void tickBlock(Chunk* chunk, Block* block, uint8_t x, uint8_t y, uint8_t z)
 void tickChunk(Chunk* chunk)
 {
     //Don't tick chunk if we're also recalculating the geometry
-    if(!CHUNK_GET_FLAG(chunk, CHUNK_MODIFIED))
+    if(CHUNK_GET_FLAG(chunk, CHUNK_MODIFIED))
     {
-        for(uint8_t i = 0; i < CHUNK_SIZE; i++)
+        return;
+    }
+
+    for(uint8_t i = 0; i < CHUNK_SIZE; i++)
+    {
+        for(uint8_t j = 0; j < CHUNK_SIZE; j++)
         {
-            for(uint8_t j = 0; j < CHUNK_SIZE; j++)
+            for(uint8_t k = 0; k < CHUNK_SIZE; k++)
             {
-                for(uint8_t k = 0; k < CHUNK_SIZE; k++)
-                {
-                    tickBlock(chunk, &CHUNK_BLOCK(chunk, i, j, k), i, j, k);
-                }
+                tickBlock(chunk, &CHUNK_BLOCK(chunk, i, j, k), i, j, k);
             }
         }
+    }
 
-        //Run computers
-        for(uint8_t i = 0; i < NUM_COMPUTERS; i++)
+    //Run computers
+    for(uint8_t i = 0; i < NUM_COMPUTERS; i++)
+    {
+        if(chunk->computers[i] != NULL && (chunk->computers[i]->af & COMPUTER_FLAG_RUNNING))
         {
-            if(chunk->computers[i] != NULL && (chunk->computers[i]->af & COMPUTER_FLAG_RUNNING))
-            {
-                runComputerCycle(chunk->computers[i]);
-            }
+            runComputerCycle(chunk->computers[i]);
         }
     }
 }

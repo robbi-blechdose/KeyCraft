@@ -3,10 +3,10 @@
 #include "block.h"
 
 int8_t adjacentDiffs[4][2] = {
-    {-1, 0},
-    { 2, 0},
-    {-1, 1},
-    {0, -2}
+    {-1,  0},
+    { 1,  1},
+    { 1, -1},
+    {-1, -1}
 };
 
 void getBlockPosByDirection(uint8_t dir, BlockPos* pos)
@@ -15,22 +15,22 @@ void getBlockPosByDirection(uint8_t dir, BlockPos* pos)
     {
         case BLOCK_DATA_DIR_FRONT:
         {
-            pos->x++;
+            pos->x--;
             break;
         }
         case BLOCK_DATA_DIR_BACK:
         {
-            pos->x--;
+            pos->x++;
             break;
         }
         case BLOCK_DATA_DIR_LEFT:
         {
-            pos->z++;
+            pos->z--;
             break;
         }
         case BLOCK_DATA_DIR_RIGHT:
         {
-            pos->z--;
+            pos->z++;
             break;
         }
     }
