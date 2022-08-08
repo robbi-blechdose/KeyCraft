@@ -70,7 +70,7 @@ bool actBlock(Chunk* chunk, Block* block)
         //Invert state
         block->data ^= BLOCK_DATA_STATE;
         
-        CHUNK_SET_FLAG(chunk, CHUNK_MODIFIED_INITIAL);
+        CHUNK_SET_FLAG(chunk, CHUNK_MODIFIED);
         return true;
     }
     else if(block->type == BLOCK_LEVER)
@@ -83,7 +83,7 @@ bool actBlock(Chunk* chunk, Block* block)
         {
             block->data |= BLOCK_DATA_POWER;
         }
-        CHUNK_SET_FLAG(chunk, CHUNK_MODIFIED_INITIAL);
+        CHUNK_SET_FLAG(chunk, CHUNK_MODIFIED);
 
         playSample(SFX_LEVER);
 
