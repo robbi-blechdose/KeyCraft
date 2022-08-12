@@ -5,8 +5,6 @@
 #include "../engine/includes/3dMath.h"
 #include "../engine/image.h"
 
-//TODO: Fix textures being skewed on "rotated" blocks
-
 #define glVectorV3(vec) glVertex3f((vec).x, (vec).y, (vec).z)
 
 #define BLOCK_ALL_FACES(V)  {\
@@ -74,7 +72,9 @@ const vec2i* blockTextures[] = {
     [BLOCK_FURNACE] = (vec2i[6]) {{0, 6}, {1, 0}, {1, 0}, {1, 0}, {1, 0}, {1, 0}},
     [BLOCK_CACTUS] = (vec2i[6]) {{2, 6}, {2, 6}, {2, 6}, {2, 6}, {3, 6}, {3, 6}},
     [BLOCK_DEAD_SHRUB] = (vec2i[1]) {{4, 6}},
-    [BLOCK_COMPUTER] = (vec2i[6]) {{5, 6}, {6, 6}, {7, 6}, {7, 6}, {7, 6}, {7, 6}}
+    [BLOCK_COMPUTER] = (vec2i[6]) {{5, 6}, {6, 6}, {7, 6}, {7, 6}, {7, 6}, {7, 6}},
+
+    [BLOCK_BRICKS] = (vec2i[1]) {{0, 7}}
 };
 
 vec2 getBlockTexture(BlockType type, uint8_t index)
@@ -168,6 +168,94 @@ void drawMultitexBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t oc
 
         occlusionCheck <<= 1;
     }
+}
+
+void swapTexture(vec2 textures[6], uint8_t a, uint8_t b)
+{
+    vec2 temp;
+    temp = textures[a];
+    textures[a] = textures[b];
+    textures[b] = temp;
+}
+
+void drawMultitexBlockWithRotation(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
+{
+    uint8_t dir = block->data & BLOCK_DATA_DIRECTION;
+    uint8_t occlusionCheck[6] = {BS_FRONT, BS_BACK, BS_LEFT, BS_RIGHT, BS_TOP, BS_BOTTOM};
+
+    glEnd();
+
+    glPushMatrix();
+    glTranslatef(x + 0.5f, y, z + 0.5f);
+    if(dir == BLOCK_DATA_DIR_BACK)
+    {
+        glRotatef(180, 0, 1, 0);
+        //Switch occlusion checks
+        const uint8_t newChecks[4] = {BS_BACK, BS_FRONT, BS_RIGHT, BS_LEFT};
+        memcpy(occlusionCheck, newChecks, sizeof(newChecks));
+    }
+    else if(dir == BLOCK_DATA_DIR_RIGHT)
+    {
+        glRotatef(90, 0, 1, 0);
+        //Switch occlusion checks
+        const uint8_t newChecks[4] = {BS_RIGHT, BS_LEFT, BS_FRONT, BS_BACK};
+        memcpy(occlusionCheck, newChecks, sizeof(newChecks));
+    }
+    else if(dir == BLOCK_DATA_DIR_LEFT)
+    {
+        glRotatef(270, 0, 1, 0);
+        //Switch occlusion checks
+        const uint8_t newChecks[4] = {BS_LEFT, BS_RIGHT, BS_BACK, BS_FRONT};
+        memcpy(occlusionCheck, newChecks, sizeof(newChecks));
+    }
+    //Front is default (0 deg rotation)
+
+    glBegin(GL_QUADS);
+
+    //Calculate vertices
+    vec3 v[8];
+    calcBlockVertices(v, -0.5f, 0, -0.5f, BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+    vec3* faces[6][4] = BLOCK_ALL_FACES(v);
+    //Rotate the one incorrect face
+    faces[1][0] = &v[6];
+    faces[1][1] = &v[7];
+    faces[1][2] = &v[4];
+    faces[1][3] = &v[5];
+
+    //Get texture positions
+    vec2 tex[6];
+    for(uint8_t i = 0; i < 6; i++)
+    {
+        tex[i] = getBlockTexture(block->type, i);
+    }
+
+    //Swap b+l
+    swapTexture(tex, 0, 2);
+    //Swap f+r
+    swapTexture(tex, 1, 3);
+
+    for(uint8_t i = 0; i < 6; i++)
+    {
+        if(occlusion & occlusionCheck[i])
+        {
+            continue;
+        }
+
+        glTexCoord2f(PTCH(tex[i].x + 8), PTCH(tex[i].y + 8));
+        glVectorV3(*(faces[i][0]));
+        glTexCoord2f(PTCL(tex[i].x), PTCH(tex[i].y + 8));
+        glVectorV3(*(faces[i][1]));
+        glTexCoord2f(PTCL(tex[i].x), PTCL(tex[i].y));
+        glVectorV3(*(faces[i][2]));
+        glTexCoord2f(PTCH(tex[i].x + 8), PTCL(tex[i].y));
+        glVectorV3(*(faces[i][3]));
+    }
+
+    glEnd();
+
+    glPopMatrix();
+
+    glBegin(GL_QUADS);
 }
 
 void drawXBlock(Block* block, uint8_t x, uint8_t y, uint8_t z)
@@ -447,13 +535,13 @@ void drawPistonBase(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlu
     vec2 textures[6][2] = {
         texS0, texS1,
         texS0, texS1,
-        texB0, texB1,
         texF0, texF1,
+        texB0, texB1,
         texS0, texS1,
         texS0, texS1
     };
 
-    drawPartBlock(block->data & BLOCK_DATA_DIRECTION, x, y, z, BLOCK_PIXEL(6), true, textures);
+    drawPartBlock(block->data & BLOCK_DATA_DIRECTION, x, y, z, BLOCK_PIXEL(6), false, textures);
 
     //We don't draw a rod part here, since the piston head takes care of it for us
     //This is okay since the base and head *always* appear together
@@ -470,13 +558,13 @@ void drawPistonHead(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlu
     vec2 textures[6][2] = {
         texS0, texS2,
         texS0, texS2,
-        texS0, texS1,
         texF0, texF1,
+        texS0, texS1,
         texS0, texS2,
         texS0, texS2
     };
 
-    drawPartBlock(block->data & BLOCK_DATA_DIRECTION, x, y, z, BLOCK_PIXEL(2), false, textures);
+    drawPartBlock(block->data & BLOCK_DATA_DIRECTION, x, y, z, BLOCK_PIXEL(2), true, textures);
 
     //Draw piston rod (one block length to connect to the base)
     vec2 texR0 = texS0;
@@ -493,19 +581,19 @@ void drawPistonHead(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlu
     float xS = BLOCK_SIZE;
     float z1 = z + BLOCK_PIXEL(3);
     float zS = BLOCK_PIXEL(2);
-    //Front is covered by the default case
-    if(back)
+    //Back is covered by the default case
+    if(front)
     {
         x1 = x + BLOCK_PIXEL(2);
     }
-    else if(left)
+    else if(right)
     {
         x1 = x + BLOCK_PIXEL(3);
         xS = BLOCK_PIXEL(2);
         z1 = z - BLOCK_PIXEL(2);
         zS = BLOCK_SIZE;
     }
-    else if(right)
+    else if(left)
     {
         x1 = x + BLOCK_PIXEL(3);
         xS = BLOCK_PIXEL(2);
