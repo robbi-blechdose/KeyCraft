@@ -25,15 +25,19 @@ bool hasAdjacentPower(ChunkPos chunk, uint8_t x, uint8_t y, uint8_t z, bool only
             {
                 //Hack to allow computers to output directional signals
                 ComputerData* computer = getWorldChunk(&blockPos)->computers[block->data & BLOCK_DATA_COMPUTER];
-                uint8_t out = LOW_NIBBLE(computer->io);
 
-                //Maps block rotation to input bit indices
-                uint8_t indexMapping[4] = {2, 0, 3, 1};
-                uint8_t index = (i + indexMapping[(block->data & BLOCK_DATA_DIRECTION) >> 6]) % 4;
-
-                if(out & (1 << index))
+                if(computer != NULL)
                 {
-                    return true;
+                    uint8_t out = LOW_NIBBLE(computer->io);
+
+                    //Maps block rotation to input bit indices
+                    uint8_t indexMapping[4] = {2, 0, 3, 1};
+                    uint8_t index = (i + indexMapping[(block->data & BLOCK_DATA_DIRECTION) >> 6]) % 4;
+
+                    if(out & (1 << index))
+                    {
+                        return true;
+                    }
                 }
             }
         }
