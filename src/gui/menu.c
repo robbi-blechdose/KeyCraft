@@ -1,7 +1,11 @@
 #include "menu.h"
 
 #include <GL/gl.h>
+#include <stdio.h>
+
 #include "../engine/video.h"
+
+#include "../version.h"
 
 /**
  * Macro for centering text
@@ -25,10 +29,14 @@ void drawMenu()
 {
     //Title
     glTextSize(GL_TEXT_SIZE16x16);
-    glDrawText("KeyCraft", WINX / 2 - (8 * 16 / 2), 64, TEXT_WHITE);
+    glDrawText("KeyCraft", WINX / 2 - (8 * 16 / 2) + 2, 40 + 2, TEXT_BLACK);
+    glDrawText("KeyCraft", WINX / 2 - (8 * 16 / 2), 40, TEXT_WHITE);
+    glTextSize(GL_TEXT_SIZE8x8);
+
+    //Game version
+    glDrawText(GAME_VERSION, WINX / 2 - strlen(GAME_VERSION) * 8 / 2, 60, TEXT_WHITE);
     
     //Menu selections
-    glTextSize(GL_TEXT_SIZE8x8);
     for(uint8_t i = 0; i < MENU_SIZE; i++)
     {
         if(i == MENU_SELECTION_CONTINUE)
