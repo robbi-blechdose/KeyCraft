@@ -38,7 +38,7 @@ typedef enum {
     STATE_OPTIONS
 } State;
 
-#define SAVE_VERSION 40
+#define SAVE_VERSION 50
 #define SAVE_NAME             "game.sav"
 #define INSTANTPLAY_SAVE_NAME "instantplay.sav"
 
@@ -509,12 +509,26 @@ void drawFrame()
     flipFrame();
 }
 
+void saveOptions()
+{
+    writeElement(&invertY, sizeof(bool));
+    writeElement(&newGameSeed, sizeof(uint32_t));
+}
+
+void loadOptions()
+{
+    readElement(&invertY, sizeof(bool));
+    readElement(&newGameSeed, sizeof(uint32_t));
+}
+
 void saveGame(char* name)
 {
     if(openSave(".keycraft", name, 1))
     {
         uint16_t saveVersion = SAVE_VERSION;
         writeElement(&saveVersion, sizeof(uint16_t));
+
+        saveOptions();
         savePlayer(&player);
         saveHotbar();
         saveWorld();
@@ -530,6 +544,13 @@ void loadGame(char* name)
         readElement(&saveVersion, sizeof(uint16_t));
 
         if(saveVersion / 10 == SAVE_VERSION / 10)
+        {
+            loadOptions();
+            loadPlayer(&player);
+            loadHotbar();
+            loadWorld();
+        }
+        else if(saveVersion == 40) //Skip options loading to allow compatability with old saves
         {
             loadPlayer(&player);
             loadHotbar();
@@ -560,7 +581,7 @@ int main(int argc, char **argv)
     
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
     initVideo((vec4) {.d = {0, 0.8f, 1.0f, 1.0f}}, (vec4) {.d = {0, 0, WINX, WINY}}, 70, 0.3f, 8 * VIEW_DISTANCE);
-    initAudio(MIX_MAX_VOLUME, 1, 2);
+    initAudio(MIX_MAX_VOLUME, 1, 4);
 
     #ifdef FUNKEY
     loadMusic(0, "/opk/res/mus/curiouscritters.ogg");
