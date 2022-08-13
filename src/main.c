@@ -20,8 +20,6 @@
 #include "sfx.h"
 #include "gui/programming.h"
 
-#define DEBUG
-
 #define MAX_FPS 50
 //#define LIMIT_FPS
 
@@ -355,7 +353,7 @@ void calcFrame(uint32_t ticks)
                         player.position = (vec3) {0, 0, 0};
                         player.rotation = (vec3) {0, 0, 0};
                         //TODO: reinit hotbar
-                        //Run one frame to build geometry for the first time etc.
+                        //Run frame to build geometry for the first time etc.
                         calcFrameGame(1);
 
                         break;
@@ -589,7 +587,7 @@ int main(int argc, char **argv)
         loadGame(SAVE_NAME);
     }
 
-    //Run one frame to build geometry for the first time etc.
+    //Run frame to build geometry for the first time etc.
     calcFrameGame(1);
 
     //Register signal handler for SIGUSR1 (closing the console)

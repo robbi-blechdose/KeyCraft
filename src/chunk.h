@@ -26,9 +26,9 @@ typedef struct {
 
 #define CHUNK_BLOCK(chunk, i, j, k) chunk->blocks[(i) + ((j) * CHUNK_SIZE) + ((k) * CHUNK_SIZE * CHUNK_SIZE)]
 
-#define CHUNK_GET_FLAG(chunk, flag) (chunk->flags & flag)
-#define CHUNK_SET_FLAG(chunk, flag) (chunk->flags |= flag)
-#define CHUNK_CLEAR_FLAG(chunk, flag) (chunk->flags &= ~flag)
+#define CHUNK_GET_FLAG(chunk, flag) (chunk->flags & (flag))
+#define CHUNK_SET_FLAG(chunk, flag) (chunk->flags |= (flag))
+#define CHUNK_CLEAR_FLAG(chunk, flag) (chunk->flags &= ~(flag))
 
 #define CHUNK_IS_EMPTY         0b00000001
 #define CHUNK_IS_INITIAL       0b00000010

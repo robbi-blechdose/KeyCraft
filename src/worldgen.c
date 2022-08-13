@@ -235,6 +235,7 @@ void generateChunk(Chunk* chunk)
     int16_t y = chunk->position.y;
     int16_t z = chunk->position.z;
 
+    //TODO: It's possible this isn't necessary since we allocate chunk data with calloc()
     //Clear chunk
     memset(chunk->blocks, 0, CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE * sizeof(Block));
 

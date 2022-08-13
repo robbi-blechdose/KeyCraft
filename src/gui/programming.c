@@ -81,12 +81,13 @@ int8_t cursorY = 0;
 
 bool isPreviousInstructionJump(ComputerData* computer, uint8_t index)
 {
-    if(index > 0)
+    if(index == 0)
     {
-        uint8_t prevInstruction = HIGH_NIBBLE(computer->program[index - 1]);
-        return prevInstruction == JP || prevInstruction == JPZ || prevInstruction == JPN;
+        return false;
     }
-    return false;
+
+    uint8_t prevInstruction = HIGH_NIBBLE(computer->program[index - 1]);
+    return prevInstruction == JP || prevInstruction == JPZ || prevInstruction == JPN;
 }
 
 void drawProgrammingScreen(ComputerData* computer)
@@ -247,8 +248,5 @@ void enterProgrammingCursor(ComputerData* computer)
 
 void cancelProgrammingCursor()
 {
-    if(keyboardActive)
-    {
-        keyboardActive = false;
-    }
+    keyboardActive = false;
 }

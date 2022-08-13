@@ -6,6 +6,7 @@
 #define WINX 240
 #define WINY 240
 
+#define TEXT_BLACK  0x000000
 #define TEXT_WHITE  0xFFFFFF
 #define TEXT_YELLOW 0xFFFF00
 

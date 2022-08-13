@@ -138,10 +138,9 @@ void calcChunk(Chunk* chunk)
         if(!CHUNK_GET_FLAG(chunk, CHUNK_MODIFIED_INITIAL))
         {
             glDeleteList(chunk->drawList);
-            CHUNK_CLEAR_FLAG(chunk, CHUNK_MODIFIED_INITIAL);
         }
         generateDrawData(chunk);
-        CHUNK_CLEAR_FLAG(chunk, CHUNK_MODIFIED);
+        CHUNK_CLEAR_FLAG(chunk, CHUNK_MODIFIED | CHUNK_MODIFIED_INITIAL);
     }
 }
 
@@ -192,7 +191,6 @@ AABBSide intersectsRayChunk(Chunk* chunk, vec3* origin, vec3* direction, BlockPo
             {
                 if(CHUNK_BLOCK(chunk, i, j, k).type != BLOCK_AIR)
                 {
-                    //TODO: Create AABB by block type
                     vec3 min = {chunk->aabb.min.x + i, chunk->aabb.min.y + j, chunk->aabb.min.z + k};
                     AABB blockAABB = {.min = min, .max = (vec3) {min.x + BLOCK_SIZE, min.y + BLOCK_SIZE, min.z + BLOCK_SIZE}};
                     AABBSide result = aabbIntersectsRay(&blockAABB, origin, direction, distance);

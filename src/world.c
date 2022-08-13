@@ -236,9 +236,6 @@ void calcWorld(vec3* playerPos, uint32_t ticks)
     }
     //TODO: Z
 
-    //printf("P: %d %d %d\n", playerChunkPos.x, playerChunkPos.y, playerChunkPos.z);
-    //printf("W: %d %d %d\n", chunkPos.x, chunkPos.y, chunkPos.z);
-
     //Calculate visible chunks
     for(uint8_t i = 0; i < VIEW_DISTANCE; i++)
     {
@@ -264,7 +261,7 @@ void calcWorld(vec3* playerPos, uint32_t ticks)
                 for(uint8_t k = 0; k < VIEW_DISTANCE; k++)
                 {
                     //Don't need to tick empty chunks or initial chunks (the latter because tickable blocks aren't part of worldgen)
-                    if(!CHUNK_GET_FLAG(VIEW_CHUNK(i, j, k), CHUNK_IS_EMPTY) && !CHUNK_GET_FLAG(VIEW_CHUNK(i, j, k), CHUNK_IS_INITIAL))
+                    if(!CHUNK_GET_FLAG(VIEW_CHUNK(i, j, k), CHUNK_IS_EMPTY | CHUNK_IS_INITIAL))
                     {
                         tickChunk(VIEW_CHUNK(i, j, k));
                     }
