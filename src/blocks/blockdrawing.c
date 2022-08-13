@@ -74,7 +74,11 @@ const vec2i* blockTextures[] = {
     [BLOCK_DEAD_SHRUB] = (vec2i[1]) {{4, 6}},
     [BLOCK_COMPUTER] = (vec2i[6]) {{5, 6}, {6, 6}, {7, 6}, {7, 6}, {7, 6}, {7, 6}},
 
-    [BLOCK_BRICKS] = (vec2i[1]) {{0, 7}}
+    [BLOCK_BRICKS] = (vec2i[1]) {{0, 7}},
+    [BLOCK_MUSHROOM] = (vec2i[2]) {{1, 7}, {2, 7}},
+
+    [BLOCK_WOOD_SLAB] = (vec2i[1]) {{0, 1}},
+    [BLOCK_COBBLESTONE_SLAB] = (vec2i[1]) {{3, 5}}
 };
 
 vec2 getBlockTexture(BlockType type, uint8_t index)
@@ -100,10 +104,10 @@ void calcBlockCorners(vec3 list[8], uint8_t x, uint8_t y, uint8_t z)
     calcBlockVertices(list, x, y, z, BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
 }
 
-void drawNormalBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
+void drawNormalBlockHeight(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion, uint8_t height)
 {
     vec3 v[8];
-    calcBlockCorners(v, x, y, z);
+    calcBlockVertices(v, x, y, z, BLOCK_SIZE, BLOCK_PIXEL(height), BLOCK_SIZE);
     vec3* faces[6][4] = BLOCK_ALL_FACES(v);
 
     //Get texture position
@@ -111,7 +115,7 @@ void drawNormalBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occl
     float texX1 = PTCL(tex.x);
     float texX2 = PTCH(tex.x + 8);
     float texY1 = PTCL(tex.y);
-    float texY2 = PTCH(tex.y + 8);
+    float texY2 = PTCH(tex.y + height);
 
     uint8_t occlusionCheck = BS_FRONT;
     for(uint8_t i = 0; i < 6; i++)
@@ -133,6 +137,16 @@ void drawNormalBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occl
 
         occlusionCheck <<= 1;
     }
+}
+
+void drawNormalBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
+{
+    drawNormalBlockHeight(block, x, y, z, occlusion, 8);
+}
+
+void drawSlab(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
+{
+    drawNormalBlockHeight(block, x, y, z, occlusion, 4);
 }
 
 void drawMultitexBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)

@@ -18,6 +18,12 @@ AABB getAABBForBlock(Block* block, vec3 position)
             return (AABB) {.min = (vec3) {position.x + xMin, position.y, position.z + zMin},
                            .max = (vec3) {position.x + xMax, position.y + BLOCK_SIZE, position.z + zMax}};
         }
+        case BLOCK_WOOD_SLAB:
+        case BLOCK_COBBLESTONE_SLAB:
+        {
+            return (AABB) {.min = position,
+                           .max = (vec3) {position.x + BLOCK_SIZE, position.y + BLOCK_SIZE / 2, position.z + BLOCK_SIZE}};
+        }
         default:
         {
             return (AABB) {.min = position,

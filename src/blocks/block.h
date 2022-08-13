@@ -51,8 +51,12 @@ typedef enum {
     BLOCK_COMPUTER,
     
     BLOCK_BRICKS,
+    BLOCK_MUSHROOM,
 
     BLOCK_LEVER,
+
+    BLOCK_WOOD_SLAB,
+    BLOCK_COBBLESTONE_SLAB,
 
     BLOCK_LAST
 } BlockType;

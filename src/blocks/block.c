@@ -42,8 +42,12 @@ const char* blockNames[] = {
     [BLOCK_COMPUTER] = "Computer",
 
     [BLOCK_BRICKS] = "Bricks",
+    [BLOCK_MUSHROOM] = "Mushroom",
 
-    [BLOCK_LEVER] = "Lever"
+    [BLOCK_LEVER] = "Lever",
+
+    [BLOCK_WOOD_SLAB] = "Wood slab",
+    [BLOCK_COBBLESTONE_SLAB] = "Cobblestone slab"
 };
 
 void drawBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
@@ -67,6 +71,7 @@ void drawBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
         case BLOCK_REDSTONE_TORCH:
         case BLOCK_SUGAR_CANE:
         case BLOCK_DEAD_SHRUB:
+        case BLOCK_MUSHROOM:
         {
             drawXBlock(block, x, y, z);
             break;
@@ -103,6 +108,12 @@ void drawBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
             drawPistonHead(block, x, y, z, occlusion);
             break;
         }
+        case BLOCK_WOOD_SLAB:
+        case BLOCK_COBBLESTONE_SLAB:
+        {
+            drawSlab(block, x, y, z, occlusion);
+            break;
+        }
         default:
         {
             drawNormalBlock(block, x, y, z, occlusion);
@@ -131,6 +142,14 @@ vec2 getInventoryTextureForBlock(Block block)
         {
             return (vec2) {72, 0};
         }
+        case BLOCK_WOOD_SLAB:
+        {
+            return (vec2) {80, 0};
+        }
+        case BLOCK_COBBLESTONE_SLAB:
+        {
+            return (vec2) {88, 0};
+        }
         default:
         {
             return getBlockTexture(block.type, block.data & BLOCK_DATA_TEXTURE);
@@ -156,6 +175,9 @@ bool isOpaqueBlock(BlockType type)
         case BLOCK_PISTON_HEAD:
         case BLOCK_REDSTONE_REPEATER:
         case BLOCK_DEAD_SHRUB:
+        case BLOCK_MUSHROOM:
+        case BLOCK_WOOD_SLAB:
+        case BLOCK_COBBLESTONE_SLAB:
         {
             return false;
         }
@@ -173,6 +195,7 @@ bool canPlaceBlock(BlockType toPlace, BlockType below)
         case BLOCK_WHEAT:
         case BLOCK_FLOWER:
         case BLOCK_TALL_GRASS:
+        case BLOCK_MUSHROOM:
         {
             return (below == BLOCK_DIRT || below == BLOCK_GRASS);
         }
@@ -218,6 +241,7 @@ bool isBlockCollidable(BlockType type)
         case BLOCK_LEVER:
         case BLOCK_REDSTONE_REPEATER:
         case BLOCK_DEAD_SHRUB:
+        case BLOCK_MUSHROOM:
         {
             return false;
         }

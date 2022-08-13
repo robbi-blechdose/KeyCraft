@@ -19,32 +19,33 @@ uint8_t hotbarCursor = 0;
 typedef struct {
     char* name;
     uint8_t size;
+    Block icon;
     Block blocks[INVENTORY_SIZE_X * INVENTORY_SIZE_Y];
 } InventoryTab;
 
 
 const InventoryTab inventory[NUM_INVENTORY_TABS] = {
     {
-        "Basic", 19,
+        "Basic", 22, B(BLOCK_GRASS),
         {
             B(BLOCK_STONE), B(BLOCK_SAND), B(BLOCK_DIRT), B(BLOCK_GRASS), B(BLOCK_WOOD), B(BLOCK_PLANKS),
-            B(BLOCK_COAL_ORE), B(BLOCK_IRON_ORE), B(BLOCK_GOLD_ORE), B(BLOCK_REDSTONE_ORE), B(BLOCK_DIAMOND_ORE),
-            B(BLOCK_GLASS), B(BLOCK_LEAVES), B(BLOCK_BOOKSHELF), B(BLOCK_WATER),
-            B(BLOCK_DOOR), B(BLOCK_COBBLESTONE), B(BLOCK_CRAFTING_TABLE), B(BLOCK_FURNACE)
+            B(BLOCK_COAL_ORE), B(BLOCK_IRON_ORE), B(BLOCK_GOLD_ORE), B(BLOCK_REDSTONE_ORE), B(BLOCK_DIAMOND_ORE), B(BLOCK_GLASS),
+            B(BLOCK_LEAVES), B(BLOCK_BOOKSHELF), B(BLOCK_WATER), B(BLOCK_DOOR), B(BLOCK_COBBLESTONE), B(BLOCK_CRAFTING_TABLE),
+            B(BLOCK_FURNACE), B(BLOCK_BRICKS), B(BLOCK_WOOD_SLAB), B(BLOCK_COBBLESTONE_SLAB)
         }
     },
     {
-        "Plants", 7,
+        "Plants", 9, B(BLOCK_FLOWER),
         {
             B(BLOCK_FLOWER), {BLOCK_FLOWER, BLOCK_DATA_TEXTURE1}, B(BLOCK_TALL_GRASS), B(BLOCK_WHEAT), B(BLOCK_SUGAR_CANE), B(BLOCK_CACTUS),
-            B(BLOCK_DEAD_SHRUB)
+            B(BLOCK_DEAD_SHRUB), B(BLOCK_MUSHROOM), {BLOCK_MUSHROOM, BLOCK_DATA_TEXTURE1}
         }
     },
     {
-        "Redstone", 7,
+        "Redstone", 8, B(BLOCK_REDSTONE_TORCH),
         {
-            B(BLOCK_REDSTONE_LAMP), B(BLOCK_REDSTONE_WIRE), {BLOCK_REDSTONE_TORCH, BLOCK_DATA_POWER | BLOCK_DATA_TEXTURE1}, B(BLOCK_LEVER), B(BLOCK_TNT), B(BLOCK_PISTON),
-            B(BLOCK_COMPUTER)
+            B(BLOCK_REDSTONE_LAMP), B(BLOCK_REDSTONE_WIRE), {BLOCK_REDSTONE_TORCH, BLOCK_DATA_POWER | BLOCK_DATA_TEXTURE1}, B(BLOCK_REDSTONE_REPEATER), B(BLOCK_LEVER), B(BLOCK_TNT),
+            B(BLOCK_PISTON), B(BLOCK_COMPUTER)
         }
     }
 };
@@ -101,20 +102,31 @@ Block getHotbarSelection()
     return hotbar[hotbarCursor];
 }
 
+#define INVENTORY_X_START WINX / 2 - (32 * INVENTORY_SIZE_X / 2.0f)
+
 void drawInventory()
 {
-    glDrawText(inventory[inventoryTab].name, WINX / 2 - strlen(inventory[inventoryTab].name) * 8 / 2, 16, 0xFFFFFF);
+    //Draw current tab title
+    glDrawText(inventory[inventoryTab].name, INVENTORY_X_START + (NUM_INVENTORY_TABS * 32) + 12, 24, 0xFFFFFF);
 
+    //Draw tabs
+    for(uint8_t i = 0; i < NUM_INVENTORY_TABS; i++)
+    {
+        drawSquare(INVENTORY_X_START + (i * 32), 196, i == inventoryTab);
+        drawBlockItem(inventory[i].icon, INVENTORY_X_START + (i * 32) + 4, 196 + 4);
+    }
+
+    //Draw content
     for(uint8_t i = 0; i < INVENTORY_SIZE_X; i++)
     {
         for(uint8_t j = 0; j < INVENTORY_SIZE_Y; j++)
         {
-            drawSquare(WINX / 2 - (32 * INVENTORY_SIZE_X / 2.0f) + (i * 32), 168 - (j * 32), i == inventoryCursorX && j == inventoryCursorY);
+            drawSquare(INVENTORY_X_START + (i * 32), 156 - (j * 32), i == inventoryCursorX && j == inventoryCursorY);
             if(i + j * INVENTORY_SIZE_X >= inventory[inventoryTab].size)
             {
                 continue;
             }
-            drawBlockItem(inventory[inventoryTab].blocks[i + j * INVENTORY_SIZE_X], WINX / 2 - (32 * INVENTORY_SIZE_X / 2.0f) + (i * 32) + 4, 168 - (j * 32) + 4);
+            drawBlockItem(inventory[inventoryTab].blocks[i + j * INVENTORY_SIZE_X], INVENTORY_X_START + (i * 32) + 4, 156 - (j * 32) + 4);
         }
     }
 }
