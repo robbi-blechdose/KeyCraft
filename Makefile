@@ -28,5 +28,8 @@ $(PNAME): $(OBJS)
 $(OBJS): %.o : %.c
 	$(CC) $(CFLAGS) $(INCLUDES) -c -o $@ $<
 
+debug: CFLAGS += -DDEBUG=1
+debug: $(PNAME)
+
 oclean:
 	rm *.o
