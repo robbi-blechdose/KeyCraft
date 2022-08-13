@@ -566,10 +566,14 @@ int main(int argc, char **argv)
     loadMusic(0, "/opk/res/mus/curiouscritters.ogg");
     loadSampleIndex(SFX_LEVER, "/opk/res/sfx/click20.ogg");
     loadSampleIndex(SFX_TNT, "/opk/res/sfx/explosion.ogg");
+    loadSampleIndex(SFX_DOOR, "/opk/res/sfx/wooded_box_open.ogg");
+    loadSampleIndex(SFX_MENU, "/opk/res/sfx/click1.ogg");
     #else
     loadMusic(0, "res/mus/curiouscritters.ogg");
     loadSampleIndex(SFX_LEVER, "res/sfx/click20.ogg");
     loadSampleIndex(SFX_TNT, "res/sfx/explosion.ogg");
+    loadSampleIndex(SFX_DOOR, "res/sfx/wooded_box_open.ogg");
+    loadSampleIndex(SFX_MENU, "res/sfx/click1.ogg");
     #endif
     playMusic(0, 0);
 

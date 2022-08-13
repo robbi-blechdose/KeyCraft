@@ -71,6 +71,9 @@ bool actBlock(Chunk* chunk, Block* block)
         block->data ^= BLOCK_DATA_STATE;
         
         CHUNK_SET_FLAG(chunk, CHUNK_MODIFIED);
+
+        playSample(SFX_DOOR);
+
         return true;
     }
     else if(block->type == BLOCK_LEVER)

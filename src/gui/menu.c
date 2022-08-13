@@ -4,7 +4,9 @@
 #include <stdio.h>
 
 #include "../engine/video.h"
+#include "../engine/audio.h"
 
+#include "../sfx.h"
 #include "../version.h"
 
 /**
@@ -91,6 +93,8 @@ void scrollMenu(int8_t dir)
             menuCursor = 0;
         }
     }
+
+    playSample(SFX_MENU);
 }
 
 uint8_t getMenuCursor()
