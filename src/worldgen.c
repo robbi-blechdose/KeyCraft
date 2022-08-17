@@ -18,6 +18,7 @@
 #define RAND_TREE          16
 #define RAND_SUGARCANE     24
 #define RAND_CACTUS        24
+#define RAND_ROCKPILE      24
 
 #define RAND_ORE_COAL     128
 #define RAND_ORE_IRON     144
@@ -26,6 +27,12 @@
 #define RAND_ORE_DIAMOND  192
 
 #define WATER_LEVEL 6
+
+typedef enum {
+    BIOME_NORMAL,
+    BIOME_DESERT,
+    BIOME_BARREN
+} Biome;
 
 fnl_state terrainNoise;
 fnl_state randNoise;
@@ -48,13 +55,20 @@ void initWorldgen(uint32_t seed)
     biomeNoise.noise_type = FNL_NOISE_CELLULAR;
     biomeNoise.fractal_type = FNL_FRACTAL_NONE;
     biomeNoise.cellular_distance_func = FNL_CELLULAR_DISTANCE_HYBRID;
+    biomeNoise.cellular_return_type = FNL_CELLULAR_RETURN_VALUE_CELLVALUE;
+    biomeNoise.frequency = 0.03f;
     biomeNoise.seed = seed;
+}
+
+float getNoiseRandScale(int16_t chunkX, int16_t chunkZ, uint8_t x, uint8_t z, float y, float scale)
+{
+    //Scale noise to be within 0 to 1
+    return (fnlGetNoise3D(&randNoise, (chunkX * CHUNK_SIZE + x) * scale, y, (chunkZ * CHUNK_SIZE + z) * scale) + 1) / 2;
 }
 
 float getNoiseRand(int16_t chunkX, int16_t chunkZ, uint8_t x, uint8_t z, float y)
 {
-    //Scale noise to be within 0 to 1
-    return (fnlGetNoise3D(&randNoise, (chunkX * CHUNK_SIZE + x) * 50, y, (chunkZ * CHUNK_SIZE + z) * 50) + 1) / 2;
+    return getNoiseRandScale(chunkX, chunkZ, x, z, y, 50);
 }
 
 void generateTree(Chunk* chunk, uint8_t baseX, uint8_t baseY, uint8_t baseZ)
@@ -141,10 +155,11 @@ void generateChunkNormal(Chunk* chunk, uint8_t i, uint8_t j, uint8_t k, uint8_t 
         if(rand < 0.01f)
         {
             CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_FLOWER;
-            if(rand < 0.007f)
-            {
-                CHUNK_BLOCK(chunk, i, j, k).data = BLOCK_DATA_TEXTURE1;
-            }
+        }
+        else if(rand > 0.05f && rand < 0.051f)
+        {
+            CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_FLOWER;
+            CHUNK_BLOCK(chunk, i, j, k).data = BLOCK_DATA_TEXTURE1;
         }
         else if(getNoiseRand(x, z, i, k, RAND_TALLGRASS) < 0.02f)
         {
@@ -170,6 +185,7 @@ void generateChunkNormal(Chunk* chunk, uint8_t i, uint8_t j, uint8_t k, uint8_t 
         if(pos >= height)
         {
             CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_WATER;
+            CHUNK_BLOCK(chunk, i, j, k).data = 0; //Clear data - it can happen that flowers are placed and overwritten by water which causes the texture bit to be set
         }
         else if(pos == height - 1)
         {
@@ -228,6 +244,71 @@ void generateChunkDesert(Chunk* chunk, uint8_t i, uint8_t j, uint8_t k, uint8_t 
     }
 }
 
+void generateChunkBarren(Chunk* chunk, uint8_t i, uint8_t j, uint8_t k, uint8_t height, uint8_t pos)
+{
+    //Chunk position
+    int16_t x = chunk->position.x;
+    int16_t y = chunk->position.y;
+    int16_t z = chunk->position.z;
+
+    //Clamp to water level to prevent issues on biome transitions
+    if(height <= WATER_LEVEL)
+    {
+        height = WATER_LEVEL + 1;
+    }
+
+    if(pos == height)
+    {
+        float rand = getNoiseRand(x, z, i, k, RAND_FLOWER);
+        if(rand < 0.02f)
+        {
+            CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_DEAD_SHRUB;
+        }
+        else if(rand > 0.1f && rand < 0.107f)
+        {
+            CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_MUSHROOM;
+        }
+        else if(rand > 0.15f && rand < 0.16f)
+        {
+            CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_MUSHROOM;
+            CHUNK_BLOCK(chunk, i, j, k).data = BLOCK_DATA_TEXTURE1;
+        }
+    }
+    else if(pos < height && pos >= height * 0.8f)
+    {
+        CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_DIRT;
+    }
+    else if(pos < height * 0.8f)
+    {
+        generateLowBlocks(chunk, i, j, k, pos);
+    }
+
+    //Generate rock piles
+    float rockRand = getNoiseRandScale(x, z, i, k, RAND_ROCKPILE, 10);
+    if(rockRand < 0.01f && pos < height + 1)
+    {
+        CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_COBBLESTONE;
+    }
+}
+
+Biome getBiome(int16_t chunkX, int16_t chunkZ, uint8_t x, uint8_t z)
+{
+    float biome = (fnlGetNoise2D(&biomeNoise, chunkX * CHUNK_SIZE + x, chunkZ * CHUNK_SIZE + z) + 1) / 2;
+
+    if(biome < 0.2f)
+    {
+        return BIOME_DESERT;
+    }
+    else if(biome > 0.8f)
+    {
+        return BIOME_BARREN;
+    }
+    else
+    {
+        return BIOME_NORMAL;
+    }
+}
+
 void generateChunk(Chunk* chunk)
 {
     //Chunk position
@@ -251,11 +332,14 @@ void generateChunk(Chunk* chunk)
             {
                 uint8_t pos = j + (y * CHUNK_SIZE);
 
-                float biome = (fnlGetNoise2D(&biomeNoise, x * CHUNK_SIZE + i, z * CHUNK_SIZE + k) + 1) / 2;
-
-                if(biome < 0.15f)
+                Biome biome = getBiome(x, z, i, k);
+                if(biome == BIOME_DESERT)
                 {
                     generateChunkDesert(chunk, i, j, k, height, pos);
+                }
+                else if(biome == BIOME_BARREN)
+                {
+                    generateChunkBarren(chunk, i, j, k, height, pos);
                 }
                 else
                 {
