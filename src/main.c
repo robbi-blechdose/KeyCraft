@@ -38,7 +38,7 @@ typedef enum {
     STATE_OPTIONS
 } State;
 
-#define SAVE_VERSION 50
+#define SAVE_VERSION 40
 #define SAVE_NAME             "game.sav"
 #define INSTANTPLAY_SAVE_NAME "instantplay.sav"
 
@@ -66,6 +66,26 @@ void drawFPS(uint16_t fps)
 	glDrawText(buffer, 2, 2, 0xFFFFFF);
 }
 #endif
+
+void saveOptions()
+{
+    if(openSave(".keycraft", "options.sav", true))
+    {
+        writeElement(&invertY, sizeof(bool));
+        writeElement(&newGameSeed, sizeof(uint32_t));
+        closeSave();
+    }
+}
+
+void loadOptions()
+{
+    if(openSave(".keycraft", "options.sav", false))
+    {
+        readElement(&invertY, sizeof(bool));
+        readElement(&newGameSeed, sizeof(uint32_t));
+        closeSave();
+    }
+}
 
 inline void tryPlaceBlockOrInteract(BlockPos* block, AABBSide result)
 {
@@ -112,52 +132,94 @@ inline void tryPlaceBlockOrInteract(BlockPos* block, AABBSide result)
         }
     }
 
-    //Place new block
-    if(canPlace && getWorldBlock(block)->type == BLOCK_AIR)
+    if(!canPlace || getWorldBlock(block)->type != BLOCK_AIR)
     {
-        BlockPos below = *block;
-        below.y -= BLOCK_SIZE;
-        BlockPos above = *block;
-        above.y += BLOCK_SIZE;
-        Block toPlace = getHotbarSelection();
-        if(canPlaceBlock(toPlace.type, getWorldBlock(&below)->type) &&
-            !(toPlace.type == BLOCK_DOOR && getWorldBlock(&above)->type != BLOCK_AIR)) //Check if we can place the door upper (yes, this is a special case)
+        return;
+    }
+
+    //Place new block
+    BlockPos below = *block;
+    below.y -= BLOCK_SIZE;
+    BlockPos above = *block;
+    above.y += BLOCK_SIZE;
+    Block toPlace = getHotbarSelection();
+
+    if(!canPlaceBlock(toPlace.type, getWorldBlock(&below)->type) ||
+        (toPlace.type == BLOCK_DOOR && getWorldBlock(&above)->type != BLOCK_AIR)) //Check if we can place the door upper (yes, this is a special case)
+    {
+        return;
+    }
+
+    if(isBlockOriented(toPlace.type))
+    {
+        uint8_t orientation = BLOCK_DATA_DIR_RIGHT;
+        float rotation = player.rotation.y - M_PI_4;
+        clampAngle(&rotation);
+
+        if(rotation < M_PI_2)
         {
-            if(isBlockOriented(toPlace.type))
-            {
-                uint8_t orientation = BLOCK_DATA_DIR_RIGHT;
-                float rotation = player.rotation.y - M_PI_4;
-                clampAngle(&rotation);
+            orientation = BLOCK_DATA_DIR_FRONT;
+        }
+        else if(rotation < M_PI)
+        {
+            orientation = BLOCK_DATA_DIR_LEFT;
+        }
+        else if(rotation < M_PI + M_PI_2)
+        {
+            orientation = BLOCK_DATA_DIR_BACK;
+        }
+        //4th case is covered by the original assignment
+        toPlace.data |= orientation;
+    }
 
-                if(rotation < M_PI_2)
-                {
-                    orientation = BLOCK_DATA_DIR_FRONT;
-                }
-                else if(rotation < M_PI)
-                {
-                    orientation = BLOCK_DATA_DIR_LEFT;
-                }
-                else if(rotation < M_PI + M_PI_2)
-                {
-                    orientation = BLOCK_DATA_DIR_BACK;
-                }
-                //4th case is covered by the original assignment
-                toPlace.data |= orientation;
-            }
-
-            setWorldBlock(block, toPlace);
-            //Check if the block intersects with the player. If so, don't place it
-            if(playerIntersectsWorld(&player))
-            {
-                setWorldBlock(block, (Block) {BLOCK_AIR, 0});
-                //Remove door upper as well (yes, this is a special case)
-                if(toPlace.type == BLOCK_DOOR)
-                {
-                    setWorldBlock(&above, (Block) {BLOCK_AIR, 0});
-                }
-            }
+    setWorldBlock(block, toPlace);
+    //Check if the block intersects with the player. If so, don't place it
+    if(playerIntersectsWorld(&player))
+    {
+        setWorldBlock(block, (Block) {BLOCK_AIR, 0});
+        //Remove door upper as well (yes, this is a special case)
+        if(toPlace.type == BLOCK_DOOR)
+        {
+            setWorldBlock(&above, (Block) {BLOCK_AIR, 0});
         }
     }
+}
+
+inline void tryRemoveBlock(BlockPos* block)
+{
+    Block* toRemove = getWorldBlock(block);
+    
+    if(toRemove->type == BLOCK_BEDROCK)
+    {
+        return;
+    }
+    
+    //Remove other door half (yes, this is a special case)
+    if(toRemove->type == BLOCK_DOOR)
+    {
+        if(toRemove->data & BLOCK_DATA_PART)
+        {
+            //This is the upper part, remove lower
+            block->y--;
+            setWorldBlock(block, (Block) {BLOCK_AIR, 0});
+            block->y++;
+        }
+        else
+        {
+            //This is the lower part, remove upper
+            block->y++;
+            setWorldBlock(block, (Block) {BLOCK_AIR, 0});
+            block->y--;
+        }
+    }
+    else if(toRemove->type == BLOCK_COMPUTER)
+    {
+        //Remove computer data
+        free(getWorldChunk(block)->computers[toRemove->data & BLOCK_DATA_COMPUTER]);
+        getWorldChunk(block)->computers[toRemove->data & BLOCK_DATA_COMPUTER] = NULL;
+    }
+
+    setWorldBlock(block, (Block) {BLOCK_AIR, 0});
 }
 
 void calcFrameGame(uint32_t ticks)
@@ -204,10 +266,7 @@ void calcFrameGame(uint32_t ticks)
     //Cast ray
     vec3 rayDir = anglesToDirection(&player.rotation);
     //Player position in world space
-    vec3 posWorld = player.position;
-    posWorld.x += VIEW_TRANSLATION;
-    posWorld.y += VIEW_TRANSLATION;
-    posWorld.z += VIEW_TRANSLATION;
+    vec3 posWorld = addv3(player.position, (vec3) {VIEW_TRANSLATION, VIEW_TRANSLATION, VIEW_TRANSLATION});
 
     BlockPos block;
     float distance;
@@ -220,36 +279,7 @@ void calcFrameGame(uint32_t ticks)
     //Remove block
     else if(keyUp(B_B) && result)
     {
-        Block* toRemove = getWorldBlock(&block);
-        if(toRemove->type != BLOCK_BEDROCK)
-        {
-            //Remove other door half (yes, this is a special case)
-            if(toRemove->type == BLOCK_DOOR)
-            {
-                if(toRemove->data & BLOCK_DATA_PART)
-                {
-                    //This is the upper part, remove lower
-                    block.y--;
-                    setWorldBlock(&block, (Block) {BLOCK_AIR, 0});
-                    block.y++;
-                }
-                else
-                {
-                    //This is the lower part, remove upper
-                    block.y++;
-                    setWorldBlock(&block, (Block) {BLOCK_AIR, 0});
-                    block.y--;
-                }
-            }
-            else if(toRemove->type == BLOCK_COMPUTER)
-            {
-                //Remove computer data
-                free(getWorldChunk(&block)->computers[toRemove->data & BLOCK_DATA_COMPUTER]);
-                getWorldChunk(&block)->computers[toRemove->data & BLOCK_DATA_COMPUTER] = NULL;
-            }
-
-            setWorldBlock(&block, (Block) {BLOCK_AIR, 0});
-        }
+        tryRemoveBlock(&block);
     }
 
     if(keyUp(B_SELECT))
@@ -399,6 +429,7 @@ void calcFrame(uint32_t ticks)
                     }
                     case OPTION_SELECTION_BACK:
                     {
+                        saveOptions();
                         state = STATE_MENU;
                         break;
                     }
@@ -509,26 +540,15 @@ void drawFrame()
     flipFrame();
 }
 
-void saveOptions()
-{
-    writeElement(&invertY, sizeof(bool));
-    writeElement(&newGameSeed, sizeof(uint32_t));
-}
-
-void loadOptions()
-{
-    readElement(&invertY, sizeof(bool));
-    readElement(&newGameSeed, sizeof(uint32_t));
-}
+//TODO: fix segfault on saving with no modified chunks!
 
 void saveGame(char* name)
 {
-    if(openSave(".keycraft", name, 1))
+    if(openSave(".keycraft", name, true))
     {
         uint16_t saveVersion = SAVE_VERSION;
         writeElement(&saveVersion, sizeof(uint16_t));
 
-        saveOptions();
         savePlayer(&player);
         saveHotbar();
         saveWorld();
@@ -538,19 +558,12 @@ void saveGame(char* name)
 
 void loadGame(char* name)
 {
-    if(openSave(".keycraft", name, 0))
+    if(openSave(".keycraft", name, false))
     {
         uint16_t saveVersion;
         readElement(&saveVersion, sizeof(uint16_t));
 
         if(saveVersion / 10 == SAVE_VERSION / 10)
-        {
-            loadOptions();
-            loadPlayer(&player);
-            loadHotbar();
-            loadWorld();
-        }
-        else if(saveVersion == 40) //Skip options loading to allow compatability with old saves
         {
             loadPlayer(&player);
             loadHotbar();
@@ -598,9 +611,11 @@ int main(int argc, char **argv)
     #endif
     playMusic(0, 0);
 
+    loadOptions();
+
     player.position = (vec3) {0, 0, 0};
 
-    initWorld(0);
+    initWorld(newGameSeed);
 
     if(argc > 1 && strcmp(argv[1], "-skipmenu") == 0)
     {
