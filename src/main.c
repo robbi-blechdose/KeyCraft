@@ -37,9 +37,13 @@ typedef enum {
     STATE_OPTIONS
 } State;
 
+#define SAVE_FOLDER ".keycraft"
+
 #define SAVE_VERSION 40
 #define SAVE_NAME             "game.sav"
 #define INSTANTPLAY_SAVE_NAME "instantplay.sav"
+
+#define OPTIONS_SAVE_NAME     "options.sav"
 
 #define SHELL_CMD_POWERDOWN_HANDLE "powerdown handle"
 #define SHELL_CMD_INSTANT_PLAY     "instant_play"
@@ -59,7 +63,7 @@ uint32_t newGameSeed = 0;
 
 void saveOptions()
 {
-    if(openSave(".keycraft", "options.sav", true))
+    if(openSave(SAVE_FOLDER, OPTIONS_SAVE_NAME, true))
     {
         writeElement(&invertY, sizeof(bool));
         writeElement(&newGameSeed, sizeof(uint32_t));
@@ -69,7 +73,7 @@ void saveOptions()
 
 void loadOptions()
 {
-    if(openSave(".keycraft", "options.sav", false))
+    if(openSave(SAVE_FOLDER, OPTIONS_SAVE_NAME, false))
     {
         readElement(&invertY, sizeof(bool));
         readElement(&newGameSeed, sizeof(uint32_t));
@@ -79,12 +83,16 @@ void loadOptions()
 
 inline void tryPlaceBlockOrInteract(BlockPos* block, AABBSide result)
 {
-    bool canPlace = !actWorldBlock(block);
+    if(actWorldBlock(block))
+    {
+        return;
+    }
+    
     if(getWorldBlock(block)->type == BLOCK_COMPUTER)
     {
         programmingComputer = getWorldChunk(block)->computers[getWorldBlock(block)->data & BLOCK_DATA_COMPUTER];
         state = STATE_PROGRAMMING;
-        canPlace = false;
+        return;
     }
 
     //Calc position
@@ -122,7 +130,7 @@ inline void tryPlaceBlockOrInteract(BlockPos* block, AABBSide result)
         }
     }
 
-    if(!canPlace || getWorldBlock(block)->type != BLOCK_AIR)
+    if(getWorldBlock(block)->type != BLOCK_AIR)
     {
         return;
     }
@@ -534,7 +542,7 @@ void drawFrame()
 
 void saveGame(char* name)
 {
-    if(openSave(".keycraft", name, true))
+    if(openSave(SAVE_FOLDER, name, true))
     {
         uint16_t saveVersion = SAVE_VERSION;
         writeElement(&saveVersion, sizeof(uint16_t));
@@ -548,7 +556,7 @@ void saveGame(char* name)
 
 void loadGame(char* name)
 {
-    if(openSave(".keycraft", name, false))
+    if(openSave(SAVE_FOLDER, name, false))
     {
         uint16_t saveVersion;
         readElement(&saveVersion, sizeof(uint16_t));
