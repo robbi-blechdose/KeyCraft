@@ -61,9 +61,13 @@ bool hasCircuitPowerSource(ChunkPos chunk, uint8_t x, uint8_t y, uint8_t z)
 
     bp->data |= BLOCK_DATA_VISITED;
 
-    blockPos.y--;
     for(int8_t i = -1; i <= 1; i++)
     {
+        blockPos.y = ((int8_t) y) + i;
+        blockPos.x = x;
+        blockPos.z = z;
+        blockPos.chunk = chunk;
+
         for(uint8_t j = 0; j < 4; j++)
         {
             blockPos.x += adjacentDiffs[j][0];
@@ -78,10 +82,6 @@ bool hasCircuitPowerSource(ChunkPos chunk, uint8_t x, uint8_t y, uint8_t z)
                 }
             }
         }
-        blockPos.y++;
-        blockPos.x = x;
-        blockPos.z = z;
-        blockPos.chunk = chunk;
     }
 
     bp->data &= ~BLOCK_DATA_VISITED;
@@ -105,9 +105,13 @@ void updateCircuit(ChunkPos chunk, uint8_t x, uint8_t y, uint8_t z, bool powered
     setWorldBlock(&blockPos, block);
 
     //Update rest of the circuit
-    blockPos.y--;
     for(int8_t i = -1; i <= 1; i++)
     {
+        blockPos.y = ((int8_t) y) + i;
+        blockPos.x = x;
+        blockPos.z = z;
+        blockPos.chunk = chunk;
+
         for(uint8_t j = 0; j < 4; j++)
         {
             blockPos.x += adjacentDiffs[j][0];
@@ -121,10 +125,6 @@ void updateCircuit(ChunkPos chunk, uint8_t x, uint8_t y, uint8_t z, bool powered
                 }
             }
         }
-        blockPos.y++;
-        blockPos.x = x;
-        blockPos.z = z;
-        blockPos.chunk = chunk;
     }
 }
 
