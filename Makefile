@@ -28,7 +28,7 @@ $(PNAME): $(OBJS)
 $(OBJS): %.o : %.c
 	$(CC) $(CFLAGS) $(INCLUDES) -c -o $@ $<
 
-debug: CFLAGS += -DDEBUG=1
+debug: CFLAGS += -DDEBUG=1 -DNO_FPS_LIMIT=1
 debug: $(PNAME)
 
 oclean:

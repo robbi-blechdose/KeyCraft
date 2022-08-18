@@ -103,3 +103,10 @@ void setPerspective()
 	glLoadMatrixf(mPerspective.d);
 	glMatrixMode(GL_MODELVIEW);
 }
+
+void drawFPS(uint16_t fps)
+{
+    char buffer[12];
+	sprintf(buffer, "FPS: %i", fps);
+	glDrawText(buffer, 2, 2, 0xFFFFFF);
+}

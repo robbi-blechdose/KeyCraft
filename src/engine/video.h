@@ -1,6 +1,8 @@
 #ifndef _VIDEO_H
 #define _VIDEO_H
 
+#include <stdint.h>
+
 #include "includes/3dMath.h"
 
 #define WINX 240
@@ -18,5 +20,7 @@ void flipFrame();
 
 void setOrtho();
 void setPerspective();
+
+void drawFPS(uint16_t fps);
 
 #endif

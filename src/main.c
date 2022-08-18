@@ -21,7 +21,6 @@
 #include "gui/programming.h"
 
 #define MAX_FPS 50
-//#define LIMIT_FPS
 
 #ifdef DEBUG
 uint16_t fps;
@@ -57,15 +56,6 @@ ComputerData* programmingComputer;
 //Options
 bool invertY = true;
 uint32_t newGameSeed = 0;
-
-#ifdef DEBUG
-void drawFPS(uint16_t fps)
-{
-    char buffer[12];
-	sprintf(buffer, "FPS: %i", fps);
-	glDrawText(buffer, 2, 2, 0xFFFFFF);
-}
-#endif
 
 void saveOptions()
 {
@@ -406,16 +396,16 @@ void calcFrame(uint32_t ticks)
         {
             if(keyUp(B_UP))
             {
-                scrollMenu(-1);
+                scrollOptions(-1);
             }
             else if(keyUp(B_DOWN))
             {
-                scrollMenu(1);
+                scrollOptions(1);
             }
 
             if(keyUp(B_A))
             {
-                switch(getMenuCursor())
+                switch(getOptionsCursor())
                 {
                     case OPTION_SELECTION_INVERTY:
                     {
@@ -435,7 +425,7 @@ void calcFrame(uint32_t ticks)
                     }
                 }
             }
-            else if(keyUp(B_B) && getMenuCursor() == OPTION_SELECTION_SEED)
+            else if(keyUp(B_B) && getOptionsCursor() == OPTION_SELECTION_SEED)
             {
                 newGameSeed--;
             }
@@ -647,7 +637,7 @@ int main(int argc, char **argv)
         calcFrame(ticks);
         drawFrame();
 
-        #ifdef LIMIT_FPS
+        #ifndef NO_FPS_LIMIT
 		while((1000 / MAX_FPS) > (SDL_GetTicks() - tNow + 1))
         {
 			SDL_Delay(1); //Yay stable framerate!

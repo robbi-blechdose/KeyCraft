@@ -17,6 +17,7 @@
 #define CENTER(X) (WINX / 2 - (X) * 4)
 
 int8_t menuCursor = 0;
+int8_t optionsCursor = 0;
 
 uint8_t menuFlags = 0;
 
@@ -26,6 +27,8 @@ const char* menuStrings[] = {
     "Options",
     "Quit"
 };
+
+//TODO: Separate cursor for options
 
 void drawMenu()
 {
@@ -61,43 +64,30 @@ void drawMenu()
     glDrawText("Robbi Blechdose", CENTER(15), 240 - 20, TEXT_WHITE);
 }
 
-void drawOptions(bool invertY, uint32_t seed)
-{
-    glDrawText("KeyCraft Options", CENTER(16), 64, TEXT_WHITE);
-
-    char buffer[31];
-    sprintf(buffer, "Invert Y: %s", invertY ? "On" : "Off");
-    glDrawText(buffer, CENTER(strlen(buffer)), 96, menuCursor == 0 ? TEXT_YELLOW : TEXT_WHITE);
-
-    sprintf(buffer, "Seed: %d", seed);
-    glDrawText(buffer, CENTER(strlen(buffer)), 96 + 16, menuCursor == 1 ? TEXT_YELLOW : TEXT_WHITE);
-
-    glDrawText("Back", CENTER(4), 96 + 16 * 2, menuCursor == 2 ? TEXT_YELLOW : TEXT_WHITE);
-}
-
 void scrollMenu(int8_t dir)
 {
     menuCursor += dir;
-    if(menuCursor < 0)
+
+    uint8_t min = 0;
+
+    if(menuFlags & (MENU_FLAG_NOSAVE | MENU_FLAG_LOADFAIL))
+    {
+        min++;
+    }
+
+    if(menuCursor < min)
     {
         menuCursor = MENU_SIZE - 1;
     }
     else if(menuCursor >= MENU_SIZE)
     {
-        if(menuFlags & (MENU_FLAG_NOSAVE | MENU_FLAG_LOADFAIL))
-        {
-            menuCursor = 1;
-        }
-        else
-        {
-            menuCursor = 0;
-        }
+        menuCursor = min;
     }
 
     playSample(SFX_MENU);
 }
 
-uint8_t getMenuCursor()
+int8_t getMenuCursor()
 {
     return menuCursor;
 }
@@ -109,4 +99,39 @@ void setMenuFlag(uint8_t flag)
     {
         menuCursor = 1;
     }
+}
+
+void drawOptions(bool invertY, uint32_t seed)
+{
+    glDrawText("KeyCraft Options", CENTER(16), 64, TEXT_WHITE);
+
+    char buffer[31];
+    sprintf(buffer, "Invert Y: %s", invertY ? "On" : "Off");
+    glDrawText(buffer, CENTER(strlen(buffer)), 96, optionsCursor == 0 ? TEXT_YELLOW : TEXT_WHITE);
+
+    sprintf(buffer, "Seed: %d", seed);
+    glDrawText(buffer, CENTER(strlen(buffer)), 96 + 16, optionsCursor == 1 ? TEXT_YELLOW : TEXT_WHITE);
+
+    glDrawText("Back", CENTER(4), 96 + 16 * 2, optionsCursor == 2 ? TEXT_YELLOW : TEXT_WHITE);
+}
+
+void scrollOptions(int8_t dir)
+{
+    optionsCursor += dir;
+
+    if(optionsCursor < 0)
+    {
+        optionsCursor = OPTIONS_SIZE - 1;
+    }
+    else if(optionsCursor >= OPTIONS_SIZE)
+    {
+        optionsCursor = 0;
+    }
+
+    playSample(SFX_MENU);
+}
+
+int8_t getOptionsCursor()
+{
+    return optionsCursor;
 }
