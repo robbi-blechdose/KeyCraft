@@ -130,7 +130,7 @@ inline void tryPlaceBlockOrInteract(BlockPos* block, AABBSide result)
         }
     }
 
-    if(getWorldBlock(block)->type != BLOCK_AIR)
+    if(getWorldBlock(block) == NULL || getWorldBlock(block)->type != BLOCK_AIR)
     {
         return;
     }
@@ -143,7 +143,7 @@ inline void tryPlaceBlockOrInteract(BlockPos* block, AABBSide result)
     Block toPlace = getHotbarSelection();
 
     if(!canPlaceBlock(toPlace.type, getWorldBlock(&below)->type) ||
-        (toPlace.type == BLOCK_DOOR && getWorldBlock(&above)->type != BLOCK_AIR)) //Check if we can place the door upper (yes, this is a special case)
+        (toPlace.type == BLOCK_DOOR && (getWorldBlock(&above) == NULL || getWorldBlock(&above)->type != BLOCK_AIR))) //Check if we can place the door upper (yes, this is a special case)
     {
         return;
     }
