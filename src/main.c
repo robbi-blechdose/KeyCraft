@@ -591,7 +591,7 @@ int main(int argc, char **argv)
     programName = argv[0];
     
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
-    initVideo((vec4) {.d = {0, 0.8f, 1.0f, 1.0f}}, (vec4) {.d = {0, 0, WINX, WINY}}, 70, 0.3f, 8 * VIEW_DISTANCE);
+    initVideo((vec4) {.d = {0.7f, 0.95f, 1.0f, 1.0f}}, (vec4) {.d = {0, 0, WINX, WINY}}, 70, 0.3f, 8 * VIEW_DISTANCE);
     initAudio(MIX_MAX_VOLUME, 1, 4);
 
     #ifdef FUNKEY
