@@ -17,6 +17,7 @@ typedef struct {
 } BlockPos;
 
 void getBlockPosByDirection(uint8_t dir, BlockPos* pos);
+void getBlockPosByInverseDirection(uint8_t dir, BlockPos* pos);
 
 /**
  * Differences from the center position to the adjacent blocks:

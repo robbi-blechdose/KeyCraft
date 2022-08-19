@@ -14,7 +14,17 @@ bool hasAdjacentPower(ChunkPos chunk, uint8_t x, uint8_t y, uint8_t z, bool only
         Block* block = getWorldBlock(&blockPos);
         if(block != NULL)
         {
-            if(block->data & BLOCK_DATA_POWER)
+            if(block->type == BLOCK_REDSTONE_REPEATER && (block->data & BLOCK_DATA_POWER))
+            {
+                BlockPos pos = blockPos;
+                getBlockPosByInverseDirection(block->data & BLOCK_DATA_DIRECTION, &pos);
+                normalizeBlockPos(&pos);
+                if(pos.chunk.x == chunk.x && pos.chunk.z == chunk.z && pos.x == x && pos.z == z)
+                {
+                    return true;
+                }
+            }
+            else if(block->data & BLOCK_DATA_POWER)
             {
                 if(!onlySource || (onlySource && block->type != BLOCK_REDSTONE_WIRE))
                 {
@@ -145,5 +155,54 @@ void tickRedstoneWire(Chunk* chunk, Block* block, uint8_t x, uint8_t y, uint8_t 
             //We used to not have power but do now
             updateCircuit(chunk->position, x, y, z, true);
         }
+    }
+}
+
+void tickRedstoneTorch(Chunk* chunk, Block* block, uint8_t x, uint8_t y, uint8_t z)
+{
+    //Check if the torch is powered from below - if so, turn it off
+    bool powerBelow = hasAdjacentPower(chunk->position, x, y - 1, z, false);
+    //Check if something changed
+    if((block->data & BLOCK_DATA_POWER) && powerBelow)
+    {
+        block->data &= ~BLOCK_DATA_POWER;
+        block->data &= ~BLOCK_DATA_TEXTURE;
+        CHUNK_SET_FLAG(chunk, CHUNK_MODIFIED);
+    }
+    else if((block->data & BLOCK_DATA_POWER) == 0 && !powerBelow)
+    {
+        block->data |= BLOCK_DATA_POWER;
+        block->data |= BLOCK_DATA_TEXTURE1;
+        CHUNK_SET_FLAG(chunk, CHUNK_MODIFIED);
+    }
+}
+
+void tickRedstoneRepeater(Chunk* chunk, Block* block, uint8_t x, uint8_t y, uint8_t z)
+{
+    bool power = false;
+
+    BlockPos blockPos = {chunk->position, x, y, z};
+    getBlockPosByDirection(block->data & BLOCK_DATA_DIRECTION, &blockPos);
+
+    Block* wBlock = getWorldBlock(&blockPos);
+    if(wBlock != NULL)
+    {
+        if(wBlock->data & BLOCK_DATA_POWER)
+        {
+            power = true;
+        }
+    }
+
+    if((block->data & BLOCK_DATA_POWER) == 0 && power)
+    {
+        block->data |= BLOCK_DATA_POWER;
+        block->data |= BLOCK_DATA_TEXTURE1;
+        CHUNK_SET_FLAG(chunk, CHUNK_MODIFIED);
+    }
+    else if((block->data & BLOCK_DATA_POWER) && !power)
+    {
+        block->data &= ~BLOCK_DATA_POWER;
+        block->data &= ~BLOCK_DATA_TEXTURE;
+        CHUNK_SET_FLAG(chunk, CHUNK_MODIFIED);
     }
 }

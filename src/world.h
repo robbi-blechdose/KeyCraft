@@ -26,6 +26,8 @@ void quitWorld();
 void calcWorld(vec3* playerPos, uint32_t ticks);
 void drawWorld(vec3* playerPosition, vec3* playerRotation);
 
+void normalizeBlockPos(BlockPos* pos);
+
 Chunk* getWorldChunk(BlockPos* pos);
 Block* getWorldBlock(BlockPos* pos);
 void setWorldBlock(BlockPos* pos, Block block);

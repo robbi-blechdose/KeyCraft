@@ -82,9 +82,13 @@ void drawBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
             break;
         }
         case BLOCK_REDSTONE_WIRE:
-        case BLOCK_REDSTONE_REPEATER:
         {
             drawFlatBlock(block, x, y, z, occlusion);
+            break;
+        }
+        case BLOCK_REDSTONE_REPEATER:
+        {
+            drawFlatBlockWithRotation(block, x, y, z, occlusion);
             break;
         }
         case BLOCK_LEVER:

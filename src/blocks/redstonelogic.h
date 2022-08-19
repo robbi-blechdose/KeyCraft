@@ -15,4 +15,8 @@ bool hasAdjacentPower(ChunkPos chunk, uint8_t x, uint8_t y, uint8_t z, bool only
 
 void tickRedstoneWire(Chunk* chunk, Block* block, uint8_t x, uint8_t y, uint8_t z);
 
+void tickRedstoneTorch(Chunk* chunk, Block* block, uint8_t x, uint8_t y, uint8_t z);
+
+void tickRedstoneRepeater(Chunk* chunk, Block* block, uint8_t x, uint8_t y, uint8_t z);
+
 #endif

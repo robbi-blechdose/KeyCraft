@@ -419,7 +419,7 @@ void drawDoor(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
     drawPartBlock(block->data & BLOCK_DATA_DIRECTION, x, y, z, DOOR_WIDTH, true, textures);
 }
 
-void drawFlatBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
+void drawFlatBlockInternal(Block* block, float x, uint8_t y, float z, uint8_t occlusion)
 {
     //Get texture position
     //TODO: "connected textures"?
@@ -439,6 +439,42 @@ void drawFlatBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlus
     glVertex3f(x + BLOCK_SIZE, y + (BLOCK_SIZE / 20), z);
     glTexCoord2f(texX2, texY1);
     glVertex3f(x, y + (BLOCK_SIZE / 20), z);
+}
+
+void drawFlatBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
+{
+    drawFlatBlockInternal(block, x, y, z, occlusion);
+}
+
+void drawFlatBlockWithRotation(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
+{
+    uint8_t dir = block->data & BLOCK_DATA_DIRECTION;
+
+    glEnd();
+    glPushMatrix();
+    glTranslatef(x + 0.5f, y, z + 0.5f);
+
+    if(dir == BLOCK_DATA_DIR_BACK)
+    {
+        glRotatef(180, 0, 1, 0);
+    }
+    else if(dir == BLOCK_DATA_DIR_RIGHT)
+    {
+        glRotatef(90, 0, 1, 0);
+    }
+    else if(dir == BLOCK_DATA_DIR_LEFT)
+    {
+        glRotatef(270, 0, 1, 0);
+    }
+    //Front is default (0 deg rotation)
+
+    glBegin(GL_QUADS);
+
+    drawFlatBlockInternal(block, -0.5f, 0, -0.5f, occlusion);
+
+    glEnd();
+    glPopMatrix();
+    glBegin(GL_QUADS);
 }
 
 void drawSwitch(Block* block, uint8_t x, uint8_t y, uint8_t z)

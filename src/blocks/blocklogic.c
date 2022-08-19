@@ -115,22 +115,12 @@ void tickBlock(Chunk* chunk, Block* block, uint8_t x, uint8_t y, uint8_t z)
         }
         case BLOCK_REDSTONE_TORCH:
         {
-            uint8_t oldState = block->data & BLOCK_DATA_POWER;
-            //Check if the torch is powered from below - if so, turn it off
-            bool powerBelow = hasAdjacentPower(chunk->position, x, y - 1, z, false);
-            //Check if something changed
-            if((block->data & BLOCK_DATA_POWER) && powerBelow)
-            {
-                block->data &= ~BLOCK_DATA_POWER;
-                block->data &= ~BLOCK_DATA_TEXTURE;
-                CHUNK_SET_FLAG(chunk, CHUNK_MODIFIED);
-            }
-            else if((block->data & BLOCK_DATA_POWER) == 0 && !powerBelow)
-            {
-                block->data |= BLOCK_DATA_POWER;
-                block->data |= BLOCK_DATA_TEXTURE1;
-                CHUNK_SET_FLAG(chunk, CHUNK_MODIFIED);
-            }
+            tickRedstoneTorch(chunk, block, x, y, z);
+            break;
+        }
+        case BLOCK_REDSTONE_REPEATER:
+        {
+            tickRedstoneRepeater(chunk, block, x, y, z);
             break;
         }
         case BLOCK_TNT:
