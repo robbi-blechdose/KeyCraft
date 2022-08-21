@@ -186,3 +186,12 @@ bool keyUp(Key key)
     }
     return 0;
 }
+
+bool keyDown(Key key)
+{
+    if(keysLast[key] == 0 && keys[key] == 1)
+    {
+        return 1;
+    }
+    return 0;
+}

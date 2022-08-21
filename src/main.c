@@ -34,7 +34,8 @@ typedef enum {
     STATE_INVENTORY,
     STATE_MENU,
     STATE_PROGRAMMING,
-    STATE_OPTIONS
+    STATE_OPTIONS,
+    STATE_CREDITS
 } State;
 
 #define SAVE_FOLDER ".keycraft"
@@ -254,7 +255,7 @@ void calcFrameGame(uint32_t ticks)
     }
     playerLook(&player, dirX, dirY, ticks);
 
-    if(keyUp(B_Y) && !player.jumping)
+    if(keyDown(B_Y) && !player.jumping)
     {
         player.jumping = JUMP_TIME;
     }
@@ -391,6 +392,11 @@ void calcFrame(uint32_t ticks)
                         state = STATE_OPTIONS;
                         break;
                     }
+                    case MENU_SELECTION_CREDITS:
+                    {
+                        state = STATE_CREDITS;
+                        break;
+                    }
                     case MENU_SELECTION_QUIT:
                     {
                         running = false;
@@ -436,6 +442,14 @@ void calcFrame(uint32_t ticks)
             else if(keyUp(B_B) && getOptionsCursor() == OPTION_SELECTION_SEED)
             {
                 newGameSeed--;
+            }
+            break;
+        }
+        case STATE_CREDITS:
+        {
+            if(keyUp(B_A) || keyUp(B_B) || keyUp(B_START))
+            {
+                state = STATE_MENU;
             }
             break;
         }
@@ -525,9 +539,13 @@ void drawFrame()
     {
         drawMenu();
     }
-    else //if(state == STATE_OPTIONS)
+    else if(state == STATE_OPTIONS)
     {
         drawOptions(invertY, newGameSeed);
+    }
+    else //if(state == STATE_CREDITS)
+    {
+        drawCredits();
     }
     glEnd();
 

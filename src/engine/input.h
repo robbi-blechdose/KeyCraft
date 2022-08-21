@@ -29,5 +29,6 @@ typedef enum {
 bool handleInput();
 bool keyPressed(Key key);
 bool keyUp(Key key);
+bool keyDown(Key key);
 
 #endif
