@@ -21,22 +21,25 @@ int8_t optionsCursor = 0;
 
 uint8_t menuFlags = 0;
 
-const char* menuStrings[] = {
+const char* menuStrings[MENU_SIZE] = {
     "Continue",
     "New game",
     "Options",
+    "Credits",
     "Quit"
 };
 
-//TODO: Separate cursor for options
-
-void drawMenu()
+void drawTitle()
 {
-    //Title
     glTextSize(GL_TEXT_SIZE16x16);
     glDrawText("KeyCraft", WINX / 2 - (8 * 16 / 2) + 2, 40 + 2, TEXT_BLACK);
     glDrawText("KeyCraft", WINX / 2 - (8 * 16 / 2), 40, TEXT_WHITE);
     glTextSize(GL_TEXT_SIZE8x8);
+}
+
+void drawMenu()
+{
+    drawTitle();
 
     //Game version
     glDrawText(GAME_VERSION, WINX / 2 - strlen(GAME_VERSION) * 8 / 2, 60, TEXT_WHITE);
@@ -134,4 +137,29 @@ void scrollOptions(int8_t dir)
 int8_t getOptionsCursor()
 {
     return optionsCursor;
+}
+
+#define CREDITS_LINES 10
+
+const char* creditsLines[CREDITS_LINES] = {
+    "Programming and Graphics:",
+    "Robbi Blechdose",
+    "Music:",
+    "Curious Critters",
+    "  by Matthew Pablo",
+    "SFX:",
+    "OwlishMedia",
+    "Q009",
+    "rubberduck",
+    "from opengameart.org"
+};
+
+void drawCredits()
+{
+    drawTitle();
+
+    for(uint8_t i = 0; i < CREDITS_LINES; i++)
+    {
+        glDrawText(creditsLines[i], CENTER(strlen(creditsLines[i])), 64 + i * 16, TEXT_WHITE);
+    }
 }

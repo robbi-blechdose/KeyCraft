@@ -6,11 +6,12 @@
 
 void drawMenu();
 
-#define MENU_SIZE 4
+#define MENU_SIZE 5
 #define MENU_SELECTION_CONTINUE 0
 #define MENU_SELECTION_NEW_GAME 1
 #define MENU_SELECTION_OPTIONS  2
-#define MENU_SELECTION_QUIT     3
+#define MENU_SELECTION_CREDITS  3
+#define MENU_SELECTION_QUIT     4
 
 void scrollMenu(int8_t dir);
 int8_t getMenuCursor();
@@ -29,5 +30,7 @@ void drawOptions(bool invertY, uint32_t seed);
 
 void scrollOptions(int8_t dir);
 int8_t getOptionsCursor();
+
+void drawCredits();
 
 #endif
