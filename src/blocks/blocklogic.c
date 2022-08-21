@@ -234,6 +234,24 @@ void tickBlock(Chunk* chunk, Block* block, uint8_t x, uint8_t y, uint8_t z)
 
             break;
         }
+        case BLOCK_FURNACE:
+        {
+            //Wait and turn furnace off (if on)
+            if(block->data & BLOCK_DATA_TEXTURE)
+            {
+                if((block->data & BLOCK_DATA_COUNTER) != BLOCK_DATA_COUNTER)
+                {
+                    block->data += BLOCK_DATA_COUNTER1;
+                }
+                else
+                {
+                    block->data &= ~BLOCK_DATA_TEXTURE;
+                    block->data &= ~BLOCK_DATA_COUNTER; //Clear counter
+                    CHUNK_SET_FLAG(chunk, CHUNK_MODIFIED);
+                }
+            }
+            break;
+        }
     }
 }
 

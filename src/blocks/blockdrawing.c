@@ -69,7 +69,7 @@ const vec2i* blockTextures[] = {
     [BLOCK_PISTON_BASE] = (vec2i[3]) {{4, 5}, {5, 5}, {7, 5}},
     [BLOCK_PISTON_HEAD] = (vec2i[2]) {{6, 5}, {0, 1}},
 
-    [BLOCK_FURNACE] = (vec2i[6]) {{0, 6}, {7, 5}, {7, 5}, {7, 5}, {7, 5}, {7, 5}},
+    [BLOCK_FURNACE] = (vec2i[7]) {{0, 6}, {7, 5}, {7, 5}, {7, 5}, {7, 5}, {7, 5}, {1, 6}},
     [BLOCK_CACTUS] = (vec2i[6]) {{2, 6}, {2, 6}, {2, 6}, {2, 6}, {3, 6}, {3, 6}},
     [BLOCK_DEAD_SHRUB] = (vec2i[1]) {{4, 6}},
     [BLOCK_COMPUTER] = (vec2i[6]) {{5, 6}, {6, 6}, {7, 6}, {7, 6}, {7, 6}, {7, 6}},
@@ -241,6 +241,10 @@ void drawMultitexBlockWithRotation(Block* block, uint8_t x, uint8_t y, uint8_t z
     for(uint8_t i = 0; i < 6; i++)
     {
         tex[i] = getBlockTexture(block->type, i);
+        if(i == 0 && block->data & BLOCK_DATA_TEXTURE)
+        {
+            tex[i] = getBlockTexture(block->type, 5 + (block->data & BLOCK_DATA_TEXTURE));
+        }
     }
 
     //Swap b+l

@@ -96,5 +96,16 @@ bool actBlock(Chunk* chunk, Block* block)
     {
         return true;
     }
+    else if(block->type == BLOCK_FURNACE)
+    {
+        //Turn furnace on (if off)
+        if(!(block->data & BLOCK_DATA_TEXTURE))
+        {
+            block->data |= BLOCK_DATA_TEXTURE1;
+            CHUNK_SET_FLAG(chunk, CHUNK_MODIFIED);
+        }
+
+        return true;
+    }
     return false;
 }

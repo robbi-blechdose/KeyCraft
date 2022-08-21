@@ -58,7 +58,6 @@ void drawBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
         case BLOCK_WOOD:
         case BLOCK_BOOKSHELF:
         case BLOCK_CRAFTING_TABLE:
-        case BLOCK_FURNACE:
         case BLOCK_TNT:
         case BLOCK_CACTUS:
         {
@@ -98,6 +97,7 @@ void drawBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
         }
         case BLOCK_PISTON:
         case BLOCK_COMPUTER:
+        case BLOCK_FURNACE:
         {
             drawMultitexBlockWithRotation(block, x, y, z, occlusion);
             break;
@@ -265,6 +265,7 @@ bool isBlockOriented(BlockType type)
         case BLOCK_PISTON:
         case BLOCK_REDSTONE_REPEATER:
         case BLOCK_COMPUTER:
+        case BLOCK_FURNACE:
         {
             return true;
         }

@@ -75,7 +75,7 @@ typedef struct {
  *      CC   - Counter. Used by: Wheat, Water
  * DD        - Direction, determines which way the block is facing. Used by: Door, piston
  *         P - Part, determines which part of a "multiblock" this is. Used by: Door
- *        S  - State. Used by: Door
+ *        S  - State. Used by: Door, furnace
  *      R    - Redstone power. Used by: Redstone wire, torch, lever
  *       V   - Visited, used for block traversal logic. Used by: Redstone wire
  **/
