@@ -24,6 +24,12 @@ AABB getAABBForBlock(Block* block, vec3 position)
             return (AABB) {.min = position,
                            .max = (vec3) {position.x + BLOCK_SIZE, position.y + BLOCK_SIZE / 2, position.z + BLOCK_SIZE}};
         }
+        case BLOCK_REDSTONE_WIRE:
+        case BLOCK_REDSTONE_REPEATER:
+        {
+            return (AABB) {.min = position,
+                           .max = (vec3) {position.x + BLOCK_SIZE, position.y + (BLOCK_SIZE / 20), position.z + BLOCK_SIZE}};
+        }
         default:
         {
             return (AABB) {.min = position,

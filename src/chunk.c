@@ -168,13 +168,13 @@ AABBSide intersectsRayChunk(Chunk* chunk, vec3* origin, vec3* direction, BlockPo
 {
     if(CHUNK_GET_FLAG(chunk, CHUNK_IS_EMPTY))
     {
-        return 0;
+        return AABB_NONE;
     }
 
     //Check against chunk AABB
     if(!aabbIntersectsRay(&chunk->aabb, origin, direction, distance))
     {
-        return 0;
+        return AABB_NONE;
     }
 
     AABBSide minSide = AABB_NONE;
@@ -192,7 +192,8 @@ AABBSide intersectsRayChunk(Chunk* chunk, vec3* origin, vec3* direction, BlockPo
                 if(CHUNK_BLOCK(chunk, i, j, k).type != BLOCK_AIR)
                 {
                     vec3 min = {chunk->aabb.min.x + i, chunk->aabb.min.y + j, chunk->aabb.min.z + k};
-                    AABB blockAABB = {.min = min, .max = (vec3) {min.x + BLOCK_SIZE, min.y + BLOCK_SIZE, min.z + BLOCK_SIZE}};
+                    AABB blockAABB = getAABBForBlock(&CHUNK_BLOCK(chunk, i, j, k), min);
+
                     AABBSide result = aabbIntersectsRay(&blockAABB, origin, direction, distance);
 
                     if(result != AABB_NONE)
