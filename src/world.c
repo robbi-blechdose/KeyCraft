@@ -8,6 +8,7 @@
 #include "blocks/blocklogic.h"
 #include "blocks/blockactions.h"
 #include "octree.h"
+#include "queue.h"
 
 #define VIEW_CHUNK(i, j, k) chunks[(i) + ((j) * VIEW_DISTANCE) + ((k) * VIEW_DISTANCE * VIEW_DISTANCE)]
 #define WORLD_CHUNK(i, j, k) VIEW_CHUNK((i) - chunkPos.x, (j) - chunkPos.y, (k) - chunkPos.z)
@@ -15,6 +16,8 @@
 ChunkPos chunkPos;
 Chunk* chunks[VIEW_DISTANCE * VIEW_DISTANCE * VIEW_DISTANCE];
 Octree* modifiedChunks;
+
+ChunkQueue* chunkQueue;
 
 GLuint terrainTexture;
 
@@ -39,6 +42,7 @@ void initWorld(uint32_t seed)
     chunkPos = (ChunkPos) {0, 0, 0};
 
     modifiedChunks = createOctree((vec3) {0, VIEW_DISTANCE / 2, 0}, INT16_MAX * 2, NULL);
+    chunkQueue = createChunkQueue();
 
     worldTicks = 0;
 
@@ -54,6 +58,7 @@ void quitWorld()
 {
     deleteRGBTexture(terrainTexture);
     freeOctree(modifiedChunks);
+    destroyChunkQueue(chunkQueue);
 }
 
 typedef enum {
@@ -236,15 +241,30 @@ void calcWorld(vec3* playerPos, uint32_t ticks)
     }
     //TODO: Z
 
-    //Calculate visible chunks
+    //Queue visible and modified chunks for geometry (re)calculation
     for(uint8_t i = 0; i < VIEW_DISTANCE; i++)
     {
         for(uint8_t j = 0; j < VIEW_DISTANCE; j++)
         {
             for(uint8_t k = 0; k < VIEW_DISTANCE; k++)
             {
-                calcChunk(VIEW_CHUNK(i, j, k));
+                Chunk* chunk = VIEW_CHUNK(i, j, k);
+                if(CHUNK_GET_FLAG(chunk, CHUNK_MODIFIED))
+                {
+                    chunkEnqueueNoDup(chunkQueue, chunk);
+                }
             }
+        }
+    }
+
+    //Work chunk queue
+    if(!isChunkQueueEmpty(chunkQueue))
+    {
+        uint8_t counter = MAX_CHUNKS_PER_FRAME;
+        while(!isChunkQueueEmpty(chunkQueue) && counter > 0)
+        {
+            calcChunk(chunkDequeue(chunkQueue));
+            counter--;
         }
     }
 
@@ -311,8 +331,8 @@ void drawWorld(vec3* playerPosition, vec3* playerRotation)
 
             for(uint8_t j = 0; j < VIEW_DISTANCE; j++)
             {
-                //Discard empty chunks
-                if(!CHUNK_GET_FLAG(VIEW_CHUNK(i, j, k), CHUNK_IS_EMPTY))
+                //Discard empty chunks and chunks with no draw data
+                if(!CHUNK_GET_FLAG(VIEW_CHUNK(i, j, k), CHUNK_IS_EMPTY | CHUNK_NO_DRAW_DATA))
                 {
                     drawChunk(VIEW_CHUNK(i, j, k));
                 }

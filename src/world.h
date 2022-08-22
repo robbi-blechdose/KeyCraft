@@ -11,14 +11,17 @@
 #include "aabb.h"
 #include "chunk.h"
 
+//View distance in chunks
 #define VIEW_DISTANCE 5
+//Max distance of a ray for block picking, in blocks
+#define MAX_RAY_DISTANCE 5
+//Rate for game logic, in ms
+#define TICK_RATE 250
+//Maximum number of chunks to recalculate geometry for per frame
+#define MAX_CHUNKS_PER_FRAME 5
 
 //Translation to make handling chunk indices easier (0 - VIEW_DISTANCE) while centering the player
 #define VIEW_TRANSLATION ((VIEW_DISTANCE * CHUNK_SIZE) / 2)
-
-#define MAX_RAY_DISTANCE 5
-
-#define TICK_RATE 250
 
 void initWorld(uint32_t seed);
 void quitWorld();

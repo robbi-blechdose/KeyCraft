@@ -371,7 +371,7 @@ void generateChunk(Chunk* chunk)
 
     //Mark chunk geometry to be built
     CHUNK_SET_FLAG(chunk, CHUNK_MODIFIED);
-    CHUNK_SET_FLAG(chunk, CHUNK_MODIFIED_INITIAL);
+    CHUNK_SET_FLAG(chunk, CHUNK_NO_DRAW_DATA);
     //Mark chunk as initial - has been generated, no player-made modifications
     CHUNK_SET_FLAG(chunk, CHUNK_IS_INITIAL);
 

@@ -32,8 +32,8 @@ typedef struct {
 
 #define CHUNK_IS_EMPTY         0b00000001
 #define CHUNK_IS_INITIAL       0b00000010
+#define CHUNK_NO_DRAW_DATA     0b00000100
 #define CHUNK_MODIFIED         0b01000000
-#define CHUNK_MODIFIED_INITIAL 0b10000000
 
 void calcChunk(Chunk* chunk);
 

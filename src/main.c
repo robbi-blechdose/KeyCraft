@@ -643,8 +643,11 @@ int main(int argc, char **argv)
         loadGame(SAVE_NAME);
     }
 
-    //Run frame to build geometry for the first time etc.
-    calcFrameGame(1);
+    //Run frames to build geometry for the first time etc.
+    for(uint8_t i = 0; i < (VIEW_DISTANCE * VIEW_DISTANCE * VIEW_DISTANCE) / MAX_CHUNKS_PER_FRAME; i++)
+    {
+        calcFrameGame(1);
+    }
 
     //Register signal handler for SIGUSR1 (closing the console)
 	signal(SIGUSR1, handleSigusr1);

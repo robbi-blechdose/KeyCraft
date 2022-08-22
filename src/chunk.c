@@ -135,12 +135,12 @@ void calcChunk(Chunk* chunk)
 {
     if(CHUNK_GET_FLAG(chunk, CHUNK_MODIFIED))
     {
-        if(!CHUNK_GET_FLAG(chunk, CHUNK_MODIFIED_INITIAL))
+        if(!CHUNK_GET_FLAG(chunk, CHUNK_NO_DRAW_DATA))
         {
             glDeleteList(chunk->drawList);
         }
         generateDrawData(chunk);
-        CHUNK_CLEAR_FLAG(chunk, CHUNK_MODIFIED | CHUNK_MODIFIED_INITIAL);
+        CHUNK_CLEAR_FLAG(chunk, CHUNK_MODIFIED | CHUNK_NO_DRAW_DATA);
     }
 }
 
@@ -151,6 +151,10 @@ void drawChunk(Chunk* chunk)
 
 void destroyChunk(Chunk* chunk)
 {
+    if(CHUNK_GET_FLAG(chunk, CHUNK_NO_DRAW_DATA))
+    {
+        return;
+    }
     glDeleteList(chunk->drawList);
 }
 
@@ -171,8 +175,8 @@ AABBSide intersectsRayChunk(Chunk* chunk, vec3* origin, vec3* direction, BlockPo
         return AABB_NONE;
     }
 
-    //Check against chunk AABB
-    if(!aabbIntersectsRay(&chunk->aabb, origin, direction, distance))
+    //Check against chunk AABB and discard chunks that are outside max ray distance
+    if(!aabbIntersectsRay(&chunk->aabb, origin, direction, distance) || *distance > MAX_RAY_DISTANCE * 2)
     {
         return AABB_NONE;
     }
@@ -297,7 +301,7 @@ void loadChunk(Chunk* chunk)
     CHUNK_CLEAR_FLAG(chunk, CHUNK_IS_INITIAL);
     //Mark to build geometry
     CHUNK_SET_FLAG(chunk, CHUNK_MODIFIED);
-    CHUNK_SET_FLAG(chunk, CHUNK_MODIFIED_INITIAL);
+    CHUNK_SET_FLAG(chunk, CHUNK_NO_DRAW_DATA);
     //Calculate basic AABB
     calcChunkAABB(chunk);
 }
