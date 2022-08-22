@@ -71,13 +71,13 @@ typedef struct {
 /**
  * Block data has the following format:
  * XXXX XXXX
- *        TT - Texture, if set block uses normal texture + offset. Used by: Flower, Wheat, Water
- *      CC   - Counter. Used by: Wheat, Water
- * DD        - Direction, determines which way the block is facing. Used by: Door, piston
- *         P - Part, determines which part of a "multiblock" this is. Used by: Door
- *        S  - State. Used by: Door, furnace
- *      R    - Redstone power. Used by: Redstone wire, torch, lever
- *       V   - Visited, used for block traversal logic. Used by: Redstone wire
+ *        TT - Texture, if set block uses normal texture + offset.
+ *      CC   - Counter.
+ * DD        - Direction, determines which way the block is facing.
+ *         P - Part, determines which part of a "multiblock" this is.
+ *        S  - State.
+ *      R    - Redstone power.
+ *       V   - Visited, used for block traversal logic.
  **/
 
 /** ---------- Block data definitions ---------- **/
