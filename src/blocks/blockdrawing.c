@@ -32,7 +32,7 @@ typedef struct {
     uint8_t y;
 } vec2i;
 
-const vec2i* blockTextures[] = {
+const vec2i* const blockTextures[] = {
     [BLOCK_BEDROCK] =    (vec2i[1]) {{0, 0}},
     [BLOCK_STONE] =      (vec2i[1]) {{1, 0}},
     [BLOCK_SAND] =       (vec2i[1]) {{2, 0}},

@@ -89,7 +89,7 @@ void generateTree(Chunk* chunk, uint8_t baseX, uint8_t baseY, uint8_t baseZ)
                     if(!((i == baseX || i == baseX + TREE_SIZE - 1) && (k == baseZ || k == baseZ + TREE_SIZE - 1)) &&
                         !(j == baseY + height - 1 && (i <= baseX || i >= baseX + TREE_SIZE - 1 || k <= baseZ || k >= baseZ + TREE_SIZE - 1)))
                     {
-                        CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_LEAVES;
+                        CHUNK_BLOCK(chunk, i, j, k) = (Block) {BLOCK_LEAVES, 0};
                     }
                 }
             }
@@ -97,7 +97,7 @@ void generateTree(Chunk* chunk, uint8_t baseX, uint8_t baseY, uint8_t baseZ)
         //Generate trunk
         if(j < baseY + height - 1)
         {
-            CHUNK_BLOCK(chunk, baseX + (TREE_SIZE / 2), j, baseZ + (TREE_SIZE / 2)).type = BLOCK_WOOD;
+            CHUNK_BLOCK(chunk, baseX + (TREE_SIZE / 2), j, baseZ + (TREE_SIZE / 2)) = (Block) {BLOCK_WOOD, 0};
         }
     }
 }
@@ -149,7 +149,19 @@ void generateChunkNormal(Chunk* chunk, uint8_t i, uint8_t j, uint8_t k, uint8_t 
     int16_t y = chunk->position.y;
     int16_t z = chunk->position.z;
 
-    if(pos == height)
+    //Generate lakes
+    if(pos <= WATER_LEVEL)
+    {
+        if(pos >= height)
+        {
+            CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_WATER;
+        }
+        else if(pos == height - 1)
+        {
+            CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_SAND;
+        }
+    }
+    else if(pos == height)
     {
         float rand = getNoiseRand(x, z, i, k, RAND_FLOWER);
         if(rand < 0.01f)
@@ -179,28 +191,16 @@ void generateChunkNormal(Chunk* chunk, uint8_t i, uint8_t j, uint8_t k, uint8_t 
         generateLowBlocks(chunk, i, j, k, pos);
     }
 
-    //Generate lakes
-    if(pos <= WATER_LEVEL)
-    {
-        if(pos >= height)
-        {
-            CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_WATER;
-            CHUNK_BLOCK(chunk, i, j, k).data = 0; //Clear data - it can happen that flowers are placed and overwritten by water which causes the texture bit to be set
-        }
-        else if(pos == height - 1)
-        {
-            CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_SAND;
-        }
-    }
     //Generate sugar canes
-    else
+    if(pos > WATER_LEVEL)
     {
         int8_t sugarcaneHeight = getNoiseRand(x, z, i, k, RAND_SUGARCANE) * 30 - 5;
         sugarcaneHeight = sugarcaneHeight <= MAX_SUGAR_CANE_HEIGHT ? sugarcaneHeight : MAX_SUGAR_CANE_HEIGHT;
 
-        if(pos <= WATER_LEVEL + sugarcaneHeight && pos >= height && height == WATER_LEVEL + 1) //&& pos > WATER_LEVEL (implicitly true because of the else above)
+        if(pos <= WATER_LEVEL + sugarcaneHeight && pos >= height && height == WATER_LEVEL + 1) //&& pos > WATER_LEVEL
         {
             CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_SUGAR_CANE;
+            CHUNK_BLOCK(chunk, i, j, k).data = 0; //Clear data - it can happen that flowers are placed which causes the texture bit to be set
         }
     }
 }
@@ -288,6 +288,7 @@ void generateChunkBarren(Chunk* chunk, uint8_t i, uint8_t j, uint8_t k, uint8_t 
     if(rockRand < 0.01f && pos < height + 1)
     {
         CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_COBBLESTONE;
+        CHUNK_BLOCK(chunk, i, j, k).data = 0; //Clear data - it can happen that mushrooms are placed which causes the texture bit to be set
     }
 }
 

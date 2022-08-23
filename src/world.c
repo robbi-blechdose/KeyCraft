@@ -107,6 +107,7 @@ void swapChunks(SwapSide side, SwapDir direction)
             //Check if chunk has been modified
             if(CHUNK_GET_FLAG(toDestroy, CHUNK_IS_INITIAL))
             {
+                chunkQueueRemove(chunkQueue, toDestroy);
                 destroyChunk(toDestroy);
                 free(toDestroy);
             }
@@ -627,6 +628,7 @@ void loadWorld()
                 Chunk* chunk = findOctree(modifiedChunks, &pos);
                 if(chunk != NULL)
                 {
+                    CHUNK_SET_FLAG(chunk, CHUNK_MODIFIED);
                     VIEW_CHUNK(i, j, k) = chunk;
                 }
                 else

@@ -84,6 +84,42 @@ Chunk* chunkDequeue(ChunkQueue* queue)
     return chunk;
 }
 
+void chunkQueueRemove(ChunkQueue* queue, Chunk* chunk)
+{
+    ChunkQueueNode* current = queue->first;
+    ChunkQueueNode* previous = NULL;
+
+    while(current != NULL)
+    {
+        if(current->chunk == chunk)
+        {
+            //Found chunk, remove from queue
+            if(previous == NULL)
+            {
+                queue->first = current->next;
+                if(queue->first == NULL)
+                {
+                    queue->last = NULL;
+                }
+                free(current);
+            }
+            else
+            {
+                previous->next = current->next;
+                if(previous->next == NULL)
+                {
+                    queue->last = previous;
+                }
+                free(current);
+            }
+            return;
+        }
+
+        previous = current;
+        current = current->next;
+    }
+}
+
 bool isChunkQueueEmpty(ChunkQueue* queue)
 {
     return queue->first == NULL;

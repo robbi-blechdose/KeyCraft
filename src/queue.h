@@ -21,6 +21,7 @@ void destroyChunkQueue(ChunkQueue* queue);
 void chunkEnqueue(ChunkQueue* queue, Chunk* chunk);
 void chunkEnqueueNoDup(ChunkQueue* queue, Chunk* chunk);
 Chunk* chunkDequeue(ChunkQueue* queue);
+void chunkQueueRemove(ChunkQueue* queue, Chunk* chunk);
 bool isChunkQueueEmpty(ChunkQueue* queue);
 
 #endif
