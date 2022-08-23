@@ -84,7 +84,7 @@ bool handleInput()
             }
             case SDLK_q:
             {
-                running = 0;
+                keys[B_MENU] = state;
                 break;
             }
             case SDLK_k:
