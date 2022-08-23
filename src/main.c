@@ -528,7 +528,6 @@ void drawFrame()
     }
     else if(state == STATE_INVENTORY)
     {
-        drawHotbar();
         drawInventory();
     }
     else if(state == STATE_PROGRAMMING)

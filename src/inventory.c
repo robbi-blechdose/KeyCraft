@@ -77,15 +77,25 @@ void drawSquare(float x, float y, uint8_t selected)
     }
 }
 
-void drawHotbar()
+inline void drawBlockName(BlockType type)
+{
+    const char* text = blockNames[type];
+    glDrawText(text, WINX / 2 - strlen(text) * 8 / 2, 240 - 52, 0xFFFFFF);
+}
+
+inline void drawHotbarItems()
 {
     for(uint8_t i = 0; i < HOTBAR_SIZE; i++)
     {
         drawSquare(WINX / 2 - (32 * HOTBAR_SIZE / 2.0f) + (i * 32), 8, i == hotbarCursor);
         drawBlockItem(hotbar[i], WINX / 2 - (32 * HOTBAR_SIZE / 2.0f) + (i * 32) + 4, 8 + 4);
     }
-    const char* text = blockNames[hotbar[hotbarCursor].type];
-    glDrawText(text, WINX / 2 - strlen(text) * 8 / 2, 240 - 52, 0xFFFFFF);
+}
+
+void drawHotbar()
+{
+    drawHotbarItems();
+    drawBlockName(hotbar[hotbarCursor].type);
 }
 
 void scrollHotbar()
@@ -129,6 +139,12 @@ void drawInventory()
             drawBlockItem(inventory[inventoryTab].blocks[i + j * INVENTORY_SIZE_X], INVENTORY_X_START + (i * 32) + 4, 156 - (j * 32) + 4);
         }
     }
+
+    //Draw name of selected item
+    drawBlockName(inventory[inventoryTab].blocks[inventoryCursorX + inventoryCursorY * INVENTORY_SIZE_X].type);
+
+    //Draw hotbar
+    drawHotbarItems();
 }
 
 void scrollInventory(int8_t dirX, int8_t dirY, int8_t dirTab)
