@@ -141,7 +141,10 @@ void drawInventory()
     }
 
     //Draw name of selected item
-    drawBlockName(inventory[inventoryTab].blocks[inventoryCursorX + inventoryCursorY * INVENTORY_SIZE_X].type);
+    if(inventoryCursorX + inventoryCursorY * INVENTORY_SIZE_X < inventory[inventoryTab].size)
+    {
+        drawBlockName(inventory[inventoryTab].blocks[inventoryCursorX + inventoryCursorY * INVENTORY_SIZE_X].type);
+    }
 
     //Draw hotbar
     drawHotbarItems();
