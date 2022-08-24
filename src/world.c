@@ -46,11 +46,7 @@ void initWorld(uint32_t seed)
 
     worldTicks = 0;
 
-    #ifdef FUNKEY
-    terrainTexture = loadRGBTexture("/opk/res/tex/terrain.png");
-    #else
-    terrainTexture = loadRGBTexture("res/tex/terrain.png");
-    #endif
+    terrainTexture = loadRGBTexture(RESOURCE("res/tex/terrain.png"));
     glBindTexture(GL_TEXTURE_2D, terrainTexture);
 }
 

@@ -611,19 +611,11 @@ int main(int argc, char **argv)
     initVideo((vec4) {.d = {0.7f, 0.95f, 1.0f, 1.0f}}, (vec4) {.d = {0, 0, WINX, WINY}}, 70, 0.3f, 8 * VIEW_DISTANCE);
     initAudio(MIX_MAX_VOLUME, 1, 4);
 
-    #ifdef FUNKEY
-    loadMusic(0, "/opk/res/mus/curiouscritters.ogg");
-    loadSampleIndex(SFX_LEVER, "/opk/res/sfx/click20.ogg");
-    loadSampleIndex(SFX_TNT, "/opk/res/sfx/explosion.ogg");
-    loadSampleIndex(SFX_DOOR, "/opk/res/sfx/wooded_box_open.ogg");
-    loadSampleIndex(SFX_MENU, "/opk/res/sfx/click1.ogg");
-    #else
-    loadMusic(0, "res/mus/curiouscritters.ogg");
-    loadSampleIndex(SFX_LEVER, "res/sfx/click20.ogg");
-    loadSampleIndex(SFX_TNT, "res/sfx/explosion.ogg");
-    loadSampleIndex(SFX_DOOR, "res/sfx/wooded_box_open.ogg");
-    loadSampleIndex(SFX_MENU, "res/sfx/click1.ogg");
-    #endif
+    loadMusic(0, RESOURCE("res/mus/curiouscritters.ogg"));
+    loadSampleIndex(SFX_LEVER, RESOURCE("res/sfx/click20.ogg"));
+    loadSampleIndex(SFX_TNT, RESOURCE("res/sfx/explosion.ogg"));
+    loadSampleIndex(SFX_DOOR, RESOURCE("res/sfx/wooded_box_open.ogg"));
+    loadSampleIndex(SFX_MENU, RESOURCE("res/sfx/click1.ogg"));
     playMusic(0, 0);
 
     loadOptions();

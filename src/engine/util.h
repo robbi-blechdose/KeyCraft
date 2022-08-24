@@ -35,4 +35,11 @@ void calcRotToTarget(vec3* pos, vec3* target, float* yRot, float* xRot);
 vec3 anglesToDirection(vec3* rotation);
 float checkHitSphere(vec3* position, vec3* direction, vec3* center, float radius);
 
+//Resource path definition - instant play breaks relative paths, so the workaround with absolute paths is needed
+#ifdef FUNKEY
+#define RESOURCE(X) "/opk/" X
+#else
+#define RESOURCE(X) X
+#endif
+
 #endif
