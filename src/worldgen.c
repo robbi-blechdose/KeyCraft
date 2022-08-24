@@ -148,18 +148,11 @@ void generateChunkNormal(Chunk* chunk, uint8_t i, uint8_t j, uint8_t k, uint8_t 
     int16_t x = chunk->position.x;
     int16_t y = chunk->position.y;
     int16_t z = chunk->position.z;
-
+    
     //Generate lakes
-    if(pos <= WATER_LEVEL)
+    if(pos >= height && pos <= WATER_LEVEL)
     {
-        if(pos >= height)
-        {
-            CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_WATER;
-        }
-        else if(pos == height - 1)
-        {
-            CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_SAND;
-        }
+        CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_WATER;
     }
     else if(pos == height)
     {
@@ -181,6 +174,11 @@ void generateChunkNormal(Chunk* chunk, uint8_t i, uint8_t j, uint8_t k, uint8_t 
     else if(pos == height - 1)
     {
         CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_GRASS;
+        //Generate lake surroundings
+        if(pos <= WATER_LEVEL)
+        {
+            CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_SAND;
+        }
     }
     else if(pos < height && pos >= height * 0.7f)
     {
