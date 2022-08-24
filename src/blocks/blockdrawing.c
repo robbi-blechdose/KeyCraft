@@ -46,7 +46,7 @@ const vec2i* const blockTextures[] = {
     [BLOCK_GOLD_ORE] =   (vec2i[1]) {{3, 1}},
     [BLOCK_REDSTONE_ORE] = (vec2i[1]) {{4, 1}},
     [BLOCK_DIAMOND_ORE] = (vec2i[1]) {{5, 1}},
-    [BLOCK_FLOWER] =     (vec2i[2]) {{6, 1}, {7, 1}},
+    [BLOCK_FLOWER] =     (vec2i[4]) {{6, 1}, {7, 1}, {3, 7}, {4, 7}},
 
     [BLOCK_TALL_GRASS] = (vec2i[1]) {{0, 2}},
     [BLOCK_GLASS] =      (vec2i[1]) {{1, 2}},
