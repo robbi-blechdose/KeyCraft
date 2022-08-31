@@ -24,7 +24,16 @@ libmikmod-dev
 ```
 
 KeyCraft uses [TinyGL](https://github.com/C-Chads/tinygl) for rendering.  
-Compile it via
+
+Since the FunKey uses 16-bit color, adjusting `include/zfeatures.h` is required:
+```
+#define TGL_NO_DRAW_COLOR 0xf81f
+
+#define TGL_FEATURE_16_BITS        1
+#define TGL_FEATURE_32_BITS        0
+```
+
+Compile TinyGL via
 ```
 gcc -O3 -flto -c *.c
 ar rcs libTinyGL.a *.o
