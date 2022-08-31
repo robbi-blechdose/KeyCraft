@@ -12,3 +12,34 @@ Y: Jump
 Start: Open inventory  
 Select: Switch hotbar slot  
 L/R: Switch inventory tab
+
+## Building
+
+Required libraries (debian package names):
+```
+libsdl1.2-dev
+libsdl-image1.2-dev
+libsdl-mixer1.2-dev
+libmikmod-dev
+```
+
+KeyCraft uses [TinyGL](https://github.com/C-Chads/tinygl) for rendering.  
+Compile it via
+```
+gcc -O3 -flto -c *.c
+ar rcs libTinyGL.a *.o
+```
+for linux and via
+```
+/opt/funkey-sdk/usr/bin/arm-linux-gcc -O3 -flto -c *.c -march=armv7-a+neon-vfpv4 -mtune=cortex-a7 -mfpu=neon-vfpv4
+/opt/funkey-sdk/usr/bin/arm-linux-gcc-ar rcs libTinyGL-fk.a *.o
+```
+for the FunKey.
+
+Then adjust the `TINGYGL_LIB` and `TINYGL_INCLUDE` paths in the makefile and funkey.mk.
+
+Finally, you can compile the project with `make`.  
+`make debug` creates a debug build for linux.  
+`make TARGET=funkey` creates a FunKey build.  
+`make oclean` cleans up object files. Required before switching between linux and FunKey builds.  
+`./package.sh` combines several commands to create a ready-to-go OPK file for the FunKey.
