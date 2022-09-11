@@ -1,7 +1,7 @@
 #ifndef _VERSION_H
 #define _VERSION_H
 
-#define GAME_BASE_VERSION "1.0.1"
+#define GAME_BASE_VERSION "1.0.2"
 
 #ifdef DEBUG
 #define GAME_VERSION GAME_BASE_VERSION "-debug"

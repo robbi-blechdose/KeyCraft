@@ -146,6 +146,8 @@ void drawNormalBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occl
 
 void drawSlab(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
 {
+    //Exclude occlusion for the top of the slab (we still have to draw it if there's a block above)
+    occlusion &= ~(BS_TOP);
     drawNormalBlockHeight(block, x, y, z, occlusion, 4);
 }
 
