@@ -221,7 +221,7 @@ bool canPlaceBlock(BlockType toPlace, BlockType below)
         case BLOCK_LEVER:
         case BLOCK_REDSTONE_REPEATER:
         {
-            return isBlockCollidable(below);
+            return isBlockCollidable(below) && !(below == BLOCK_WOOD_SLAB || below == BLOCK_COBBLESTONE_SLAB);
         }
         default:
         {
