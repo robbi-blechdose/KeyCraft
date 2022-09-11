@@ -92,10 +92,6 @@ bool actBlock(Chunk* chunk, Block* block)
 
         return true;
     }
-    else if(block->type == BLOCK_COMPUTER)
-    {
-        return true;
-    }
     else if(block->type == BLOCK_FURNACE)
     {
         //Turn furnace on (if off)
