@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 #define PROGRAM_SIZE 128
-#define RAM_SIZE 16
+#define RAM_SIZE 8
 
 typedef struct {
     uint8_t program[PROGRAM_SIZE];

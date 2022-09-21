@@ -139,8 +139,8 @@ void drawProgrammingScreen(ComputerData* computer)
     sprintf(buffer, "A: %01X", HIGH_NIBBLE(computer->af));
     glDrawText(buffer, 122, 38, TEXT_PROGRAM);
     sprintf(buffer, "PC: %04X", computer->pc);
-    glDrawText(buffer, 122, 46, TEXT_PROGRAM);
-    glDrawText("RAM:", 122, 54, TEXT_PROGRAM);
+    glDrawText(buffer, 122, 54, TEXT_PROGRAM);
+    glDrawText("RAM:", 122, 70, TEXT_PROGRAM);
     for(uint8_t i = 0; i < RAM_SIZE / 4; i++)
     {
         buffer[0] = '\0';
@@ -148,14 +148,14 @@ void drawProgrammingScreen(ComputerData* computer)
         {
             sprintf(buffer + strlen(buffer), "%02X ", computer->ram[i * 4 + j]);
         }
-        glDrawText(buffer, 122, 62 + i * 8, TEXT_PROGRAM);
+        glDrawText(buffer, 122, 78 + i * 8, TEXT_PROGRAM);
     }
 
     sprintf(buffer, "I/O: %01X %01X", computer->io & 0x70, computer->io & 0x07);
-    glDrawText(buffer, 122, 94, TEXT_PROGRAM);
+    glDrawText(buffer, 122, 102, TEXT_PROGRAM);
 
     sprintf(buffer, "Running: %d", LOW_NIBBLE(computer->af));
-    glDrawText(buffer, 122, 110, TEXT_PROGRAM);
+    glDrawText(buffer, 122, 118, TEXT_PROGRAM);
 
     //Draw instruction keyboard
     for(uint8_t i = 0; i < 3; i++)
@@ -246,7 +246,41 @@ void enterProgrammingCursor(ComputerData* computer)
     }
 }
 
-void cancelProgrammingCursor()
+//Returns true if cursor was cancelled
+bool cancelProgrammingCursor()
 {
+    if(!keyboardActive)
+    {
+        return false;
+    }
+
     keyboardActive = false;
+    return true;
+}
+
+void shiftProgramDown(ComputerData* computer)
+{
+    if(keyboardActive)
+    {
+        return;
+    }
+
+    //Find end of the program
+    uint8_t programEnd = PROGRAM_SIZE - 1;
+    while(computer->program[programEnd] == NOP)
+    {
+        programEnd--;
+    }
+
+    if(programEnd == PROGRAM_SIZE - 1)
+    {
+        //Can't shift, no more space
+        return;
+    }
+
+    for(uint8_t i = programEnd + 1; i > programCursor; i--)
+    {
+        computer->program[i] = computer->program[i - 1];
+    }
+    computer->program[programCursor] = NOP;
 }

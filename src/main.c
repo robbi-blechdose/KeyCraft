@@ -483,9 +483,16 @@ void calcFrame(uint32_t ticks)
             }
             else if(keyUp(B_B))
             {
-                cancelProgrammingCursor();
+                if(!cancelProgrammingCursor())
+                {
+                    state = STATE_GAME;
+                }
             }
             else if(keyUp(B_X))
+            {
+                shiftProgramDown(programmingComputer);
+            }
+            else if(keyUp(B_START))
             {
                 if(programmingComputer->af & COMPUTER_FLAG_RUNNING)
                 {
@@ -495,10 +502,6 @@ void calcFrame(uint32_t ticks)
                 {
                     programmingComputer->af |= COMPUTER_FLAG_RUNNING;
                 }
-            }
-            else if(keyUp(B_START))
-            {
-                state = STATE_GAME;
             }
 
             break;
