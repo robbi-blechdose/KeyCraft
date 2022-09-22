@@ -43,6 +43,34 @@ void setA(ComputerData* computer, uint8_t data)
     computer->af = LOW_NIBBLE(computer->af) | TO_HIGH_NIBBLE(data);
 }
 
+void setFlag(ComputerData* computer, uint8_t flag)
+{
+    computer->af |= flag;
+}
+
+void clearFlag(ComputerData* computer, uint8_t flag)
+{
+    computer->af &= ~flag;
+}
+
+//Sets or clears a flag according to the result of an operation
+void setOrClearFlagZ(ComputerData* computer, uint8_t result)
+{
+    if(result == 0)
+    {
+        setFlag(computer, COMPUTER_FLAG_ZERO);
+    }
+    else
+    {
+        clearFlag(computer, COMPUTER_FLAG_ZERO);
+    }
+}
+
+bool isFlagSet(ComputerData* computer, uint8_t flag)
+{
+    return computer->af & flag;
+}
+
 void runComputerCycle(ComputerData* computer)
 {
     //Get instruction
@@ -67,13 +95,17 @@ void runComputerCycle(ComputerData* computer)
         case ADM:
         {
             //LOW_NIBBLE() to keep it within 4 bits
-            setA(computer, LOW_NIBBLE(HIGH_NIBBLE(computer->af) + readFromRAM(computer, data)));
+            uint8_t result = LOW_NIBBLE(HIGH_NIBBLE(computer->af) + readFromRAM(computer, data));
+            setA(computer, result);
+            setOrClearFlagZ(computer, result);
             break;
         }
         case SBM:
         {
             //LOW_NIBBLE() to keep it within 4 bits
-            setA(computer, LOW_NIBBLE(HIGH_NIBBLE(computer->af) - readFromRAM(computer, data)));
+            uint8_t result = LOW_NIBBLE(HIGH_NIBBLE(computer->af) - readFromRAM(computer, data));
+            setA(computer, result);
+            setOrClearFlagZ(computer, result);
             break;
         }
         case IMA:
@@ -84,13 +116,17 @@ void runComputerCycle(ComputerData* computer)
         case ADI:
         {
             //LOW_NIBBLE() to keep it within 4 bits
-            setA(computer, LOW_NIBBLE(HIGH_NIBBLE(computer->af) + data));
+            uint8_t result = LOW_NIBBLE(HIGH_NIBBLE(computer->af) + data);
+            setA(computer, result);
+            setOrClearFlagZ(computer, result);
             break;
         }
         case SBI:
         {
             //LOW_NIBBLE() to keep it within 4 bits
-            setA(computer, LOW_NIBBLE(HIGH_NIBBLE(computer->af) - data));
+            uint8_t result = LOW_NIBBLE(HIGH_NIBBLE(computer->af) - data);
+            setA(computer, result);
+            setOrClearFlagZ(computer, result);
             break;
         }
         case JP:
@@ -100,7 +136,7 @@ void runComputerCycle(ComputerData* computer)
         }
         case JPZ:
         {
-            if(HIGH_NIBBLE(computer->af) == 0)
+            if(isFlagSet(computer, COMPUTER_FLAG_ZERO))
             {
                 computer->pc = computer->program[computer->pc + 1];
             }
@@ -112,7 +148,7 @@ void runComputerCycle(ComputerData* computer)
         }
         case JPN:
         {
-            if(HIGH_NIBBLE(computer->af) != 0)
+            if(!isFlagSet(computer, COMPUTER_FLAG_ZERO))
             {
                 computer->pc = computer->program[computer->pc + 1];
             }

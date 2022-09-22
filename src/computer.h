@@ -36,6 +36,7 @@ typedef enum {
 #define INSTRUCTION(X, Y) (TO_HIGH_NIBBLE(X) | LOW_NIBBLE(Y))
 
 #define COMPUTER_FLAG_RUNNING 0b0001
+#define COMPUTER_FLAG_ZERO    0b0010
 
 ComputerData* createComputer();
 void runComputerCycle(ComputerData* computer);
