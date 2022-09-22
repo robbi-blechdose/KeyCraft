@@ -105,11 +105,11 @@ void drawProgrammingScreen(ComputerData* computer)
         if(isPreviousInstructionJump(computer, programScroll + i))
         {
             //If the previous instruction was a jump, this is an address
-            sprintf(buffer, " %3d: %02X", programScroll + i, computer->program[programScroll + i]);
+            sprintf(buffer, " %02X: %02X", programScroll + i, computer->program[programScroll + i]);
         }
         else
         {
-            sprintf(buffer, " %3d: %s", programScroll + i, instructionLabels[instruction]);
+            sprintf(buffer, " %02X: %s", programScroll + i, instructionLabels[instruction]);
 
             if(instruction != NOP && instruction != JP && instruction != JPZ && instruction != JPN)
             {
@@ -138,7 +138,9 @@ void drawProgrammingScreen(ComputerData* computer)
     glDrawText("State:", 122, 22, TEXT_PROGRAM);
     sprintf(buffer, "A: %01X", HIGH_NIBBLE(computer->af));
     glDrawText(buffer, 122, 38, TEXT_PROGRAM);
-    sprintf(buffer, "PC: %04X", computer->pc);
+    sprintf(buffer, "F: 00%c0", (LOW_NIBBLE(computer->af) & COMPUTER_FLAG_ZERO) ? 'Z' : '0');
+    glDrawText(buffer, 122, 46, TEXT_PROGRAM);
+    sprintf(buffer, "PC: %02X", computer->pc);
     glDrawText(buffer, 122, 54, TEXT_PROGRAM);
     glDrawText("RAM:", 122, 70, TEXT_PROGRAM);
     for(uint8_t i = 0; i < RAM_SIZE / 4; i++)
