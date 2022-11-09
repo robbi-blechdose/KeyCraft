@@ -211,6 +211,19 @@ inline void tryRemoveBlock(BlockPos* block)
             block->y--;
         }
     }
+    //Remove other half of piston (yes, this is a special case)
+    else if(toRemove->type == BLOCK_PISTON_BASE)
+    {
+        BlockPos pos = {block->chunk, block->x, block->y, block->z};
+        getBlockPosByDirection(toRemove->data & BLOCK_DATA_DIRECTION, &pos);
+        setWorldBlock(&pos, (Block) {BLOCK_AIR, 0});
+    }
+    else if(toRemove->type == BLOCK_PISTON_HEAD)
+    {
+        BlockPos pos = {block->chunk, block->x, block->y, block->z};
+        getBlockPosByInverseDirection(toRemove->data & BLOCK_DATA_DIRECTION, &pos);
+        setWorldBlock(&pos, (Block) {BLOCK_AIR, 0});
+    }
     else if(toRemove->type == BLOCK_COMPUTER)
     {
         //Remove computer data
