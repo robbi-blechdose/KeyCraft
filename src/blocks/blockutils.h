@@ -1,5 +1,5 @@
-#ifndef _BLOCK_UTILS_H
-#define _BLOCK_UTILS_H
+#ifndef BLOCK_UTILS_H
+#define BLOCK_UTILS_H
 
 #include <stdint.h>
 

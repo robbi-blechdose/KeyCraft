@@ -1,6 +1,6 @@
 CC          	= gcc
 
-CFLAGS			= -O3 -flto
+CFLAGS			= -O3 -flto=auto
 LDFLAGS     	= -lSDL -lSDL_image -lm -lSDL_mixer -lmikmod
 
 PNAME			= main.elf

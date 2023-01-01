@@ -1,5 +1,5 @@
-#ifndef _PROGRAMMING_H
-#define _PROGRAMMING_H
+#ifndef PROGRAMMING_H
+#define PROGRAMMING_H
 
 #include <stdbool.h>
 

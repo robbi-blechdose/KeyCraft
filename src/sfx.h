@@ -1,5 +1,5 @@
-#ifndef _SFX_H
-#define _SFX_H
+#ifndef SFX_H
+#define SFX_H
 
 #define SFX_LEVER      0
 #define SFX_TNT        1

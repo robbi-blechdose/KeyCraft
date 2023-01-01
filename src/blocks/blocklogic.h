@@ -1,5 +1,5 @@
-#ifndef _BLOCK_LOGIC_H
-#define _BLOCK_LOGIC_H
+#ifndef BLOCK_LOGIC_H
+#define BLOCK_LOGIC_H
 
 #include "block.h"
 #include "../chunk.h"

@@ -1,5 +1,5 @@
-#ifndef _AABB_H
-#define _AABB_H
+#ifndef AABB_H
+#define AABB_H
 
 #include <stdbool.h>
 

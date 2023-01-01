@@ -1,5 +1,5 @@
-#ifndef _BLOCK_H
-#define _BLOCK_H
+#ifndef BLOCK_H
+#define BLOCK_H
 
 #include <stdbool.h>
 #include <stdint.h>

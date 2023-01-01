@@ -1,5 +1,5 @@
-#ifndef _CHUNK_H
-#define _CHUNK_H
+#ifndef CHUNK_H
+#define CHUNK_H
 
 #include <stdbool.h>
 #include <GL/gl.h>

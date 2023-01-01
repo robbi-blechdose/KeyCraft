@@ -1,5 +1,5 @@
-#ifndef _WORLDGEN_H
-#define _WORLDGEN_H
+#ifndef WORLDGEN_H
+#define WORLDGEN_H
 
 #include <stdint.h>
 

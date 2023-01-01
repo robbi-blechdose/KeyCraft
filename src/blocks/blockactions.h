@@ -1,5 +1,5 @@
-#ifndef _BLOCK_ACTIONS_H
-#define _BLOCK_ACTIONS_H
+#ifndef BLOCK_ACTIONS_H
+#define BLOCK_ACTIONS_H
 
 #include <stdbool.h>
 

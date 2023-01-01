@@ -1,5 +1,5 @@
-#ifndef _CAMERA_H
-#define _CAMERA_H
+#ifndef CAMERA_H
+#define CAMERA_H
 
 #include "util.h"
 #include "includes/3dMath.h"

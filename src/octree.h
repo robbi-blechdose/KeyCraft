@@ -1,5 +1,5 @@
-#ifndef _OCTREE_H
-#define _OCTREE_H
+#ifndef OCTREE_H
+#define OCTREE_H
 
 #include <stdbool.h>
 

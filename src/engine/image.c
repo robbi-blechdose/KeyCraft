@@ -1,7 +1,9 @@
 #include "image.h"
+
 #define STB_IMAGE_IMPLEMENTATION
 #include "includes/stb_image.h"
-#include <SDL_image.h>
+
+#include <SDL/SDL_image.h>
 
 void initPNG()
 {

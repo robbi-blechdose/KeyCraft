@@ -1,5 +1,5 @@
-#ifndef _BLOCK_DRAWING_H
-#define _BLOCK_DRAWING_H
+#ifndef BLOCK_DRAWING_H
+#define BLOCK_DRAWING_H
 
 #include "block.h"
 

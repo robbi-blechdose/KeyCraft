@@ -1,5 +1,5 @@
-#ifndef _REDSTONE_LOGIC_H
-#define _REDSTONE_LOGIC_H
+#ifndef REDSTONE_LOGIC_H
+#define REDSTONE_LOGIC_H
 
 #include <stdbool.h>
 #include <stdint.h>
