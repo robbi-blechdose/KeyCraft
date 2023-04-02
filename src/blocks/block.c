@@ -49,7 +49,8 @@ const char* blockNames[] = {
     [BLOCK_WOOD_SLAB] = "Wood slab",
     [BLOCK_COBBLESTONE_SLAB] = "Cobblestone slab",
 
-    [BLOCK_NOTEBLOCK] = "Note block"
+    [BLOCK_NOTEBLOCK] = "Note block",
+    [BLOCK_LAVA] = "Lava"
 };
 
 void drawBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
@@ -248,6 +249,7 @@ bool isBlockCollidable(BlockType type)
         case BLOCK_REDSTONE_REPEATER:
         case BLOCK_DEAD_SHRUB:
         case BLOCK_MUSHROOM:
+        case BLOCK_LAVA:
         {
             return false;
         }

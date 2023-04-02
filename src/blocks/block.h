@@ -59,6 +59,7 @@ typedef enum {
     BLOCK_COBBLESTONE_SLAB,
 
     BLOCK_NOTEBLOCK,
+    BLOCK_LAVA,
 
     BLOCK_LAST
 } BlockType;
