@@ -252,6 +252,23 @@ void tickBlock(Chunk* chunk, Block* block, uint8_t x, uint8_t y, uint8_t z)
             }
             break;
         }
+        case BLOCK_NOTEBLOCK:
+        {
+            bool adjacentPower = hasAdjacentPower(chunk->position, x, y, z, false);
+            //Check if something changed
+            if((block->data & BLOCK_DATA_STATE) == 0 && adjacentPower)
+            {
+                block->data |= BLOCK_DATA_STATE;
+                //Block was powered, play note
+                playSample(SFX_NOTEBLOCK_0 + ((block->data & BLOCK_DATA_NOTEBLOCK) >> 5));
+            }
+            else if((block->data & BLOCK_DATA_STATE) && !adjacentPower)
+            {
+                block->data &= ~BLOCK_DATA_STATE;
+            }
+            
+            break;
+        }
     }
 }
 

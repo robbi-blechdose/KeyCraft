@@ -6,3 +6,5 @@ sfx/click20.ogg
 
 sfx/explosion.ogg - https://opengameart.org/content/q009s-weapon-sounds
 sfx/wooded_box_open.ogg - https://opengameart.org/content/100-cc0-sfx
+
+sfx/noteblock/*.ogg - https://archive.org/details/24-piano-keys
