@@ -50,7 +50,8 @@ const char* blockNames[] = {
     [BLOCK_COBBLESTONE_SLAB] = "Cobblestone slab",
 
     [BLOCK_NOTEBLOCK] = "Note block",
-    [BLOCK_LAVA] = "Lava"
+    [BLOCK_LAVA] = "Lava",
+    [BLOCK_MOSS] = "Moss"
 };
 
 void drawBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
@@ -84,6 +85,7 @@ void drawBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
             break;
         }
         case BLOCK_REDSTONE_WIRE:
+        case BLOCK_MOSS:
         {
             drawFlatBlock(block, x, y, z, occlusion);
             break;
@@ -185,6 +187,7 @@ bool isOpaqueBlock(BlockType type)
         case BLOCK_MUSHROOM:
         case BLOCK_WOOD_SLAB:
         case BLOCK_COBBLESTONE_SLAB:
+        case BLOCK_MOSS:
         {
             return false;
         }
@@ -223,6 +226,7 @@ bool canPlaceBlock(BlockType toPlace, BlockType below)
         case BLOCK_REDSTONE_WIRE:
         case BLOCK_LEVER:
         case BLOCK_REDSTONE_REPEATER:
+        case BLOCK_MOSS:
         {
             return isBlockCollidable(below) && !(below == BLOCK_WOOD_SLAB || below == BLOCK_COBBLESTONE_SLAB);
         }
@@ -250,6 +254,7 @@ bool isBlockCollidable(BlockType type)
         case BLOCK_DEAD_SHRUB:
         case BLOCK_MUSHROOM:
         case BLOCK_LAVA:
+        case BLOCK_MOSS:
         {
             return false;
         }

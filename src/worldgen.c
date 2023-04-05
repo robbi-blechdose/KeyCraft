@@ -26,12 +26,15 @@
 #define RAND_ORE_REDSTONE 176
 #define RAND_ORE_DIAMOND  192
 
+#define RAND_ROCKS        256
+
 #define WATER_LEVEL 6
 
 typedef enum {
     BIOME_NORMAL,
     BIOME_DESERT,
-    BIOME_BARREN
+    BIOME_BARREN,
+    BIOME_ROCKS
 } Biome;
 
 fnl_state terrainNoise;
@@ -290,6 +293,43 @@ void generateChunkBarren(Chunk* chunk, uint8_t i, uint8_t j, uint8_t k, uint8_t 
     }
 }
 
+void generateChunkRocks(Chunk* chunk, uint8_t i, uint8_t j, uint8_t k, uint8_t height, uint8_t pos)
+{
+    //Chunk position
+    int16_t x = chunk->position.x;
+    int16_t y = chunk->position.y;
+    int16_t z = chunk->position.z;
+    
+    //Generate lakes
+    if(pos >= height && pos <= WATER_LEVEL)
+    {
+        CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_LAVA;
+    }
+    else if(pos == height)
+    {
+        float rand = getNoiseRand(x, z, i, k, RAND_FLOWER);
+        if(rand < 0.05f)
+        {
+            CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_MOSS;
+        }
+    }
+    else if(pos < height && pos >= height * 0.7f)
+    {
+        if(getNoiseRand(x, z, i, k, RAND_ROCKS) < 0.1f)
+        {
+            CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_STONE;
+        }
+        else
+        {
+            CHUNK_BLOCK(chunk, i, j, k).type = BLOCK_COBBLESTONE;
+        }
+    }
+    else if(pos < height * 0.7f)
+    {
+        generateLowBlocks(chunk, i, j, k, pos);
+    }
+}
+
 Biome getBiome(int16_t chunkX, int16_t chunkZ, uint8_t x, uint8_t z)
 {
     float biome = (fnlGetNoise2D(&biomeNoise, chunkX * CHUNK_SIZE + x, chunkZ * CHUNK_SIZE + z) + 1) / 2;
@@ -297,6 +337,10 @@ Biome getBiome(int16_t chunkX, int16_t chunkZ, uint8_t x, uint8_t z)
     if(biome < 0.2f)
     {
         return BIOME_DESERT;
+    }
+    else if(biome > 0.3f && biome < 0.35f)
+    {
+        return BIOME_ROCKS;
     }
     else if(biome > 0.8f)
     {
@@ -332,17 +376,29 @@ void generateChunk(Chunk* chunk)
                 uint8_t pos = j + (y * CHUNK_SIZE);
 
                 Biome biome = getBiome(x, z, i, k);
-                if(biome == BIOME_DESERT)
+                switch(biome)
                 {
-                    generateChunkDesert(chunk, i, j, k, height, pos);
-                }
-                else if(biome == BIOME_BARREN)
-                {
-                    generateChunkBarren(chunk, i, j, k, height, pos);
-                }
-                else
-                {
-                    generateChunkNormal(chunk, i, j, k, height, pos);
+                    case BIOME_DESERT:
+                    {
+                        generateChunkDesert(chunk, i, j, k, height, pos);
+                        break;
+                    }
+                    case BIOME_BARREN:
+                    {
+                        generateChunkBarren(chunk, i, j, k, height, pos);
+                        break;
+                    }
+                    case BIOME_ROCKS:
+                    {
+                        generateChunkRocks(chunk, i, j, k, height, pos);
+                        break;
+                    }
+                    case BIOME_NORMAL:
+                    default:
+                    {
+                        generateChunkNormal(chunk, i, j, k, height, pos);
+                        break;
+                    }
                 }
             }
         }
