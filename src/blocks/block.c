@@ -51,7 +51,8 @@ const char* blockNames[] = {
 
     [BLOCK_NOTEBLOCK] = "Note block",
     [BLOCK_LAVA] = "Lava",
-    [BLOCK_MOSS] = "Moss"
+    [BLOCK_MOSS] = "Moss",
+    [BLOCK_BASALT] = "Basalt"
 };
 
 void drawBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)

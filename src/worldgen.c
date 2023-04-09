@@ -10,6 +10,9 @@
 #define TREE_HEIGHT           6
 #define TREE_LEAVES_START     2
 
+#define VOLCANO_SIZE 7
+#define VOLCANO_HEIGHT 6
+
 #define MAX_SUGAR_CANE_HEIGHT 3
 #define MAX_CACTUS_HEIGHT     3
 
@@ -27,6 +30,7 @@
 #define RAND_ORE_DIAMOND  192
 
 #define RAND_ROCKS        256
+#define RAND_VOLCANO      264
 
 #define WATER_LEVEL 6
 
@@ -102,6 +106,62 @@ void generateTree(Chunk* chunk, uint8_t baseX, uint8_t baseY, uint8_t baseZ)
         {
             CHUNK_BLOCK(chunk, baseX + (TREE_SIZE / 2), j, baseZ + (TREE_SIZE / 2)) = (Block) {BLOCK_WOOD, 0};
         }
+    }
+}
+
+void generateVolcano(Chunk* chunk, uint8_t baseX, uint8_t baseY, uint8_t baseZ)
+{
+    uint8_t bx = baseX;
+    uint8_t mx = baseX + VOLCANO_SIZE;
+    uint8_t bz = baseZ;
+    uint8_t mz = baseZ + VOLCANO_SIZE;
+
+    uint8_t lavaDir = randr(3);
+
+    //Create base plate (otherwise the volcano will "float" above parts of the terrain)
+    for(uint8_t j = 0; j < baseY; j++)
+    {
+        for(uint8_t i = bx; i < mx; i++)
+        {
+            for(uint8_t k = bz; k < mz; k++)
+            {
+                CHUNK_BLOCK(chunk, i, j, k) = (Block) {BLOCK_BASALT, 0};
+            }
+        }
+    }
+
+    //Create actual volcano
+    for(uint8_t j = baseY; j < baseY + VOLCANO_HEIGHT; j++)
+    {
+        for(uint8_t i = bx; i < mx; i++)
+        {
+            for(uint8_t k = bz; k < mz; k++)
+            {
+                CHUNK_BLOCK(chunk, i, j, k) = (Block) {BLOCK_BASALT, 0};
+            }
+        }
+        //Generate outside lava stream
+        uint8_t lavaX = bx;
+        uint8_t lavaZ = bz;
+        if(lavaDir & 0x01)
+        {
+            lavaX = mx;
+        }
+        else if(lavaDir & 0x02)
+        {
+            lavaZ = mz;
+        }
+        CHUNK_BLOCK(chunk, lavaX, j, lavaZ) = (Block) {BLOCK_LAVA, 0};
+        //Decrease size every other block of height
+        if(j % 2 == 0)
+        {
+            bx++;
+            mx--;
+            bz++;
+            mz--;
+        }
+        //Generate center lava stream
+        CHUNK_BLOCK(chunk, baseX + (VOLCANO_SIZE / 2), j, baseZ + (VOLCANO_SIZE / 2)) = (Block) {BLOCK_LAVA, 0};
     }
 }
 
@@ -404,23 +464,60 @@ void generateChunk(Chunk* chunk)
         }
     }
 
-    //Decorate chunk (trees etc.)
-    if(getNoiseRand(x, z, 4, 4, RAND_TREE) < 0.06f)
+    //Decorate chunk (trees, volcanoes, ...)
+    //Get biome for center of chunk (sort of, actual center would be 3.5)
+    Biome biome = getBiome(x, z, 4, 4);
+    switch(biome)
     {
-        uint8_t baseX = getNoiseRand(x, z, 0, 0, RAND_TREE) * (CHUNK_SIZE - TREE_SIZE);
-        uint8_t baseZ = getNoiseRand(x, z, 8, 8, RAND_TREE) * (CHUNK_SIZE - TREE_SIZE);
-
-        uint8_t baseY = 255;
-        for(uint8_t j = 0; j < CHUNK_SIZE; j++)
+        case BIOME_NORMAL:
         {
-            if(CHUNK_BLOCK(chunk, baseX + (TREE_SIZE / 2), j, baseZ + (TREE_SIZE / 2)).type == BLOCK_GRASS)
+            if(getNoiseRand(x, z, 4, 4, RAND_TREE) < 0.03f)
             {
-                baseY = j + 1;
+                uint8_t baseX = getNoiseRand(x, z, 0, 0, RAND_TREE) * (CHUNK_SIZE - TREE_SIZE);
+                uint8_t baseZ = getNoiseRand(x, z, 8, 8, RAND_TREE) * (CHUNK_SIZE - TREE_SIZE);
+
+                uint8_t baseY = 255;
+                for(uint8_t j = 0; j < CHUNK_SIZE; j++)
+                {
+                    if(CHUNK_BLOCK(chunk, baseX + (TREE_SIZE / 2), j, baseZ + (TREE_SIZE / 2)).type == BLOCK_GRASS)
+                    {
+                        baseY = j + 1;
+                    }
+                }
+
+                if(baseY <= CHUNK_SIZE - TREE_HEIGHT)
+                {
+                    generateTree(chunk, baseX, baseY, baseZ);
+                }
             }
+            break;
         }
-        if(baseY <= CHUNK_SIZE - TREE_HEIGHT)
+        case BIOME_ROCKS:
         {
-            generateTree(chunk, baseX, baseY, baseZ);
+            if(getNoiseRand(x, z, 4, 4, RAND_VOLCANO) < 0.05f)
+            {
+                uint8_t baseX = getNoiseRand(x, z, 0, 0, RAND_VOLCANO) * (CHUNK_SIZE - VOLCANO_SIZE);
+                uint8_t baseZ = getNoiseRand(x, z, 8, 8, RAND_VOLCANO) * (CHUNK_SIZE - VOLCANO_SIZE);
+
+                uint8_t baseY = 255;
+                for(uint8_t j = 0; j < CHUNK_SIZE; j++)
+                {
+                    if(isBlockCollidable(CHUNK_BLOCK(chunk, baseX + (VOLCANO_SIZE / 2), j, baseZ + (VOLCANO_SIZE / 2)).type))
+                    {
+                        baseY = j + 1;
+                    }
+                }
+
+                if(baseY <= CHUNK_SIZE - VOLCANO_HEIGHT)
+                {
+                    generateVolcano(chunk, baseX, baseY, baseZ);
+                }
+            }
+            break;
+        }
+        default:
+        {
+            break;
         }
     }
 

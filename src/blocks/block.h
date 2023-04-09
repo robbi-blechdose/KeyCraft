@@ -61,6 +61,7 @@ typedef enum {
     BLOCK_NOTEBLOCK,
     BLOCK_LAVA,
     BLOCK_MOSS,
+    BLOCK_BASALT,
 
     BLOCK_LAST
 } BlockType;

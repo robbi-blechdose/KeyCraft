@@ -82,7 +82,8 @@ const vec2i* const blockTextures[] = {
 
     [BLOCK_NOTEBLOCK] = (vec2i[1]) {{5, 7}},
     [BLOCK_LAVA] = (vec2i[1]) {{6, 7}},
-    [BLOCK_MOSS] = (vec2i[1]) {{7, 7}}
+    [BLOCK_MOSS] = (vec2i[1]) {{7, 7}},
+    [BLOCK_BASALT] = (vec2i[1]) {{0, 8}}
 };
 
 vec2 getBlockTexture(BlockType type, uint8_t index)
