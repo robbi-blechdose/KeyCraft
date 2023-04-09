@@ -340,11 +340,11 @@ void calcFrame(uint32_t ticks)
             {
                 dirX = 1;
             }
-            if(keyUp(B_TL))
+            if(keyUp(B_TL) || keyUp(B_X))
             {
                 dirTab = -1;
             }
-            else if(keyUp(B_TR))
+            else if(keyUp(B_TR) || keyUp(B_Y))
             {
                 dirTab = 1;
             }
@@ -504,6 +504,10 @@ void calcFrame(uint32_t ticks)
             else if(keyUp(B_X))
             {
                 shiftProgramDown(programmingComputer);
+            }
+            else if(keyUp(B_Y))
+            {
+                shiftProgramUp(programmingComputer);
             }
             else if(keyUp(B_START))
             {

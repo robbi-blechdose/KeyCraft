@@ -12,5 +12,6 @@ void enterProgrammingCursor(ComputerData* computer);
 bool cancelProgrammingCursor();
 
 void shiftProgramDown(ComputerData* computer);
+void shiftProgramUp(ComputerData* computer);
 
 #endif

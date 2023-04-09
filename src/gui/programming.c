@@ -260,6 +260,16 @@ bool cancelProgrammingCursor()
     return true;
 }
 
+uint8_t getProgramEnd(ComputerData* computer)
+{
+    uint8_t programEnd = PROGRAM_SIZE - 1;
+    while(computer->program[programEnd] == NOP)
+    {
+        programEnd--;
+    }
+    return programEnd;
+}
+
 void shiftProgramDown(ComputerData* computer)
 {
     if(keyboardActive)
@@ -267,12 +277,7 @@ void shiftProgramDown(ComputerData* computer)
         return;
     }
 
-    //Find end of the program
-    uint8_t programEnd = PROGRAM_SIZE - 1;
-    while(computer->program[programEnd] == NOP)
-    {
-        programEnd--;
-    }
+    uint8_t programEnd = getProgramEnd(computer);
 
     if(programEnd == PROGRAM_SIZE - 1)
     {
@@ -285,4 +290,20 @@ void shiftProgramDown(ComputerData* computer)
         computer->program[i] = computer->program[i - 1];
     }
     computer->program[programCursor] = NOP;
+}
+
+void shiftProgramUp(ComputerData* computer)
+{
+    if(keyboardActive)
+    {
+        return;
+    }
+
+    uint8_t programEnd = getProgramEnd(computer);
+
+    for(uint8_t i = programCursor; i < programEnd; i++)
+    {
+        computer->program[i] = computer->program[i + 1];
+    }
+    computer->program[programEnd] = NOP;
 }
