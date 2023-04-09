@@ -34,7 +34,7 @@ bool hasAdjacentPower(ChunkPos chunk, uint8_t x, uint8_t y, uint8_t z, bool only
             else if(block->type == BLOCK_COMPUTER)
             {
                 //Hack to allow computers to output directional signals
-                ComputerData* computer = getWorldChunk(&blockPos)->computers[block->data & BLOCK_DATA_COMPUTER];
+                ComputerData* computer = getWorldChunk(&blockPos)->computers[GET_COMPUTER_INDEX(block->data)];
 
                 if(computer != NULL)
                 {

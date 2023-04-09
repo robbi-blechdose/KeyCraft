@@ -470,7 +470,7 @@ void setWorldBlock(BlockPos* pos, Block block)
             if(chunk->computers[i] == NULL)
             {
                 chunk->computers[i] = createComputer();
-                CHUNK_BLOCK(chunk, pos->x, pos->y, pos->z).data |= i;
+                CHUNK_BLOCK(chunk, pos->x, pos->y, pos->z).data |= TO_COMPUTER_INDEX(i);
                 break;
             }
         }

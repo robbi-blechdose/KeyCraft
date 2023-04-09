@@ -91,7 +91,7 @@ inline void tryPlaceBlockOrInteract(BlockPos* block, AABBSide result)
     
     if(getWorldBlock(block)->type == BLOCK_COMPUTER)
     {
-        programmingComputer = getWorldChunk(block)->computers[getWorldBlock(block)->data & BLOCK_DATA_COMPUTER];
+        programmingComputer = getWorldChunk(block)->computers[GET_COMPUTER_INDEX(getWorldBlock(block)->data)];
         state = STATE_PROGRAMMING;
         return;
     }
@@ -175,12 +175,18 @@ inline void tryPlaceBlockOrInteract(BlockPos* block, AABBSide result)
     //Check if the block intersects with the player. If so, don't place it
     if(playerIntersectsWorld(&player))
     {
-        setWorldBlock(block, (Block) {BLOCK_AIR, 0});
         //Remove door upper as well (yes, this is a special case)
         if(toPlace.type == BLOCK_DOOR)
         {
             setWorldBlock(&above, (Block) {BLOCK_AIR, 0});
         }
+        else if(toPlace.type == BLOCK_COMPUTER)
+        {
+            //Remove computer data
+            free(getWorldChunk(block)->computers[GET_COMPUTER_INDEX(getWorldBlock(block)->data)]);
+            getWorldChunk(block)->computers[GET_COMPUTER_INDEX(getWorldBlock(block)->data)] = NULL;
+        }
+        setWorldBlock(block, (Block) {BLOCK_AIR, 0});
     }
 }
 
@@ -227,8 +233,8 @@ inline void tryRemoveBlock(BlockPos* block)
     else if(toRemove->type == BLOCK_COMPUTER)
     {
         //Remove computer data
-        free(getWorldChunk(block)->computers[toRemove->data & BLOCK_DATA_COMPUTER]);
-        getWorldChunk(block)->computers[toRemove->data & BLOCK_DATA_COMPUTER] = NULL;
+        free(getWorldChunk(block)->computers[GET_COMPUTER_INDEX(toRemove->data)]);
+        getWorldChunk(block)->computers[GET_COMPUTER_INDEX(toRemove->data)] = NULL;
     }
 
     setWorldBlock(block, (Block) {BLOCK_AIR, 0});

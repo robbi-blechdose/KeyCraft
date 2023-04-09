@@ -229,7 +229,7 @@ void tickBlock(Chunk* chunk, Block* block, uint8_t x, uint8_t y, uint8_t z)
                 }
             }
 
-            ComputerData* computer = chunk->computers[block->data & BLOCK_DATA_COMPUTER];
+            ComputerData* computer = chunk->computers[GET_COMPUTER_INDEX(block->data)];
             computer->io = LOW_NIBBLE(computer->io) | inputs;
 
             break;
