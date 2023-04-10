@@ -430,27 +430,27 @@ void setWorldBlock(BlockPos* pos, Block block)
     CHUNK_CLEAR_FLAG(chunk, CHUNK_IS_INITIAL);
 
     //Mark adjacent chunks as modified if necessary
-    if(pos->x == 0 && pos->chunk.x >= chunkPos.x)
+    if(pos->x == 0 && pos->chunk.x > chunkPos.x)
     {
         CHUNK_SET_FLAG(WORLD_CHUNK(pos->chunk.x - 1, pos->chunk.y, pos->chunk.z), CHUNK_MODIFIED);
     }
-    else if(pos->x == CHUNK_SIZE - 1 && pos->chunk.x < chunkPos.x + VIEW_DISTANCE)
+    else if(pos->x == CHUNK_SIZE - 1 && pos->chunk.x < chunkPos.x + VIEW_DISTANCE - 1)
     {
         CHUNK_SET_FLAG(WORLD_CHUNK(pos->chunk.x + 1, pos->chunk.y, pos->chunk.z), CHUNK_MODIFIED);
     }
-    if(pos->y == 0 && pos->chunk.y >= chunkPos.y)
+    if(pos->y == 0 && pos->chunk.y > chunkPos.y)
     {
         CHUNK_SET_FLAG(WORLD_CHUNK(pos->chunk.x, pos->chunk.y - 1, pos->chunk.z), CHUNK_MODIFIED);
     }
-    else if(pos->y == CHUNK_SIZE - 1 && pos->chunk.y < chunkPos.y + VIEW_DISTANCE)
+    else if(pos->y == CHUNK_SIZE - 1 && pos->chunk.y < chunkPos.y + VIEW_DISTANCE - 1)
     {
         CHUNK_SET_FLAG(WORLD_CHUNK(pos->chunk.x, pos->chunk.y + 1, pos->chunk.z), CHUNK_MODIFIED);
     }
-    if(pos->z == 0 && pos->chunk.z >= chunkPos.z)
+    if(pos->z == 0 && pos->chunk.z > chunkPos.z)
     {
         CHUNK_SET_FLAG(WORLD_CHUNK(pos->chunk.x, pos->chunk.y, pos->chunk.z - 1), CHUNK_MODIFIED);
     }
-    else if(pos->z == CHUNK_SIZE - 1 && pos->chunk.z < chunkPos.z + VIEW_DISTANCE)
+    else if(pos->z == CHUNK_SIZE - 1 && pos->chunk.z < chunkPos.z + VIEW_DISTANCE - 1)
     {
         CHUNK_SET_FLAG(WORLD_CHUNK(pos->chunk.x, pos->chunk.y, pos->chunk.z + 1), CHUNK_MODIFIED);
     }
