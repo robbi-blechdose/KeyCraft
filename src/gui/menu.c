@@ -63,7 +63,7 @@ void drawMenu()
     }
 
     //Author notice
-    glDrawText("2022", CENTER(4), 240 - 32, TEXT_WHITE);
+    glDrawText("2022 - 2023", CENTER(11), 240 - 32, TEXT_WHITE);
     glDrawText("Robbi Blechdose", CENTER(15), 240 - 20, TEXT_WHITE);
 }
 
