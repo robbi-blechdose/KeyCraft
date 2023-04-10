@@ -517,11 +517,11 @@ AABBSide intersectsRayWorld(vec3* origin, vec3* direction, BlockPos* block, floa
     float minDistance = 512;
 
     //Exclude outer chunks
-    for(uint8_t i = 0; i < VIEW_DISTANCE; i++)
+    for(uint8_t i = MIN_RAY_CHUNK; i <= MAX_RAY_CHUNK; i++)
     {
         for(uint8_t j = 0; j < VIEW_DISTANCE; j++)
         {
-            for(uint8_t k = 0; k < VIEW_DISTANCE; k++)
+            for(uint8_t k = MIN_RAY_CHUNK; k <= MAX_RAY_CHUNK; k++)
             {
                 //Discard empty chunks
                 if(!CHUNK_GET_FLAG(VIEW_CHUNK(i, j, k), CHUNK_IS_EMPTY))
@@ -560,13 +560,9 @@ bool intersectsAABBWorld(AABB* aabb)
         {
             for(uint8_t k = 0; k < VIEW_DISTANCE; k++)
             {
-                //Discard empty chunks
-                if(!CHUNK_GET_FLAG(VIEW_CHUNK(i, j, k), CHUNK_IS_EMPTY))
+                if(intersectsAABBChunk(VIEW_CHUNK(i, j, k), aabb))
                 {
-                    if(intersectsAABBChunk(VIEW_CHUNK(i, j, k), aabb))
-                    {
-                        return true;
-                    }
+                    return true;
                 }
             }
         }

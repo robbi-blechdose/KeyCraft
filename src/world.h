@@ -13,6 +13,9 @@
 
 //View distance in chunks
 #define VIEW_DISTANCE 5
+//Boundaries for chunks for block picking (3x5x3 chunks, outer x and z chunks can be excluded since the player is always in (or close to) the center chunk)
+#define MIN_RAY_CHUNK 1
+#define MAX_RAY_CHUNK 3
 //Max distance of a ray for block picking, in blocks
 #define MAX_RAY_DISTANCE 5
 //Rate for game logic, in ms
