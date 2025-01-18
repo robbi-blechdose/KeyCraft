@@ -194,6 +194,7 @@ bool isOpaqueBlock(BlockType type)
         case BLOCK_WOOD_SLAB:
         case BLOCK_COBBLESTONE_SLAB:
         case BLOCK_MOSS:
+        case BLOCK_PRESSURE_PLATE:
         {
             return false;
         }
