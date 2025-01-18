@@ -1,6 +1,5 @@
 #include "saves.h"
 
-#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 #include "engine/savegame.h"
@@ -27,7 +26,7 @@ void checkGamesPresent()
     for(uint8_t i = 0; i < NUM_SAVES; i++)
     {
         char saveName[SAVE_NAME_LENGTH + 1];
-        getSaveNameForIndex(&saveName, i);
+        getSaveNameForIndex(saveName, i);
         gamesPresent[i] = doesGameExist(saveName);
     }
 }

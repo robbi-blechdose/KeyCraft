@@ -9,12 +9,17 @@
 #include "../sfx.h"
 #include "../version.h"
 
+//TODO: unify and move somewhere else
+
 /**
  * Macro for centering text
  * X is the length of the text
  * Note: X * 8 / 2 = X * 4
  **/
 #define CENTER(X) (WINX / 2 - (X) * 4)
+
+//Fixes warnings for string literals
+#define glDrawText(text, x, y, pixel) glDrawText((const GLubyte*) (text), (x), (y), (pixel))
 
 int8_t menuCursor = 0;
 int8_t optionsCursor = 0;

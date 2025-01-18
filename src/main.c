@@ -19,6 +19,7 @@
 #include "gui/menu.h"
 #include "sfx.h"
 #include "gui/programming.h"
+#include "gameloop.h"
 
 #include "saves.h"
 
@@ -33,17 +34,6 @@ uint32_t counterFrames = 0;
 uint32_t counterTime = 0;
 #endif
 
-typedef enum {
-    STATE_GAME,
-    STATE_INVENTORY,
-    STATE_MENU,
-    STATE_PROGRAMMING,
-    STATE_OPTIONS,
-    STATE_CREDITS,
-    STATE_MANAGE_GAMES,
-    STATE_MANAGE_SELECTED_GAME
-} State;
-
 #define SHELL_CMD_POWERDOWN_HANDLE "powerdown handle"
 #define SHELL_CMD_INSTANT_PLAY     "instant_play"
 
@@ -54,7 +44,6 @@ bool running = true;
 bool quickSaveAndPoweroff = false;
 State state = STATE_MENU;
 Player player;
-ComputerData* programmingComputer;
 
 //Options
 bool invertY = true;
@@ -83,242 +72,89 @@ void loadOptions()
     }
 }
 
-inline void tryPlaceBlockOrInteract(BlockPos* block, AABBSide result)
+//TODO: fix segfault on saving with no modified chunks!
+
+void saveGame(char* name)
 {
-    if(actWorldBlock(block))
+    if(openSave(SAVE_FOLDER, name, true))
     {
-        return;
-    }
-    
-    if(getWorldBlock(block)->type == BLOCK_COMPUTER)
-    {
-        programmingComputer = getWorldChunk(block)->computers[GET_COMPUTER_INDEX(getWorldBlock(block)->data)];
-        state = STATE_PROGRAMMING;
-        return;
-    }
+        uint16_t saveVersion = SAVE_VERSION;
+        writeElement(&saveVersion, sizeof(uint16_t));
 
-    //Calc position
-    switch(result)
-    {
-        case AABB_FRONT:
-        {
-            block->z -= BLOCK_SIZE;
-            break;
-        }
-        case AABB_BACK:
-        {
-            block->z += BLOCK_SIZE;
-            break;
-        }
-        case AABB_LEFT:
-        {
-            block->x -= BLOCK_SIZE;
-            break;
-        }
-        case AABB_RIGHT:
-        {
-            block->x += BLOCK_SIZE;
-            break;
-        }
-        case AABB_BOTTOM:
-        {
-            block->y -= BLOCK_SIZE;
-            break;
-        }
-        case AABB_TOP:
-        {
-            block->y += BLOCK_SIZE;
-            break;
-        }
-        default:
-        {
-            break;
-        }
-    }
-
-    if(getWorldBlock(block) == NULL || getWorldBlock(block)->type != BLOCK_AIR)
-    {
-        return;
-    }
-
-    //Place new block
-    BlockPos below = *block;
-    below.y -= BLOCK_SIZE;
-    BlockPos above = *block;
-    above.y += BLOCK_SIZE;
-    Block toPlace = getHotbarSelection();
-
-    if(!canPlaceBlock(toPlace.type, getWorldBlock(&below)->type) ||
-        (toPlace.type == BLOCK_DOOR && (getWorldBlock(&above) == NULL || getWorldBlock(&above)->type != BLOCK_AIR))) //Check if we can place the door upper (yes, this is a special case)
-    {
-        return;
-    }
-
-    if(isBlockOriented(toPlace.type))
-    {
-        uint8_t orientation = BLOCK_DATA_DIR_RIGHT;
-        float rotation = player.rotation.y - M_PI_4;
-        clampAngle(&rotation);
-
-        if(rotation < M_PI_2)
-        {
-            orientation = BLOCK_DATA_DIR_FRONT;
-        }
-        else if(rotation < M_PI)
-        {
-            orientation = BLOCK_DATA_DIR_LEFT;
-        }
-        else if(rotation < M_PI + M_PI_2)
-        {
-            orientation = BLOCK_DATA_DIR_BACK;
-        }
-        //4th case is covered by the original assignment
-        toPlace.data |= orientation;
-    }
-
-    setWorldBlock(block, toPlace);
-    //Check if the block intersects with the player. If so, don't place it
-    if(playerIntersectsWorld(&player))
-    {
-        //Remove door upper as well (yes, this is a special case)
-        if(toPlace.type == BLOCK_DOOR)
-        {
-            setWorldBlock(&above, (Block) {BLOCK_AIR, 0});
-        }
-        else if(toPlace.type == BLOCK_COMPUTER)
-        {
-            //Remove computer data
-            free(getWorldChunk(block)->computers[GET_COMPUTER_INDEX(getWorldBlock(block)->data)]);
-            getWorldChunk(block)->computers[GET_COMPUTER_INDEX(getWorldBlock(block)->data)] = NULL;
-        }
-        setWorldBlock(block, (Block) {BLOCK_AIR, 0});
+        savePlayer(&player);
+        saveHotbar();
+        saveWorld();
+        closeSave();
     }
 }
 
-inline void tryRemoveBlock(BlockPos* block)
+void loadGame(char* name)
 {
-    Block* toRemove = getWorldBlock(block);
-    
-    if(toRemove->type == BLOCK_BEDROCK)
+    if(openSave(SAVE_FOLDER, name, false))
     {
-        return;
-    }
-    
-    //Remove other door half (yes, this is a special case)
-    if(toRemove->type == BLOCK_DOOR)
-    {
-        if(toRemove->data & BLOCK_DATA_PART)
+        uint16_t saveVersion;
+        readElement(&saveVersion, sizeof(uint16_t));
+
+        if(saveVersion / 10 == SAVE_VERSION / 10)
         {
-            //This is the upper part, remove lower
-            block->y--;
-            setWorldBlock(block, (Block) {BLOCK_AIR, 0});
-            block->y++;
+            loadPlayer(&player);
+            loadHotbar();
+            loadWorld();
         }
         else
         {
-            //This is the lower part, remove upper
-            block->y++;
-            setWorldBlock(block, (Block) {BLOCK_AIR, 0});
-            block->y--;
+            setMenuFlag(MENU_FLAG_LOADFAIL);
         }
+        closeSave();
     }
-    //Remove other half of piston (yes, this is a special case)
-    else if(toRemove->type == BLOCK_PISTON_BASE)
+    else
     {
-        BlockPos pos = {block->chunk, block->x, block->y, block->z};
-        getBlockPosByDirection(toRemove->data & BLOCK_DATA_DIRECTION, &pos);
-        setWorldBlock(&pos, (Block) {BLOCK_AIR, 0});
+        setMenuFlag(MENU_FLAG_NOSAVE);
     }
-    else if(toRemove->type == BLOCK_PISTON_HEAD)
-    {
-        BlockPos pos = {block->chunk, block->x, block->y, block->z};
-        getBlockPosByInverseDirection(toRemove->data & BLOCK_DATA_DIRECTION, &pos);
-        setWorldBlock(&pos, (Block) {BLOCK_AIR, 0});
-    }
-    else if(toRemove->type == BLOCK_COMPUTER)
-    {
-        //Remove computer data
-        free(getWorldChunk(block)->computers[GET_COMPUTER_INDEX(toRemove->data)]);
-        getWorldChunk(block)->computers[GET_COMPUTER_INDEX(toRemove->data)] = NULL;
-    }
-
-    setWorldBlock(block, (Block) {BLOCK_AIR, 0});
 }
 
-void calcFrameGame(uint32_t ticks)
+void calcFrameMenu()
 {
-    //Player movement + look
-    int8_t dirF = 0;
-    if(keyPressed(B_X))
+    if(keyUp(B_UP))
     {
-        dirF = 1;
+        scrollMenu(-1);
     }
-    playerMove(&player, dirF, ticks);
-
-    int8_t dirX = 0;
-    int8_t dirY = 0;
-    if(keyPressed(B_UP))
+    else if(keyUp(B_DOWN))
     {
-        dirX = 1;
+        scrollMenu(1);
     }
-    else if(keyPressed(B_DOWN))
+    
+    if(keyUp(B_START) || keyUp(B_A))
     {
-        dirX = -1;
+        switch(getMenuCursor())
+        {
+            case MENU_SELECTION_CONTINUE:
+            {
+                state = STATE_GAME;
+                break;
+            }
+            case MENU_SELECTION_MANAGE_GAMES:
+            {
+                state = STATE_MANAGE_GAMES;
+                break;
+            }
+            case MENU_SELECTION_OPTIONS:
+            {
+                state = STATE_OPTIONS;
+                break;
+            }
+            case MENU_SELECTION_CREDITS:
+            {
+                state = STATE_CREDITS;
+                break;
+            }
+            case MENU_SELECTION_QUIT:
+            {
+                running = false;
+                break;
+            }
+        }
     }
-    if(keyPressed(B_LEFT))
-    {
-        dirY = -1;
-    }
-    else if(keyPressed(B_RIGHT))
-    {
-        dirY = 1;
-    }
-    if(!invertY)
-    {
-        dirX *= -1;
-    }
-    playerLook(&player, dirX, dirY, ticks);
-
-    if(keyDown(B_Y) && !player.jumping)
-    {
-        player.jumping = JUMP_TIME;
-    }
-
-    calcPlayer(&player, ticks);
-
-    //Cast ray
-    vec3 rayDir = anglesToDirection(&player.rotation);
-    //Player position in world space
-    vec3 posWorld = addv3(player.position, (vec3) {VIEW_TRANSLATION, VIEW_TRANSLATION, VIEW_TRANSLATION});
-
-    BlockPos block;
-    float distance;
-    AABBSide result = intersectsRayWorld(&posWorld, &rayDir, &block, &distance);
-
-    if(keyUp(B_A) && result)
-    {
-        tryPlaceBlockOrInteract(&block, result);
-    }
-    //Remove block
-    else if(keyUp(B_B) && result)
-    {
-        tryRemoveBlock(&block);
-    }
-
-    if(keyUp(B_SELECT))
-    {
-        scrollHotbar();
-    }
-    else if(keyUp(B_START))
-    {
-        state = STATE_INVENTORY;
-    }
-    else if(keyUp(B_MENU))
-    {
-        state = STATE_MENU;
-    }
-
-    calcWorld(&player.position, ticks);
 }
 
 void calcFrame(uint32_t ticks)
@@ -327,97 +163,17 @@ void calcFrame(uint32_t ticks)
     {
         case STATE_GAME:
         {
-            calcFrameGame(ticks);
+            calcFrameGame(&player, &state, ticks, invertY);
             break;
         }
         case STATE_INVENTORY:
         {
-            int8_t dirX = 0;
-            int8_t dirY = 0;
-            int8_t dirTab = 0;
-            if(keyUp(B_UP))
-            {
-                dirY = -1;
-            }
-            else if(keyUp(B_DOWN))
-            {
-                dirY = 1;
-            }
-            if(keyUp(B_LEFT))
-            {
-                dirX = -1;
-            }
-            else if(keyUp(B_RIGHT))
-            {
-                dirX = 1;
-            }
-            if(keyUp(B_TL) || keyUp(B_X))
-            {
-                dirTab = -1;
-            }
-            else if(keyUp(B_TR) || keyUp(B_Y))
-            {
-                dirTab = 1;
-            }
-            scrollInventory(dirX, dirY, dirTab);
-
-            if(keyUp(B_A))
-            {
-                selectInventorySlot();
-            }
-
-            if(keyUp(B_SELECT))
-            {
-                scrollHotbar();
-            }
-            else if(keyUp(B_START))
-            {
-                state = STATE_GAME;
-            }
+            calcFrameInventory(&state);
             break;
         }
         case STATE_MENU:
         {
-            if(keyUp(B_UP))
-            {
-                scrollMenu(-1);
-            }
-            else if(keyUp(B_DOWN))
-            {
-                scrollMenu(1);
-            }
-            
-            if(keyUp(B_START) || keyUp(B_A))
-            {
-                switch(getMenuCursor())
-                {
-                    case MENU_SELECTION_CONTINUE:
-                    {
-                        state = STATE_GAME;
-                        break;
-                    }
-                    case MENU_SELECTION_MANAGE_GAMES:
-                    {
-                        state = STATE_MANAGE_GAMES;
-                        break;
-                    }
-                    case MENU_SELECTION_OPTIONS:
-                    {
-                        state = STATE_OPTIONS;
-                        break;
-                    }
-                    case MENU_SELECTION_CREDITS:
-                    {
-                        state = STATE_CREDITS;
-                        break;
-                    }
-                    case MENU_SELECTION_QUIT:
-                    {
-                        running = false;
-                        break;
-                    }
-                }
-            }
+            calcFrameMenu();
             break;
         }
         case STATE_OPTIONS:
@@ -469,59 +225,7 @@ void calcFrame(uint32_t ticks)
         }
         case STATE_PROGRAMMING:
         {
-            calcWorld(&player.position, ticks);
-
-            int8_t dirX = 0;
-            int8_t dirY = 0;
-            if(keyUp(B_UP))
-            {
-                dirY = -1;
-            }
-            else if(keyUp(B_DOWN))
-            {
-                dirY = 1;
-            }
-            if(keyUp(B_LEFT))
-            {
-                dirX = -1;
-            }
-            else if(keyUp(B_RIGHT))
-            {
-                dirX = 1;
-            }
-            moveProgrammingCursor(dirX, dirY);
-
-            if(keyUp(B_A))
-            {
-                enterProgrammingCursor(programmingComputer);
-            }
-            else if(keyUp(B_B))
-            {
-                if(!cancelProgrammingCursor())
-                {
-                    state = STATE_GAME;
-                }
-            }
-            else if(keyUp(B_X))
-            {
-                shiftProgramDown(programmingComputer);
-            }
-            else if(keyUp(B_Y))
-            {
-                shiftProgramUp(programmingComputer);
-            }
-            else if(keyUp(B_START))
-            {
-                if(programmingComputer->af & COMPUTER_FLAG_RUNNING)
-                {
-                    programmingComputer->af &= ~COMPUTER_FLAG_RUNNING;
-                }
-                else
-                {
-                    programmingComputer->af |= COMPUTER_FLAG_RUNNING;
-                }
-            }
-
+            calcFrameProgramming(&player, &state, ticks);
             break;
         }
         case STATE_MANAGE_GAMES:
@@ -573,7 +277,12 @@ void calcFrame(uint32_t ticks)
                         char saveName[SAVE_NAME_LENGTH + 1];
                         getSaveNameForIndex(saveName, getManageGamesCursor());
                         loadGame(saveName);
-                        //TODO: we may have to do a little more work here
+                        //TODO: we may have to do a little more work here?
+                        //Run frames to build geometry for the first time etc.
+                        for(uint8_t i = 0; i < (VIEW_DISTANCE * VIEW_DISTANCE * VIEW_DISTANCE) / MAX_CHUNKS_PER_FRAME; i++)
+                        {
+                            calcFrameGame(&player, &state, 1, invertY);
+                        }
                         break;
                     }
                     case MSG_SELECTION_NEW_GAME:
@@ -586,8 +295,11 @@ void calcFrame(uint32_t ticks)
                         player.position = (vec3) {0, 0, 0};
                         player.rotation = (vec3) {0, 0, 0};
                         //TODO: reinit hotbar
-                        //Run frame to build geometry for the first time etc.
-                        calcFrameGame(1);
+                        //Run frames to build geometry for the first time etc.
+                        for(uint8_t i = 0; i < (VIEW_DISTANCE * VIEW_DISTANCE * VIEW_DISTANCE) / MAX_CHUNKS_PER_FRAME; i++)
+                        {
+                            calcFrameGame(&player, &state, 1, invertY);
+                        }
                         break;
                     }
                     case MSG_SELECTION_BACK:
@@ -670,47 +382,6 @@ void drawFrame()
     flipFrame();
 }
 
-//TODO: fix segfault on saving with no modified chunks!
-
-void saveGame(char* name)
-{
-    if(openSave(SAVE_FOLDER, name, true))
-    {
-        uint16_t saveVersion = SAVE_VERSION;
-        writeElement(&saveVersion, sizeof(uint16_t));
-
-        savePlayer(&player);
-        saveHotbar();
-        saveWorld();
-        closeSave();
-    }
-}
-
-void loadGame(char* name)
-{
-    if(openSave(SAVE_FOLDER, name, false))
-    {
-        uint16_t saveVersion;
-        readElement(&saveVersion, sizeof(uint16_t));
-
-        if(saveVersion / 10 == SAVE_VERSION / 10)
-        {
-            loadPlayer(&player);
-            loadHotbar();
-            loadWorld();
-        }
-        else
-        {
-            setMenuFlag(MENU_FLAG_LOADFAIL);
-        }
-        closeSave();
-    }
-    else
-    {
-        setMenuFlag(MENU_FLAG_NOSAVE);
-    }
-}
-
 void handleSigusr1(int sig)
 {
     running = false;
@@ -767,7 +438,7 @@ int main(int argc, char **argv)
     //Run frames to build geometry for the first time etc.
     for(uint8_t i = 0; i < (VIEW_DISTANCE * VIEW_DISTANCE * VIEW_DISTANCE) / MAX_CHUNKS_PER_FRAME; i++)
     {
-        calcFrameGame(1);
+        calcFrameGame(&player, &state, 1, invertY);
     }
 
     //Register signal handler for SIGUSR1 (closing the console)
