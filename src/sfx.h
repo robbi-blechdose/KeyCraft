@@ -10,4 +10,6 @@
 #define SFX_NOTEBLOCK_0        6
 #define SFX_NOTEBLOCK_LAST     SFX_NOTEBLOCK_0 + 8
 
+#define NUM_SFX                SFX_NOTEBLOCK_LAST
+
 #endif
