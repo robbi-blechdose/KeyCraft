@@ -63,6 +63,8 @@ typedef enum {
     BLOCK_MOSS,
     BLOCK_BASALT,
 
+    BLOCK_PRESSURE_PLATE,
+
     BLOCK_LAST
 } BlockType;
 

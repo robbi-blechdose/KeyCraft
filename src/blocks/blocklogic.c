@@ -9,6 +9,8 @@
 #include "redstonelogic.h"
 #include "../computer.h"
 
+#include "blockactions.h"
+
 bool hasAdjacentWater(Chunk* chunk, uint8_t x, uint8_t y, uint8_t z)
 {
     BlockPos blockPos = {chunk->position, x, y, z};
@@ -225,7 +227,7 @@ void tickBlock(Chunk* chunk, Block* block, uint8_t x, uint8_t y, uint8_t z)
                 Block* block2 = getWorldBlock(&blockPos);
                 if(block2 != NULL && (block2->data & BLOCK_DATA_POWER))
                 {
-                    inputs |= (1 << 4 + index);
+                    inputs |= (1 << (4 + index));
                 }
             }
 
@@ -252,6 +254,7 @@ void tickBlock(Chunk* chunk, Block* block, uint8_t x, uint8_t y, uint8_t z)
             }
             break;
         }
+        //TODO: shorten noteblock audio further?
         case BLOCK_NOTEBLOCK:
         {
             bool adjacentPower = hasAdjacentPower(chunk->position, x, y, z, false);
@@ -266,7 +269,26 @@ void tickBlock(Chunk* chunk, Block* block, uint8_t x, uint8_t y, uint8_t z)
             {
                 block->data &= ~BLOCK_DATA_STATE;
             }
-            
+            break;
+        }
+        case BLOCK_PRESSURE_PLATE:
+        {
+            //2-step deactivation process: if we're powered, set the state
+            //If we're powered and the state is set, deactivate power and state
+            //This way, if the player is still on it and resets the state and power, the plate stays active
+            if(block->data & BLOCK_DATA_POWER)
+            {
+                if(block->data & BLOCK_DATA_STATE)
+                {
+                    block->data &= ~(BLOCK_DATA_POWER | BLOCK_DATA_STATE | BLOCK_DATA_TEXTURE1);
+                    playSample(SFX_PRESSURE_PLATE_OFF);
+                    CHUNK_SET_FLAG(chunk, CHUNK_MODIFIED);
+                }
+                else
+                {
+                    block->data |= BLOCK_DATA_STATE;
+                }
+            }
             break;
         }
     }

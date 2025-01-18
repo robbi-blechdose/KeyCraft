@@ -26,6 +26,7 @@ AABB getAABBForBlock(Block* block, vec3 position)
         }
         case BLOCK_REDSTONE_WIRE:
         case BLOCK_REDSTONE_REPEATER:
+        case BLOCK_PRESSURE_PLATE:
         {
             return (AABB) {.min = position,
                            .max = (vec3) {position.x + BLOCK_SIZE, position.y + (BLOCK_SIZE / 20), position.z + BLOCK_SIZE}};

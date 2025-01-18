@@ -5,6 +5,9 @@
 #include "world.h"
 #include "blocks/blockaabbs.h"
 
+#include "engine/audio.h"
+#include "sfx.h"
+
 bool isWorldBlockOpaque(Chunk* chunk, uint8_t i, uint8_t j, uint8_t k)
 {
     BlockPos testPos = {.chunk = chunk->position, .x = i, .y = j, .z = k};
@@ -248,6 +251,18 @@ bool intersectsAABBChunk(Chunk* chunk, AABB* aabb)
 
                     if(aabbIntersectsAABB(&blockAABB, aabb))
                     {
+                        //Special case for the pressure plate block. If we ever use this function for anything but player collisions, this should be moved
+                        if(CHUNK_BLOCK(chunk, i, j, k).type == BLOCK_PRESSURE_PLATE)
+                        {
+                            if(!(CHUNK_BLOCK(chunk, i, j, k).data & BLOCK_DATA_POWER))
+                            {
+                                CHUNK_SET_FLAG(chunk, CHUNK_MODIFIED);
+                                playSample(SFX_PRESSURE_PLATE);
+                            }
+                            CHUNK_BLOCK(chunk, i, j, k).data |= BLOCK_DATA_POWER | BLOCK_DATA_TEXTURE1;
+                            CHUNK_BLOCK(chunk, i, j, k).data &= ~BLOCK_DATA_STATE;
+                            return false;
+                        }
                         return true;
                     }
                 }

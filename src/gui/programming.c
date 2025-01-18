@@ -186,7 +186,8 @@ void moveProgrammingCursor(int8_t dirX, int8_t dirY)
                 cursorX = 16;
             }
         }
-        else if(cursorY < 2 && cursorX > 5 || cursorY == 2 && cursorX > 16)
+        else if((cursorY < 2 && cursorX > 5) ||
+                (cursorY == 2 && cursorX > 16))
         {
             cursorX = 0;
         }

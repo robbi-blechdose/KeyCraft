@@ -3,6 +3,12 @@
 #include "../world.h"
 #include "blockutils.h"
 
+inline bool isPowerChanged(bool power, Block* block)
+{
+    return (power && !(block->data & BLOCK_DATA_POWER)) ||
+            (!power && (block->data & BLOCK_DATA_POWER));
+}
+
 bool hasAdjacentPower(ChunkPos chunk, uint8_t x, uint8_t y, uint8_t z, bool onlySource)
 {
     BlockPos blockPos = {chunk, x, y, z};
@@ -12,42 +18,44 @@ bool hasAdjacentPower(ChunkPos chunk, uint8_t x, uint8_t y, uint8_t z, bool only
         blockPos.x += adjacentDiffs[i][0];
         blockPos.z += adjacentDiffs[i][1];
         Block* block = getWorldBlock(&blockPos);
-        if(block != NULL)
+        if(block == NULL)
         {
-            if(block->type == BLOCK_REDSTONE_REPEATER && (block->data & BLOCK_DATA_POWER))
+            continue;
+        }
+
+        if(block->type == BLOCK_REDSTONE_REPEATER && (block->data & BLOCK_DATA_POWER))
+        {
+            BlockPos pos = blockPos;
+            getBlockPosByInverseDirection(block->data & BLOCK_DATA_DIRECTION, &pos);
+            normalizeBlockPos(&pos);
+            if(pos.chunk.x == chunk.x && pos.chunk.z == chunk.z && pos.x == x && pos.z == z)
             {
-                BlockPos pos = blockPos;
-                getBlockPosByInverseDirection(block->data & BLOCK_DATA_DIRECTION, &pos);
-                normalizeBlockPos(&pos);
-                if(pos.chunk.x == chunk.x && pos.chunk.z == chunk.z && pos.x == x && pos.z == z)
+                return true;
+            }
+        }
+        else if(block->data & BLOCK_DATA_POWER)
+        {
+            if(!onlySource || (onlySource && block->type != BLOCK_REDSTONE_WIRE))
+            {
+                return true;
+            }
+        }
+        else if(block->type == BLOCK_COMPUTER)
+        {
+            //Hack to allow computers to output directional signals
+            ComputerData* computer = getWorldChunk(&blockPos)->computers[GET_COMPUTER_INDEX(block->data)];
+
+            if(computer != NULL)
+            {
+                uint8_t out = LOW_NIBBLE(computer->io);
+
+                //Maps block rotation to input bit indices
+                uint8_t indexMapping[4] = {2, 0, 3, 1};
+                uint8_t index = (i + indexMapping[(block->data & BLOCK_DATA_DIRECTION) >> 6]) % 4;
+
+                if(out & (1 << index))
                 {
                     return true;
-                }
-            }
-            else if(block->data & BLOCK_DATA_POWER)
-            {
-                if(!onlySource || (onlySource && block->type != BLOCK_REDSTONE_WIRE))
-                {
-                    return true;
-                }
-            }
-            else if(block->type == BLOCK_COMPUTER)
-            {
-                //Hack to allow computers to output directional signals
-                ComputerData* computer = getWorldChunk(&blockPos)->computers[GET_COMPUTER_INDEX(block->data)];
-
-                if(computer != NULL)
-                {
-                    uint8_t out = LOW_NIBBLE(computer->io);
-
-                    //Maps block rotation to input bit indices
-                    uint8_t indexMapping[4] = {2, 0, 3, 1};
-                    uint8_t index = (i + indexMapping[(block->data & BLOCK_DATA_DIRECTION) >> 6]) % 4;
-
-                    if(out & (1 << index))
-                    {
-                        return true;
-                    }
                 }
             }
         }
@@ -129,7 +137,7 @@ void updateCircuit(ChunkPos chunk, uint8_t x, uint8_t y, uint8_t z, bool powered
             Block* block = getWorldBlock(&blockPos);
             if(block != NULL && block->type == BLOCK_REDSTONE_WIRE)
             {
-                if(powered && !(block->data & BLOCK_DATA_POWER) || !powered && (block->data & BLOCK_DATA_POWER))
+                if(isPowerChanged(powered, block))
                 {
                     updateCircuit(blockPos.chunk, blockPos.x, blockPos.y, blockPos.z, powered);
                 }
@@ -192,6 +200,14 @@ void tickRedstoneRepeater(Chunk* chunk, Block* block, uint8_t x, uint8_t y, uint
             power = true;
         }
     }
+
+    //This delays the output by one tick
+    if(isPowerChanged(power, block) && (block->data & BLOCK_DATA_STATE) == 0)
+    {
+        block->data |= BLOCK_DATA_STATE;
+        return;
+    }
+    block->data &= ~BLOCK_DATA_STATE;
 
     if((block->data & BLOCK_DATA_POWER) == 0 && power)
     {

@@ -50,5 +50,5 @@ Then adjust the `TINGYGL_LIB` and `TINYGL_INCLUDE` paths in the makefile and fun
 Finally, you can compile the project with `make`.  
 `make debug` creates a debug build for linux.  
 `make TARGET=funkey` creates a FunKey build.  
-`make oclean` cleans up object files. Required before switching between linux and FunKey builds.  
+`make clean` cleans up build artifacts. Required before switching between linux and FunKey builds.  
 `./package.sh` combines several commands to create a ready-to-go OPK file for the FunKey.

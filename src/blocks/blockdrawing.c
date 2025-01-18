@@ -83,7 +83,9 @@ const vec2i* const blockTextures[] = {
     [BLOCK_NOTEBLOCK] = (vec2i[1]) {{5, 7}},
     [BLOCK_LAVA] = (vec2i[1]) {{6, 7}},
     [BLOCK_MOSS] = (vec2i[1]) {{7, 7}},
-    [BLOCK_BASALT] = (vec2i[1]) {{0, 8}}
+    [BLOCK_BASALT] = (vec2i[1]) {{0, 8}},
+
+    [BLOCK_PRESSURE_PLATE] = (vec2i[2]) {{1, 8}, {1, 9}}
 };
 
 vec2 getBlockTexture(BlockType type, uint8_t index)
@@ -634,7 +636,7 @@ void drawPistonHead(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlu
     //Calculate vertices
     uint8_t dir = block->data & BLOCK_DATA_DIRECTION;
     uint8_t front = dir == BLOCK_DATA_DIR_FRONT;
-    uint8_t back = dir == BLOCK_DATA_DIR_BACK;
+    //uint8_t back = dir == BLOCK_DATA_DIR_BACK;
     uint8_t left = dir == BLOCK_DATA_DIR_LEFT;
     uint8_t right = dir == BLOCK_DATA_DIR_RIGHT;
 

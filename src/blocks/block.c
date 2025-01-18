@@ -52,9 +52,13 @@ const char* blockNames[] = {
     [BLOCK_NOTEBLOCK] = "Note block",
     [BLOCK_LAVA] = "Lava",
     [BLOCK_MOSS] = "Moss",
-    [BLOCK_BASALT] = "Basalt"
+    [BLOCK_BASALT] = "Basalt",
+
+    [BLOCK_PRESSURE_PLATE] = "Pressure plate"
 };
 
+//TODO: pass texture index into functions here already
+//This allows us to use more than the 2 bits of texture, e.g. for a repeater (3 positions x2 for on/off) or the note block (8 positions)
 void drawBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
 {
     switch(block->type)
@@ -87,6 +91,7 @@ void drawBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t occlusion)
         }
         case BLOCK_REDSTONE_WIRE:
         case BLOCK_MOSS:
+        case BLOCK_PRESSURE_PLATE:
         {
             drawFlatBlock(block, x, y, z, occlusion);
             break;
@@ -228,8 +233,9 @@ bool canPlaceBlock(BlockType toPlace, BlockType below)
         case BLOCK_LEVER:
         case BLOCK_REDSTONE_REPEATER:
         case BLOCK_MOSS:
+        case BLOCK_PRESSURE_PLATE:
         {
-            return isBlockCollidable(below) && !(below == BLOCK_WOOD_SLAB || below == BLOCK_COBBLESTONE_SLAB);
+            return isBlockCollidable(below) && !(below == BLOCK_WOOD_SLAB || below == BLOCK_COBBLESTONE_SLAB || below == BLOCK_PRESSURE_PLATE);
         }
         default:
         {
