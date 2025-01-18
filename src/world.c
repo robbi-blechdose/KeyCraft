@@ -13,6 +13,8 @@
 #define VIEW_CHUNK(i, j, k) chunks[(i) + ((j) * VIEW_DISTANCE) + ((k) * VIEW_DISTANCE * VIEW_DISTANCE)]
 #define WORLD_CHUNK(i, j, k) VIEW_CHUNK((i) - chunkPos.x, (j) - chunkPos.y, (k) - chunkPos.z)
 
+uint32_t seed;
+
 ChunkPos chunkPos;
 Chunk* chunks[VIEW_DISTANCE * VIEW_DISTANCE * VIEW_DISTANCE];
 Octree* modifiedChunks;
@@ -23,9 +25,10 @@ GLuint terrainTexture;
 
 uint32_t worldTicks;
 
-void initWorld(uint32_t seed)
+void initWorld(uint32_t pSeed)
 {
-    initWorldgen(seed);
+    seed = pSeed;
+    initWorldgen(pSeed);
 
     for(uint8_t i = 0; i < VIEW_DISTANCE; i++)
     {
@@ -591,6 +594,8 @@ void saveWorld()
     }
 
     saveOctree(modifiedChunks);
+
+    writeElement(&seed, sizeof(uint32_t));
 }
 
 void loadWorld()
@@ -632,4 +637,12 @@ void loadWorld()
             }
         }
     }
+
+    readElement(&seed, sizeof(uint32_t));
+    //TODO: remove this check - it's for compat reasons only
+    if(false) //TODO: figure out how to check for old versions
+    {
+        seed = 0;
+    }
+
 }

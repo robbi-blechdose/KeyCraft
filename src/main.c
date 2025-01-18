@@ -20,6 +20,10 @@
 #include "sfx.h"
 #include "gui/programming.h"
 
+#include "saves.h"
+
+//TODO: instant play needs to remember which save index it is!
+
 #define MAX_FPS 50
 
 #ifdef DEBUG
@@ -35,16 +39,10 @@ typedef enum {
     STATE_MENU,
     STATE_PROGRAMMING,
     STATE_OPTIONS,
-    STATE_CREDITS
+    STATE_CREDITS,
+    STATE_MANAGE_GAMES,
+    STATE_MANAGE_SELECTED_GAME
 } State;
-
-#define SAVE_FOLDER ".keycraft"
-
-#define SAVE_VERSION 40
-#define SAVE_NAME             "game.sav"
-#define INSTANTPLAY_SAVE_NAME "instantplay.sav"
-
-#define OPTIONS_SAVE_NAME     "options.sav"
 
 #define SHELL_CMD_POWERDOWN_HANDLE "powerdown handle"
 #define SHELL_CMD_INSTANT_PLAY     "instant_play"
@@ -60,7 +58,10 @@ ComputerData* programmingComputer;
 
 //Options
 bool invertY = true;
+//TODO: each save will have to save its own seed
 uint32_t newGameSeed = 0;
+//TODO
+uint8_t gameIndex = 0;
 
 void saveOptions()
 {
@@ -395,19 +396,9 @@ void calcFrame(uint32_t ticks)
                         state = STATE_GAME;
                         break;
                     }
-                    case MENU_SELECTION_NEW_GAME:
+                    case MENU_SELECTION_MANAGE_GAMES:
                     {
-                        state = STATE_GAME;
-
-                        //Destroy old game, initialize new one
-                        quitWorld();
-                        initWorld(newGameSeed);
-                        player.position = (vec3) {0, 0, 0};
-                        player.rotation = (vec3) {0, 0, 0};
-                        //TODO: reinit hotbar
-                        //Run frame to build geometry for the first time etc.
-                        calcFrameGame(1);
-
+                        state = STATE_MANAGE_GAMES;
                         break;
                     }
                     case MENU_SELECTION_OPTIONS:
@@ -533,6 +524,81 @@ void calcFrame(uint32_t ticks)
 
             break;
         }
+        case STATE_MANAGE_GAMES:
+        {
+            if(keyUp(B_UP))
+            {
+                scrollManageGames(-1);
+            }
+            else if(keyUp(B_DOWN))
+            {
+                scrollManageGames(1);
+            }
+
+            if(keyUp(B_A))
+            {
+                switch(getManageGamesCursor())
+                {
+                    case MG_SELECTION_BACK:
+                    {
+                        state = STATE_MENU;
+                        break;
+                    }
+                    default:
+                    {
+                        state = STATE_MANAGE_SELECTED_GAME;
+                        break;
+                    }
+                }
+            }
+            break;
+        }
+        case STATE_MANAGE_SELECTED_GAME:
+        {
+            if(keyUp(B_UP))
+            {
+                scrollManageSelectedGame(-1);
+            }
+            else if(keyUp(B_DOWN))
+            {
+                scrollManageSelectedGame(1);
+            }
+
+            if(keyUp(B_A))
+            {
+                switch(getManageSelectedGameCursor())
+                {
+                    case MSG_SELECTION_LOAD_GAME:
+                    {
+                        char saveName[SAVE_NAME_LENGTH + 1];
+                        getSaveNameForIndex(saveName, getManageGamesCursor());
+                        loadGame(saveName);
+                        //TODO: we may have to do a little more work here
+                        break;
+                    }
+                    case MSG_SELECTION_NEW_GAME:
+                    {
+                        state = STATE_GAME;
+
+                        //Destroy old game, initialize new one
+                        quitWorld();
+                        initWorld(newGameSeed);
+                        player.position = (vec3) {0, 0, 0};
+                        player.rotation = (vec3) {0, 0, 0};
+                        //TODO: reinit hotbar
+                        //Run frame to build geometry for the first time etc.
+                        calcFrameGame(1);
+                        break;
+                    }
+                    case MSG_SELECTION_BACK:
+                    {
+                        state = STATE_MANAGE_GAMES;
+                        break;
+                    }
+                }
+            }
+            break;
+        }
     }
 }
 
@@ -550,31 +616,50 @@ void drawFrame()
     setOrtho();
     glLoadIdentity();
     glBegin(GL_QUADS);
-    if(state == STATE_GAME)
+    switch(state)
     {
-        //Crosshair
-        drawTexQuad(WINX / 2 - 8, WINY / 2 - 8, 16, 16, 20, PTC(240), PTC(64), PTC(240 + 15), PTC(64 + 15));
-        drawHotbar();
-    }
-    else if(state == STATE_INVENTORY)
-    {
-        drawInventory();
-    }
-    else if(state == STATE_PROGRAMMING)
-    {
-        drawProgrammingScreen(programmingComputer);
-    }
-    else if(state == STATE_MENU)
-    {
-        drawMenu();
-    }
-    else if(state == STATE_OPTIONS)
-    {
-        drawOptions(invertY, newGameSeed);
-    }
-    else //if(state == STATE_CREDITS)
-    {
-        drawCredits();
+        case STATE_GAME:
+        {
+            //Crosshair
+            drawTexQuad(WINX / 2 - 8, WINY / 2 - 8, 16, 16, 20, PTC(240), PTC(64), PTC(240 + 15), PTC(64 + 15));
+            drawHotbar();
+            break;
+        }
+        case STATE_INVENTORY:
+        {
+            drawInventory();
+            break;
+        }
+        case STATE_PROGRAMMING:
+        {
+            drawProgrammingScreen(programmingComputer);
+            break;
+        }
+        case STATE_MENU:
+        {
+            drawMenu();
+            break;
+        }
+        case STATE_OPTIONS:
+        {
+            drawOptions(invertY, newGameSeed);
+            break;
+        }
+        case STATE_CREDITS:
+        {
+            drawCredits();
+            break;
+        }
+        case STATE_MANAGE_GAMES:
+        {
+            drawManageGamesMenu();
+            break;
+        }
+        case STATE_MANAGE_SELECTED_GAME:
+        {
+            drawManageSelectedGameMenu();
+            break;
+        }
     }
     glEnd();
 
@@ -666,6 +751,9 @@ int main(int argc, char **argv)
 
     initWorld(newGameSeed);
 
+    //See what saves exist
+    checkGamesPresent();
+
     if(argc > 1 && strcmp(argv[1], "-skipmenu") == 0)
     {
         state = STATE_GAME;
@@ -673,7 +761,7 @@ int main(int argc, char **argv)
     }
     else
     {
-        loadGame(SAVE_NAME);
+        loadGame(SAVE_BASENAME SAVE_EXTENSION);
     }
 
     //Run frames to build geometry for the first time etc.
@@ -741,7 +829,7 @@ int main(int argc, char **argv)
     else
     {
         //Normal exit, save game
-        saveGame(SAVE_NAME);
+        saveGame(SAVE_BASENAME SAVE_EXTENSION);
     }
 
     //Cleanup

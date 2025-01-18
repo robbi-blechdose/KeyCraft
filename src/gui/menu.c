@@ -18,32 +18,54 @@
 
 int8_t menuCursor = 0;
 int8_t optionsCursor = 0;
+int8_t manageGamesCursor = 0;
+int8_t manageSelectedGameCursor = 0;
 
 uint8_t menuFlags = 0;
 
+void scrollCursor(int8_t* cursor, int8_t dir, int8_t min, int8_t max)
+{
+    *cursor += dir;
+
+    if(*cursor < min)
+    {
+        *cursor = max;
+    }
+    else if(*cursor > max)
+    {
+        *cursor = min;
+    }
+
+    playSample(SFX_MENU);
+}
+
 const char* menuStrings[MENU_SIZE] = {
-    "Continue",
-    "New game",
-    "Options",
-    "Credits",
-    "Quit"
+    [MENU_SELECTION_CONTINUE] = "Continue",
+    [MENU_SELECTION_MANAGE_GAMES] = "Manage games",
+    [MENU_SELECTION_OPTIONS] = "Options",
+    [MENU_SELECTION_CREDITS] = "Credits",
+    [MENU_SELECTION_QUIT] = "Quit"
 };
 
-void drawTitle()
+void drawTitle(const char* subtitle)
 {
     glTextSize(GL_TEXT_SIZE16x16);
     glDrawText("KeyCraft", WINX / 2 - (8 * 16 / 2) + 2, 40 + 2, TEXT_BLACK);
     glDrawText("KeyCraft", WINX / 2 - (8 * 16 / 2), 40, TEXT_WHITE);
     glTextSize(GL_TEXT_SIZE8x8);
+
+    if(subtitle != NULL)
+    {
+        glDrawText(subtitle, CENTER(strlen(subtitle)), 60, TEXT_WHITE);
+    }
 }
 
 void drawMenu()
 {
-    drawTitle();
+    drawTitle(GAME_VERSION);
 
-    //Game version
-    glDrawText(GAME_VERSION, WINX / 2 - strlen(GAME_VERSION) * 8 / 2, 60, TEXT_WHITE);
-    
+    //TODO: redo handling of "nosave": replace "continue" with "new game" if no save is detected
+
     //Menu selections
     for(uint8_t i = 0; i < MENU_SIZE; i++)
     {
@@ -69,25 +91,13 @@ void drawMenu()
 
 void scrollMenu(int8_t dir)
 {
-    menuCursor += dir;
-
     uint8_t min = 0;
-
     if(menuFlags & (MENU_FLAG_NOSAVE | MENU_FLAG_LOADFAIL))
     {
         min++;
     }
 
-    if(menuCursor < min)
-    {
-        menuCursor = MENU_SIZE - 1;
-    }
-    else if(menuCursor >= MENU_SIZE)
-    {
-        menuCursor = min;
-    }
-
-    playSample(SFX_MENU);
+    scrollCursor(&menuCursor, dir, min, MENU_SIZE - 1);
 }
 
 int8_t getMenuCursor()
@@ -104,9 +114,73 @@ void setMenuFlag(uint8_t flag)
     }
 }
 
+void drawManageGamesMenu()
+{
+    drawTitle("Manage games");
+
+    //Draw save list
+    for(uint8_t i = 0; i < NUM_SAVES; i++)
+    {
+        char saveName[15 + 1];
+        char saveNameLength;
+        if(gamesPresent[i])
+        {
+            sprintf(saveName, "Save %02d", i + 1);
+            saveNameLength = 7;
+        }
+        else
+        {
+            sprintf(saveName, "Save %02d (Empty)", i + 1);
+            saveNameLength = 15;
+        }
+
+        glDrawText(saveName, CENTER(saveNameLength), 96 + i * 16, manageGamesCursor == i ? TEXT_YELLOW : TEXT_WHITE);
+    }
+
+    glDrawText("Back", CENTER(4), 96 + NUM_SAVES * 16, manageGamesCursor == MG_SELECTION_BACK ? TEXT_YELLOW : TEXT_WHITE);
+}
+
+void scrollManageGames(int8_t dir)
+{
+    scrollCursor(&manageGamesCursor, dir, 0, MG_SELECTION_BACK);
+}
+
+int8_t getManageGamesCursor()
+{
+    return manageGamesCursor;
+}
+
+const char* manageSelectedGameStrings[MSG_SIZE] = {
+    [MSG_SELECTION_LOAD_GAME] = "Load game",
+    [MSG_SELECTION_NEW_GAME] = "New game",
+    [MSG_SELECTION_BACK] = "Back"
+};
+
+void drawManageSelectedGameMenu()
+{
+    char subtitle[14 + 1];
+    sprintf(subtitle, "Manage Save %02d", manageGamesCursor + 1);
+    drawTitle(subtitle);
+
+    for(uint8_t i = 0; i < MSG_SIZE; i++)
+    {
+        glDrawText(manageSelectedGameStrings[i], CENTER(strlen(manageSelectedGameStrings[i])), 96 + i * 16, manageSelectedGameCursor == i ? TEXT_YELLOW : TEXT_WHITE);
+    }
+}
+
+void scrollManageSelectedGame(int8_t dir)
+{
+    scrollCursor(&manageSelectedGameCursor, dir, 0, MSG_SELECTION_BACK);
+}
+
+int8_t getManageSelectedGameCursor()
+{
+    return manageSelectedGameCursor;
+}
+
 void drawOptions(bool invertY, uint32_t seed)
 {
-    glDrawText("KeyCraft Options", CENTER(16), 64, TEXT_WHITE);
+    drawTitle("Options");
 
     char buffer[31];
     sprintf(buffer, "Invert Y: %s", invertY ? "On" : "Off");
@@ -120,18 +194,7 @@ void drawOptions(bool invertY, uint32_t seed)
 
 void scrollOptions(int8_t dir)
 {
-    optionsCursor += dir;
-
-    if(optionsCursor < 0)
-    {
-        optionsCursor = OPTIONS_SIZE - 1;
-    }
-    else if(optionsCursor >= OPTIONS_SIZE)
-    {
-        optionsCursor = 0;
-    }
-
-    playSample(SFX_MENU);
+    scrollCursor(&optionsCursor, dir, 0, OPTIONS_SIZE - 1);
 }
 
 int8_t getOptionsCursor()
@@ -156,7 +219,7 @@ const char* creditsLines[CREDITS_LINES] = {
 
 void drawCredits()
 {
-    drawTitle();
+    drawTitle(NULL);
 
     for(uint8_t i = 0; i < CREDITS_LINES; i++)
     {
