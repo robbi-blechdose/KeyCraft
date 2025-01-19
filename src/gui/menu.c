@@ -155,6 +155,8 @@ int8_t getManageGamesCursor()
     return manageGamesCursor;
 }
 
+//TODO: disable load button for empty saves
+
 const char* manageSelectedGameStrings[MSG_SIZE] = {
     [MSG_SELECTION_LOAD_GAME] = "Load game",
     [MSG_SELECTION_NEW_GAME] = "New game",

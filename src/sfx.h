@@ -12,4 +12,6 @@
 
 #define NUM_SFX                SFX_NOTEBLOCK_LAST
 
+void loadSFX();
+
 #endif

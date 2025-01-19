@@ -248,6 +248,14 @@ void calcFrameGame(Player* player, State* state, uint32_t ticks, bool invertY)
     calcWorld(&player->position, ticks);
 }
 
+void precalcGame(Player* player, State* state, uint32_t ticks, bool invertY)
+{
+    for(uint8_t i = 0; i < (VIEW_DISTANCE * VIEW_DISTANCE * VIEW_DISTANCE) / MAX_CHUNKS_PER_FRAME; i++)
+    {
+        calcFrameGame(player, state, 1, invertY);
+    }
+}
+
 void calcFrameInventory(State* state)
 {
     int8_t dirX = 0;

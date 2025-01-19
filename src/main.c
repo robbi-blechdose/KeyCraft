@@ -49,7 +49,6 @@ Player player;
 bool invertY = true;
 //TODO: each save will have to save its own seed
 uint32_t newGameSeed = 0;
-//TODO
 uint8_t gameIndex = 0;
 
 void saveOptions()
@@ -274,32 +273,30 @@ void calcFrame(uint32_t ticks)
                 {
                     case MSG_SELECTION_LOAD_GAME:
                     {
+                        gameIndex = getManageGamesCursor();
+
                         char saveName[SAVE_NAME_LENGTH + 1];
-                        getSaveNameForIndex(saveName, getManageGamesCursor());
+                        getSaveNameForIndex(saveName, gameIndex);
                         loadGame(saveName);
                         //TODO: we may have to do a little more work here?
-                        //Run frames to build geometry for the first time etc.
-                        for(uint8_t i = 0; i < (VIEW_DISTANCE * VIEW_DISTANCE * VIEW_DISTANCE) / MAX_CHUNKS_PER_FRAME; i++)
-                        {
-                            calcFrameGame(&player, &state, 1, invertY);
-                        }
+                        precalcGame(&player, &state, 1, invertY);
+
+                        state = STATE_GAME;
                         break;
                     }
                     case MSG_SELECTION_NEW_GAME:
                     {
-                        state = STATE_GAME;
+                        gameIndex = getManageGamesCursor();
 
                         //Destroy old game, initialize new one
                         quitWorld();
                         initWorld(newGameSeed);
                         player.position = (vec3) {0, 0, 0};
                         player.rotation = (vec3) {0, 0, 0};
-                        //TODO: reinit hotbar
-                        //Run frames to build geometry for the first time etc.
-                        for(uint8_t i = 0; i < (VIEW_DISTANCE * VIEW_DISTANCE * VIEW_DISTANCE) / MAX_CHUNKS_PER_FRAME; i++)
-                        {
-                            calcFrameGame(&player, &state, 1, invertY);
-                        }
+                        resetHotbar();
+                        precalcGame(&player, &state, 1, invertY);
+
+                        state = STATE_GAME;
                         break;
                     }
                     case MSG_SELECTION_BACK:
@@ -398,22 +395,7 @@ int main(int argc, char **argv)
     
     initAudio(MIX_MAX_VOLUME, 1, NUM_SFX);
     loadMusic(0, RESOURCE("res/mus/curiouscritters.ogg"));
-    loadSampleIndex(SFX_LEVER, RESOURCE("res/sfx/click20.ogg"));
-    loadSampleIndex(SFX_TNT, RESOURCE("res/sfx/explosion.ogg"));
-    loadSampleIndex(SFX_DOOR, RESOURCE("res/sfx/wooded_box_open.ogg"));
-    loadSampleIndex(SFX_MENU, RESOURCE("res/sfx/click1.ogg"));
-    loadSampleIndex(SFX_PRESSURE_PLATE, RESOURCE("res/sfx/click27.ogg"));
-    loadSampleIndex(SFX_PRESSURE_PLATE_OFF, RESOURCE("res/sfx/click28.ogg"));
-    //Noteblock notes
-    loadSampleIndex(SFX_NOTEBLOCK_0, RESOURCE("res/sfx/noteblock/key05.ogg"));
-    loadSampleIndex(SFX_NOTEBLOCK_0 + 1, RESOURCE("res/sfx/noteblock/key06.ogg"));
-    loadSampleIndex(SFX_NOTEBLOCK_0 + 2, RESOURCE("res/sfx/noteblock/key07.ogg"));
-    loadSampleIndex(SFX_NOTEBLOCK_0 + 3, RESOURCE("res/sfx/noteblock/key08.ogg"));
-    loadSampleIndex(SFX_NOTEBLOCK_0 + 4, RESOURCE("res/sfx/noteblock/key09.ogg"));
-    loadSampleIndex(SFX_NOTEBLOCK_0 + 5, RESOURCE("res/sfx/noteblock/key10.ogg"));
-    loadSampleIndex(SFX_NOTEBLOCK_0 + 6, RESOURCE("res/sfx/noteblock/key11.ogg"));
-    loadSampleIndex(SFX_NOTEBLOCK_0 + 7, RESOURCE("res/sfx/noteblock/key12.ogg"));
-    //Noteblock notes end
+    loadSFX();
     playMusic(0, 0);
 
     loadOptions();
@@ -424,6 +406,9 @@ int main(int argc, char **argv)
 
     //See what saves exist
     checkGamesPresent();
+    //Grab save index
+    gameIndex = loadGameIndex();
+    //TODO: set manage games cursor here?
 
     if(argc > 1 && strcmp(argv[1], "-skipmenu") == 0)
     {
@@ -432,14 +417,12 @@ int main(int argc, char **argv)
     }
     else
     {
-        loadGame(SAVE_BASENAME SAVE_EXTENSION);
+        char saveName[SAVE_NAME_LENGTH + 1];
+        getSaveNameForIndex(saveName, gameIndex);
+        loadGame(saveName);
     }
 
-    //Run frames to build geometry for the first time etc.
-    for(uint8_t i = 0; i < (VIEW_DISTANCE * VIEW_DISTANCE * VIEW_DISTANCE) / MAX_CHUNKS_PER_FRAME; i++)
-    {
-        calcFrameGame(&player, &state, 1, invertY);
-    }
+    precalcGame(&player, &state, 1, invertY);
 
     //Register signal handler for SIGUSR1 (closing the console)
 	signal(SIGUSR1, handleSigusr1);
@@ -500,8 +483,13 @@ int main(int argc, char **argv)
     else
     {
         //Normal exit, save game
-        saveGame(SAVE_BASENAME SAVE_EXTENSION);
+        char saveName[SAVE_NAME_LENGTH + 1];
+        getSaveNameForIndex(saveName, gameIndex);
+        saveGame(saveName);
     }
+    //Save the game index so we know which save to load
+    //In case of instant play, we also need the game index to know which game the instant play save belongs to
+    saveGameIndex(gameIndex);
 
     //Cleanup
     quitWorld();

@@ -33,7 +33,7 @@ void drawManageGamesMenu();
 void scrollManageGames(int8_t dir);
 int8_t getManageGamesCursor();
 
-//TODO: submenu to allow loading a save or overwriting it with a blank one - maybe move the seed here too then?
+//TODO: maybe move the seed here too?
 
 typedef enum {
     MSG_SELECTION_LOAD_GAME = 0,

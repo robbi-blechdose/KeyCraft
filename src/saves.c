@@ -30,3 +30,27 @@ void checkGamesPresent()
         gamesPresent[i] = doesGameExist(saveName);
     }
 }
+
+void saveGameIndex(uint8_t gameIndex)
+{
+    if(openSave(SAVE_FOLDER, GAME_INDEX_NAME, true))
+    {
+        writeElement(&gameIndex, sizeof(uint8_t));
+        closeSave();
+    }
+}
+
+uint8_t loadGameIndex()
+{
+    if(openSave(SAVE_FOLDER, GAME_INDEX_NAME, false))
+    {
+        uint8_t gameIndex;
+        readElement(&gameIndex, sizeof(uint8_t));
+        closeSave();
+        return gameIndex;
+    }
+    else
+    {
+        return 0;
+    }
+}

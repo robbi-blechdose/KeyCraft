@@ -13,7 +13,8 @@
 
 #define B(X) {(X), 0}
 
-Block hotbar[HOTBAR_SIZE] = {B(BLOCK_PLANKS), B(BLOCK_WOOD), B(BLOCK_COBBLESTONE)};
+#define HOTBAR_DEFAULT {B(BLOCK_PLANKS), B(BLOCK_WOOD), B(BLOCK_COBBLESTONE)}
+Block hotbar[HOTBAR_SIZE] = HOTBAR_DEFAULT;
 uint8_t hotbarCursor = 0;
 
 typedef struct {
@@ -204,5 +205,15 @@ void loadHotbar()
     for(uint8_t i = 0; i < HOTBAR_SIZE; i++)
     {
         readElement(&hotbar[i], sizeof(Block));
+    }
+}
+
+void resetHotbar()
+{
+    Block hotbarDefault[HOTBAR_SIZE] = HOTBAR_DEFAULT;
+
+    for(uint8_t i = 0; i < HOTBAR_SIZE; i++)
+    {
+        hotbar[i] = hotbarDefault[i];
     }
 }

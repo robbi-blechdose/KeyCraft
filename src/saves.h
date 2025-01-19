@@ -16,10 +16,15 @@
 //Provision for 2 digits of save index
 #define SAVE_NAME_LENGTH      strlen(SAVE_BASENAME) + 2 + strlen(SAVE_EXTENSION)
 
+#define GAME_INDEX_NAME       "gameindex.sav"
+
 #define OPTIONS_SAVE_NAME     "options.sav"
 
 extern bool gamesPresent[NUM_SAVES];
 void getSaveNameForIndex(char* buffer, uint8_t index);
 void checkGamesPresent();
+
+void saveGameIndex(uint8_t gameIndex);
+uint8_t loadGameIndex();
 
 #endif

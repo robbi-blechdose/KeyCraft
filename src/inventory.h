@@ -16,4 +16,6 @@ void selectInventorySlot();
 void saveHotbar();
 void loadHotbar();
 
+void resetHotbar();
+
 #endif

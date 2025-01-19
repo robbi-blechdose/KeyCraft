@@ -18,6 +18,13 @@ typedef enum {
 extern ComputerData* programmingComputer;
 
 void calcFrameGame(Player* player, State* state, uint32_t ticks, bool invertY);
+
+/**
+ * Run the game for enough frames to build all geometry.
+ * Used for game loading
+ */
+void precalcGame(Player* player, State* state, uint32_t ticks, bool invertY);
+
 void calcFrameInventory(State* state);
 void calcFrameProgramming(Player* player, State* state, uint32_t ticks);
 
