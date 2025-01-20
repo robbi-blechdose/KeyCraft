@@ -23,8 +23,6 @@
 
 #include "saves.h"
 
-//TODO: instant play needs to remember which save index it is!
-
 #define MAX_FPS 50
 
 #ifdef DEBUG
@@ -71,10 +69,15 @@ void loadOptions()
     }
 }
 
-//TODO: fix segfault on saving with no modified chunks!
-
 void saveGame(char* name)
 {
+    //Skip saving if the world is unmodified
+    //That means we lose the hotbar and player position, but that's a sacrifice I'm willing to make
+    if(isWorldUnmodified())
+    {
+        return;
+    }
+
     if(openSave(SAVE_FOLDER, name, true))
     {
         uint16_t saveVersion = SAVE_VERSION;

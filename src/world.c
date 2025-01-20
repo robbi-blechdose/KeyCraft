@@ -574,6 +574,11 @@ bool intersectsAABBWorld(AABB* aabb)
     return false;
 }
 
+bool isWorldUnmodified()
+{
+    return octreeEmpty(modifiedChunks);
+}
+
 void saveWorld()
 {
     writeElement(&chunkPos, sizeof(ChunkPos));

@@ -42,6 +42,7 @@ bool actWorldBlock(BlockPos* pos);
 AABBSide intersectsRayWorld(vec3* origin, vec3* direction, BlockPos* block, float* distance);
 bool intersectsAABBWorld(AABB* aabb);
 
+bool isWorldUnmodified();
 void saveWorld();
 void loadWorld();
 
