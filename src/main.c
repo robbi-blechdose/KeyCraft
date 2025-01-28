@@ -4,12 +4,12 @@
 #include <unistd.h>
 #include <stdbool.h>
 
-#include "engine/video.h"
-#include "engine/audio.h"
-#include "engine/input.h"
-#include "engine/camera.h"
-#include "engine/image.h"
-#include "engine/savegame.h"
+#include "fk-engine-core/video.h"
+#include "fk-engine-core/audio.h"
+#include "fk-engine-core/input.h"
+#include "fk-engine-core/camera.h"
+#include "fk-engine-core/image.h"
+#include "fk-engine-core/savegame.h"
 
 #include "player.h"
 #include "world.h"
@@ -48,6 +48,9 @@ bool invertY = true;
 //TODO: each save will have to save its own seed
 uint32_t newGameSeed = 0;
 uint8_t gameIndex = 0;
+
+//TODO: implement handling for load failures
+//TODO: implement "Continue" menu option having the save number ("Continue Game 02")
 
 void saveOptions()
 {
@@ -94,19 +97,18 @@ void loadGame(char* name)
 {
     if(openSave(SAVE_FOLDER, name, false))
     {
-        uint16_t saveVersion;
-        readElement(&saveVersion, sizeof(uint16_t));
-
-        if(saveVersion / 10 == SAVE_VERSION / 10)
-        {
-            loadPlayer(&player);
-            loadHotbar();
-            loadWorld();
-        }
-        else
+        SaveVersionCompat svc = readSaveVersionCompat();
+        if(svc == SV_COMPAT_NONE)
         {
             setMenuFlag(MENU_FLAG_LOADFAIL);
+            closeSave();
+            return;
         }
+
+        loadPlayer(&player);
+        loadHotbar();
+        loadWorld(svc);
+
         closeSave();
     }
     else

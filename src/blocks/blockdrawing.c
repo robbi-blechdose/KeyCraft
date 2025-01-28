@@ -2,8 +2,8 @@
 
 #include <GL/gl.h>
 
-#include "../engine/includes/3dMath.h"
-#include "../engine/image.h"
+#include "../fk-engine-core/includes/3dMath.h"
+#include "../fk-engine-core/image.h"
 
 #define glVectorV3(vec) glVertex3f((vec).x, (vec).y, (vec).z)
 

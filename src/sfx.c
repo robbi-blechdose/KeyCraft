@@ -1,7 +1,7 @@
 #include "sfx.h"
 
-#include "engine/audio.h"
-#include "engine/util.h"
+#include "fk-engine-core/audio.h"
+#include "fk-engine-core/util.h"
 
 void loadSFX()
 {

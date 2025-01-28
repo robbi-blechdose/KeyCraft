@@ -6,7 +6,22 @@
 
 #define SAVE_FOLDER           ".keycraft"
 
-#define SAVE_VERSION          41
+//Save version: Last digit is minor (only additions, requires default values for old files),
+//              Front digits are major (requires old loading logic to migrate)
+#define SAVE_VERSION  41
+
+typedef enum {
+    SV_COMPAT_NONE = 0,
+    SV_COMPAT_MAJOR,
+    SV_COMPAT_MINOR,
+    SV_COMPAT_OK
+} SaveVersionCompat;
+
+/**
+ * Requires a save to be open
+ * Must be the first read on that save
+ */
+SaveVersionCompat readSaveVersionCompat();
 
 #define INSTANTPLAY_SAVE_NAME "instantplay.sav"
 

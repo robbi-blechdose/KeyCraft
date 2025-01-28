@@ -2,7 +2,30 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "engine/savegame.h"
+#include "fk-engine-core/savegame.h"
+
+SaveVersionCompat readSaveVersionCompat()
+{
+    uint16_t saveVersion;
+    readElement(&saveVersion, sizeof(uint16_t));
+
+    if(saveVersion == SAVE_VERSION)
+    {
+        return SV_COMPAT_OK;
+    }
+    else if(saveVersion / 10 == SAVE_VERSION / 10)
+    {
+        return SV_COMPAT_MINOR;
+    }
+    else if(saveVersion / 10 == (SAVE_VERSION / 10) - 1)
+    {
+        return SV_COMPAT_MAJOR;
+    }
+    else
+    {
+        return SV_COMPAT_NONE;
+    }
+}
 
 bool gamesPresent[NUM_SAVES];
 

@@ -1,11 +1,11 @@
 #include "chunk.h"
 
-#include "engine/savegame.h"
+#include "fk-engine-core/savegame.h"
 
 #include "world.h"
 #include "blocks/blockaabbs.h"
 
-#include "engine/audio.h"
+#include "fk-engine-core/audio.h"
 #include "sfx.h"
 
 bool isWorldBlockOpaque(Chunk* chunk, uint8_t i, uint8_t j, uint8_t k)

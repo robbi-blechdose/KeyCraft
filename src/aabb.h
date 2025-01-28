@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#include "engine/includes/3dMath.h"
+#include "fk-engine-core/includes/3dMath.h"
 
 typedef struct {
     vec3 min;

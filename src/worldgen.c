@@ -3,8 +3,8 @@
 #include <stdlib.h>
 
 #define FNL_IMPL
-#include "engine/includes/FastNoiseLite.h"
-#include "engine/util.h"
+#include "fk-engine-core/includes/FastNoiseLite.h"
+#include "fk-engine-core/util.h"
 
 #define TREE_SIZE             5
 #define TREE_HEIGHT           6

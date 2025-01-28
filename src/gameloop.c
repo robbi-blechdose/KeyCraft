@@ -1,6 +1,6 @@
 #include "gameloop.h"
 
-#include "engine/input.h"
+#include "fk-engine-core/input.h"
 
 #include "world.h"
 #include "blocks/blockutils.h"

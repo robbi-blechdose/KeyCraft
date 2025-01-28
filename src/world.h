@@ -4,12 +4,13 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "engine/includes/3dMath.h"
+#include "fk-engine-core/includes/3dMath.h"
 
 #include "blocks/blockutils.h"
 #include "blocks/block.h"
 #include "aabb.h"
 #include "chunk.h"
+#include "saves.h"
 
 //View distance in chunks
 #define VIEW_DISTANCE 5
@@ -44,6 +45,6 @@ bool intersectsAABBWorld(AABB* aabb);
 
 bool isWorldUnmodified();
 void saveWorld();
-void loadWorld();
+void loadWorld(SaveVersionCompat svc);
 
 #endif

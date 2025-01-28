@@ -3,8 +3,8 @@
 #include <stdbool.h>
 #include <GL/gl.h>
 
-#include "../engine/video.h"
-#include "../engine/image.h"
+#include "../fk-engine-core/video.h"
+#include "../fk-engine-core/image.h"
 
 #define UIBH 20
 

@@ -1,7 +1,7 @@
 #include "world.h"
 
-#include "engine/image.h"
-#include "engine/savegame.h"
+#include "fk-engine-core/image.h"
+#include "fk-engine-core/savegame.h"
 
 #include "chunk.h"
 #include "worldgen.h"
@@ -603,7 +603,7 @@ void saveWorld()
     writeElement(&seed, sizeof(uint32_t));
 }
 
-void loadWorld()
+void loadWorld(SaveVersionCompat svc)
 {
     readElement(&chunkPos, sizeof(ChunkPos));
 
@@ -643,11 +643,14 @@ void loadWorld()
         }
     }
 
-    readElement(&seed, sizeof(uint32_t));
-    //TODO: remove this check - it's for compat reasons only
-    if(false) //TODO: figure out how to check for old versions
+    if(svc == SV_COMPAT_OK)
+    {
+        readElement(&seed, sizeof(uint32_t));
+    }
+    else if(svc == SV_COMPAT_MINOR)
     {
         seed = 0;
     }
+    //TODO: we probably should reinit the worldgen with the correct seed
 
 }

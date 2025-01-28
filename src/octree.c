@@ -5,7 +5,7 @@
 #include <stdio.h>
 #endif
 
-#include "engine/savegame.h"
+#include "fk-engine-core/savegame.h"
 
 #define OCTREE_ACCESS(x, y, z) octree->children[(x) + (y) * 2 + (z) * 4]
 

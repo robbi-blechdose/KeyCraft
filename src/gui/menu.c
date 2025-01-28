@@ -3,8 +3,8 @@
 #include <GL/gl.h>
 #include <stdio.h>
 
-#include "../engine/video.h"
-#include "../engine/audio.h"
+#include "../fk-engine-core/video.h"
+#include "../fk-engine-core/audio.h"
 
 #include "../sfx.h"
 #include "../version.h"

@@ -1,0 +1,3 @@
+[submodule "src/fk-engine-core"]
+	path = src/fk-engine-core
+	url = git@github.com:robbi-blechdose/fk-engine-core.git

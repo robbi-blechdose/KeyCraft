@@ -1,7 +1,7 @@
 #include "player.h"
 
-#include "engine/util.h"
-#include "engine/savegame.h"
+#include "fk-engine-core/util.h"
+#include "fk-engine-core/savegame.h"
 
 #include "world.h"
 #include "chunk.h"

@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <GL/gl.h>
 
-#include "engine/includes/3dMath.h"
+#include "fk-engine-core/includes/3dMath.h"
 
 #include "blocks/block.h"
 #include "aabb.h"

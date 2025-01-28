@@ -1,7 +1,7 @@
 #include "blocklogic.h"
 
-#include "../engine/util.h"
-#include "../engine/audio.h"
+#include "../fk-engine-core/util.h"
+#include "../fk-engine-core/audio.h"
 
 #include "../world.h"
 #include "blockutils.h"

@@ -1,9 +1,9 @@
 #include "inventory.h"
 
-#include "engine/image.h"
-#include "engine/video.h"
-#include "engine/util.h"
-#include "engine/savegame.h"
+#include "fk-engine-core/image.h"
+#include "fk-engine-core/video.h"
+#include "fk-engine-core/util.h"
+#include "fk-engine-core/savegame.h"
 
 #define HOTBAR_SIZE 3
 
