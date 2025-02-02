@@ -17,6 +17,7 @@
 #include "blocks/block.h"
 #include "inventory.h"
 #include "gui/menu.h"
+#include "gui/savemenus.h"
 #include "sfx.h"
 #include "gui/programming.h"
 #include "gameloop.h"
@@ -234,31 +235,7 @@ void calcFrame(uint32_t ticks)
         }
         case STATE_MANAGE_GAMES:
         {
-            if(keyUp(B_UP))
-            {
-                scrollManageGames(-1);
-            }
-            else if(keyUp(B_DOWN))
-            {
-                scrollManageGames(1);
-            }
-
-            if(keyUp(B_A))
-            {
-                switch(getManageGamesCursor())
-                {
-                    case MG_SELECTION_BACK:
-                    {
-                        state = STATE_MENU;
-                        break;
-                    }
-                    default:
-                    {
-                        state = STATE_MANAGE_SELECTED_GAME;
-                        break;
-                    }
-                }
-            }
+            calcFrameManageGamesMenu(&state);
             break;
         }
         case STATE_MANAGE_SELECTED_GAME:
@@ -278,7 +255,7 @@ void calcFrame(uint32_t ticks)
                 {
                     case MSG_SELECTION_LOAD_GAME:
                     {
-                        gameIndex = getManageGamesCursor();
+                        gameIndex = manageGamesCursor;
 
                         char saveName[SAVE_NAME_LENGTH + 1];
                         getSaveNameForIndex(saveName, gameIndex);
@@ -291,7 +268,7 @@ void calcFrame(uint32_t ticks)
                     }
                     case MSG_SELECTION_NEW_GAME:
                     {
-                        gameIndex = getManageGamesCursor();
+                        gameIndex = manageGamesCursor;
 
                         //Destroy old game, initialize new one
                         quitWorld();
@@ -413,7 +390,7 @@ int main(int argc, char **argv)
     checkGamesPresent();
     //Grab save index
     gameIndex = loadGameIndex();
-    //TODO: set manage games cursor here?
+    manageGamesCursor = gameIndex;
 
     if(argc > 1 && strcmp(argv[1], "-skipmenu") == 0)
     {

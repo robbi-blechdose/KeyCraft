@@ -5,26 +5,13 @@
 
 #include "../fk-engine-core/video.h"
 #include "../fk-engine-core/audio.h"
+#include "../fk-engine-core/text.h"
 
 #include "../sfx.h"
 #include "../version.h"
 
-//TODO: unify and move somewhere else
-
-/**
- * Macro for centering text
- * X is the length of the text
- * Note: X * 8 / 2 = X * 4
- **/
-#define CENTER(X) (WINX / 2 - (X) * 4)
-
-//Fixes warnings for string literals
-#define glDrawText(text, x, y, pixel) glDrawText((const GLubyte*) (text), (x), (y), (pixel))
-
 int8_t menuCursor = 0;
 int8_t optionsCursor = 0;
-int8_t manageGamesCursor = 0;
-int8_t manageSelectedGameCursor = 0;
 
 uint8_t menuFlags = 0;
 
@@ -61,7 +48,7 @@ void drawTitle(const char* subtitle)
 
     if(subtitle != NULL)
     {
-        glDrawText(subtitle, CENTER(strlen(subtitle)), 60, TEXT_WHITE);
+        glDrawText(subtitle, CENTER_TEXT(strlen(subtitle)), 60, TEXT_WHITE);
     }
 }
 
@@ -82,16 +69,16 @@ void drawMenu()
             }
             else if(menuFlags & MENU_FLAG_LOADFAIL)
             {
-                glDrawText("Failed to load save.", CENTER(20), 96 + i * 16, TEXT_WHITE);
+                glDrawTextCentered("Failed to load save.", 96 + i * 16, TEXT_WHITE);
                 continue;
             }
         }
-        glDrawText(menuStrings[i], CENTER(strlen(menuStrings[i])), 96 + i * 16, menuCursor == i ? TEXT_YELLOW : TEXT_WHITE);
+        glDrawTextCentered(menuStrings[i], 96 + i * 16, menuCursor == i ? TEXT_YELLOW : TEXT_WHITE);
     }
 
     //Author notice
-    glDrawText("2022 - 2025", CENTER(11), 240 - 32, TEXT_WHITE);
-    glDrawText("Robbi Blechdose", CENTER(15), 240 - 20, TEXT_WHITE);
+    glDrawTextCentered("2022 - 2025", 240 - 32, TEXT_WHITE);
+    glDrawTextCentered("Robbi Blechdose", 240 - 20, TEXT_WHITE);
 }
 
 void scrollMenu(int8_t dir)
@@ -119,84 +106,18 @@ void setMenuFlag(uint8_t flag)
     }
 }
 
-void drawManageGamesMenu()
-{
-    drawTitle("Manage games");
-
-    //Draw save list
-    for(uint8_t i = 0; i < NUM_SAVES; i++)
-    {
-        char saveName[15 + 1];
-        char saveNameLength;
-        if(gamesPresent[i])
-        {
-            sprintf(saveName, "Save %02d", i + 1);
-            saveNameLength = 7;
-        }
-        else
-        {
-            sprintf(saveName, "Save %02d (Empty)", i + 1);
-            saveNameLength = 15;
-        }
-
-        glDrawText(saveName, CENTER(saveNameLength), 96 + i * 16, manageGamesCursor == i ? TEXT_YELLOW : TEXT_WHITE);
-    }
-
-    glDrawText("Back", CENTER(4), 96 + NUM_SAVES * 16, manageGamesCursor == MG_SELECTION_BACK ? TEXT_YELLOW : TEXT_WHITE);
-}
-
-void scrollManageGames(int8_t dir)
-{
-    scrollCursor(&manageGamesCursor, dir, 0, MG_SELECTION_BACK);
-}
-
-int8_t getManageGamesCursor()
-{
-    return manageGamesCursor;
-}
-
-//TODO: disable load button for empty saves
-
-const char* manageSelectedGameStrings[MSG_SIZE] = {
-    [MSG_SELECTION_LOAD_GAME] = "Load game",
-    [MSG_SELECTION_NEW_GAME] = "New game",
-    [MSG_SELECTION_BACK] = "Back"
-};
-
-void drawManageSelectedGameMenu()
-{
-    char subtitle[14 + 1];
-    sprintf(subtitle, "Manage Save %02d", manageGamesCursor + 1);
-    drawTitle(subtitle);
-
-    for(uint8_t i = 0; i < MSG_SIZE; i++)
-    {
-        glDrawText(manageSelectedGameStrings[i], CENTER(strlen(manageSelectedGameStrings[i])), 96 + i * 16, manageSelectedGameCursor == i ? TEXT_YELLOW : TEXT_WHITE);
-    }
-}
-
-void scrollManageSelectedGame(int8_t dir)
-{
-    scrollCursor(&manageSelectedGameCursor, dir, 0, MSG_SELECTION_BACK);
-}
-
-int8_t getManageSelectedGameCursor()
-{
-    return manageSelectedGameCursor;
-}
-
 void drawOptions(bool invertY, uint32_t seed)
 {
     drawTitle("Options");
 
     char buffer[31];
     sprintf(buffer, "Invert Y: %s", invertY ? "On" : "Off");
-    glDrawText(buffer, CENTER(strlen(buffer)), 96, optionsCursor == 0 ? TEXT_YELLOW : TEXT_WHITE);
+    glDrawTextCentered(buffer, 96, optionsCursor == 0 ? TEXT_YELLOW : TEXT_WHITE);
 
     sprintf(buffer, "Seed: %d", seed);
-    glDrawText(buffer, CENTER(strlen(buffer)), 96 + 16, optionsCursor == 1 ? TEXT_YELLOW : TEXT_WHITE);
+    glDrawTextCentered(buffer, 96 + 16, optionsCursor == 1 ? TEXT_YELLOW : TEXT_WHITE);
 
-    glDrawText("Back", CENTER(4), 96 + 16 * 2, optionsCursor == 2 ? TEXT_YELLOW : TEXT_WHITE);
+    glDrawTextCentered("Back", 96 + 16 * 2, optionsCursor == 2 ? TEXT_YELLOW : TEXT_WHITE);
 }
 
 void scrollOptions(int8_t dir)
@@ -230,6 +151,6 @@ void drawCredits()
 
     for(uint8_t i = 0; i < CREDITS_LINES; i++)
     {
-        glDrawText(creditsLines[i], CENTER(strlen(creditsLines[i])), 64 + i * 16, TEXT_WHITE);
+        glDrawTextCentered(creditsLines[i], 64 + i * 16, TEXT_WHITE);
     }
 }

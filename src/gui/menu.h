@@ -4,7 +4,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../saves.h"
+void scrollCursor(int8_t* cursor, int8_t dir, int8_t min, int8_t max);
+void drawTitle(const char* subtitle);
 
 typedef enum {
     MENU_SELECTION_CONTINUE = 0,
@@ -23,28 +24,6 @@ int8_t getMenuCursor();
 #define MENU_FLAG_LOADFAIL 0b00000010
 
 void setMenuFlag(uint8_t flag);
-
-typedef enum {
-    MG_SELECTION_LOAD_GAME0 = 0,
-    MG_SELECTION_BACK = (MG_SELECTION_LOAD_GAME0 + NUM_SAVES)
-} ManageGamesSelection;
-
-void drawManageGamesMenu();
-void scrollManageGames(int8_t dir);
-int8_t getManageGamesCursor();
-
-//TODO: maybe move the seed here too?
-
-typedef enum {
-    MSG_SELECTION_LOAD_GAME = 0,
-    MSG_SELECTION_NEW_GAME,
-    MSG_SELECTION_BACK,
-    MSG_SIZE
-} ManageSelectedGameSelection;
-
-void drawManageSelectedGameMenu();
-void scrollManageSelectedGame(int8_t dir);
-int8_t getManageSelectedGameCursor();
 
 #define OPTIONS_SIZE 3
 #define OPTION_SELECTION_INVERTY 0
