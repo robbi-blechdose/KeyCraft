@@ -6,6 +6,7 @@
 #include "../fk-engine-core/video.h"
 #include "../fk-engine-core/audio.h"
 #include "../fk-engine-core/text.h"
+#include "../fk-engine-core/input.h"
 
 #include "../sfx.h"
 #include "../version.h"
@@ -31,6 +32,7 @@ void scrollCursor(int8_t* cursor, int8_t dir, int8_t min, int8_t max)
     playSample(SFX_MENU);
 }
 
+const char* menuStringNewGame = "New game";
 const char* menuStrings[MENU_SIZE] = {
     [MENU_SELECTION_CONTINUE] = "Continue",
     [MENU_SELECTION_MANAGE_GAMES] = "Manage games",
@@ -56,45 +58,32 @@ void drawMenu()
 {
     drawTitle(GAME_VERSION);
 
-    //TODO: redo handling of "nosave": replace "continue" with "new game" if no save is detected
-
     //Menu selections
     for(uint8_t i = 0; i < MENU_SIZE; i++)
     {
+        //TODO: remove old handling fully
+        /**
         if(i == MENU_SELECTION_CONTINUE)
         {
-            if(menuFlags & MENU_FLAG_NOSAVE)
-            {
-                continue;
-            }
-            else if(menuFlags & MENU_FLAG_LOADFAIL)
+            if(menuFlags & MENU_FLAG_LOADFAIL)
             {
                 glDrawTextCentered("Failed to load save.", 96 + i * 16, TEXT_WHITE);
                 continue;
             }
+        }**/
+        if(i == MENU_SELECTION_CONTINUE && (menuFlags & MENU_FLAG_NOSAVE))
+        {
+            glDrawTextCentered(menuStringNewGame, 96 + i * 16, menuCursor == i ? TEXT_YELLOW : TEXT_WHITE);
         }
-        glDrawTextCentered(menuStrings[i], 96 + i * 16, menuCursor == i ? TEXT_YELLOW : TEXT_WHITE);
+        else
+        {
+            glDrawTextCentered(menuStrings[i], 96 + i * 16, menuCursor == i ? TEXT_YELLOW : TEXT_WHITE);
+        }
     }
 
     //Author notice
     glDrawTextCentered("2022 - 2025", 240 - 32, TEXT_WHITE);
     glDrawTextCentered("robbi-blechdose", 240 - 20, TEXT_WHITE);
-}
-
-void scrollMenu(int8_t dir)
-{
-    uint8_t min = 0;
-    if(menuFlags & (MENU_FLAG_NOSAVE | MENU_FLAG_LOADFAIL))
-    {
-        min++;
-    }
-
-    scrollCursor(&menuCursor, dir, min, MENU_SIZE - 1);
-}
-
-int8_t getMenuCursor()
-{
-    return menuCursor;
 }
 
 void setMenuFlag(uint8_t flag)
@@ -103,6 +92,54 @@ void setMenuFlag(uint8_t flag)
     if((flag == MENU_FLAG_NOSAVE || flag == MENU_FLAG_LOADFAIL) && menuCursor == 0)
     {
         menuCursor = 1;
+    }
+}
+
+void calcFrameMenu(State* state, bool* running, Player* player, uint32_t newGameSeed, bool invertY)
+{
+    if(keyUp(B_UP))
+    {
+        scrollCursor(&menuCursor, -1, 0, MENU_SIZE - 1);
+    }
+    else if(keyUp(B_DOWN))
+    {
+        scrollCursor(&menuCursor, 1, 0, MENU_SIZE - 1);
+    }
+    
+    if(keyUp(B_START) || keyUp(B_A))
+    {
+        switch(menuCursor)
+        {
+            case MENU_SELECTION_CONTINUE:
+            {
+                if(menuFlags & MENU_FLAG_NOSAVE)
+                {
+                    newGame(player, newGameSeed);
+                }
+                *state = STATE_GAME;
+                break;
+            }
+            case MENU_SELECTION_MANAGE_GAMES:
+            {
+                *state = STATE_MANAGE_GAMES;
+                break;
+            }
+            case MENU_SELECTION_OPTIONS:
+            {
+                *state = STATE_OPTIONS;
+                break;
+            }
+            case MENU_SELECTION_CREDITS:
+            {
+                *state = STATE_CREDITS;
+                break;
+            }
+            case MENU_SELECTION_QUIT:
+            {
+                *running = false;
+                break;
+            }
+        }
     }
 }
 

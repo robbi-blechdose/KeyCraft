@@ -576,6 +576,21 @@ bool intersectsAABBWorld(AABB* aabb)
 
 bool isWorldUnmodified()
 {
+    //Check all chunks in view distance
+    for(uint8_t i = 0; i < VIEW_DISTANCE; i++)
+    {
+        for(uint8_t j = 0; j < VIEW_DISTANCE; j++)
+        {
+            for(uint8_t k = 0; k < VIEW_DISTANCE; k++)
+            {
+                if(!CHUNK_GET_FLAG(VIEW_CHUNK(i, j, k), CHUNK_IS_INITIAL))
+                {
+                    return false;
+                }
+            }
+        }
+    }
+    //Check octree
     return octreeEmpty(modifiedChunks);
 }
 

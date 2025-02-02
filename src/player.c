@@ -6,6 +6,8 @@
 #include "world.h"
 #include "chunk.h"
 
+//TODO: move player variable here?
+
 void calcAcceleration(float* var, int8_t dir, uint32_t ticks)
 {
     if(dir != 0)

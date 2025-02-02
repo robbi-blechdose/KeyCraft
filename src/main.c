@@ -73,95 +73,6 @@ void loadOptions()
     }
 }
 
-void saveGame(char* name)
-{
-    //Skip saving if the world is unmodified
-    //That means we lose the hotbar and player position, but that's a sacrifice I'm willing to make
-    if(isWorldUnmodified())
-    {
-        return;
-    }
-
-    if(openSave(SAVE_FOLDER, name, true))
-    {
-        uint16_t saveVersion = SAVE_VERSION;
-        writeElement(&saveVersion, sizeof(uint16_t));
-
-        savePlayer(&player);
-        saveHotbar();
-        saveWorld();
-        closeSave();
-    }
-}
-
-void loadGame(char* name)
-{
-    if(openSave(SAVE_FOLDER, name, false))
-    {
-        SaveVersionCompat svc = readSaveVersionCompat();
-        if(svc == SV_COMPAT_NONE)
-        {
-            setMenuFlag(MENU_FLAG_LOADFAIL);
-            closeSave();
-            return;
-        }
-
-        loadPlayer(&player);
-        loadHotbar();
-        loadWorld(svc);
-
-        closeSave();
-    }
-    else
-    {
-        setMenuFlag(MENU_FLAG_NOSAVE);
-    }
-}
-
-void calcFrameMenu()
-{
-    if(keyUp(B_UP))
-    {
-        scrollMenu(-1);
-    }
-    else if(keyUp(B_DOWN))
-    {
-        scrollMenu(1);
-    }
-    
-    if(keyUp(B_START) || keyUp(B_A))
-    {
-        switch(getMenuCursor())
-        {
-            case MENU_SELECTION_CONTINUE:
-            {
-                state = STATE_GAME;
-                break;
-            }
-            case MENU_SELECTION_MANAGE_GAMES:
-            {
-                state = STATE_MANAGE_GAMES;
-                break;
-            }
-            case MENU_SELECTION_OPTIONS:
-            {
-                state = STATE_OPTIONS;
-                break;
-            }
-            case MENU_SELECTION_CREDITS:
-            {
-                state = STATE_CREDITS;
-                break;
-            }
-            case MENU_SELECTION_QUIT:
-            {
-                running = false;
-                break;
-            }
-        }
-    }
-}
-
 void calcFrame(uint32_t ticks)
 {
     switch(state)
@@ -178,7 +89,7 @@ void calcFrame(uint32_t ticks)
         }
         case STATE_MENU:
         {
-            calcFrameMenu();
+            calcFrameMenu(&state, &running, &player, newGameSeed, invertY);
             break;
         }
         case STATE_OPTIONS:
@@ -259,9 +170,9 @@ void calcFrame(uint32_t ticks)
 
                         char saveName[SAVE_NAME_LENGTH + 1];
                         getSaveNameForIndex(saveName, gameIndex);
-                        loadGame(saveName);
+                        loadGame(saveName, &player);
                         //TODO: we may have to do a little more work here?
-                        precalcGame(&player, &state, 1, invertY);
+                        precalcGame(&player, 1);
 
                         state = STATE_GAME;
                         break;
@@ -271,13 +182,7 @@ void calcFrame(uint32_t ticks)
                         gameIndex = manageGamesCursor;
 
                         //Destroy old game, initialize new one
-                        quitWorld();
-                        initWorld(newGameSeed);
-                        player.position = (vec3) {0, 0, 0};
-                        player.rotation = (vec3) {0, 0, 0};
-                        resetHotbar();
-                        precalcGame(&player, &state, 1, invertY);
-
+                        newGame(&player, newGameSeed);
                         state = STATE_GAME;
                         break;
                     }
@@ -390,21 +295,33 @@ int main(int argc, char **argv)
     checkGamesPresent();
     //Grab save index
     gameIndex = loadGameIndex();
-    manageGamesCursor = gameIndex;
 
     if(argc > 1 && strcmp(argv[1], "-skipmenu") == 0)
     {
         state = STATE_GAME;
-        loadGame(INSTANTPLAY_SAVE_NAME);
+        loadGame(INSTANTPLAY_SAVE_NAME, &player);
+        //If we have no save index but an instant play save, assume it's for game 0
+        if(gameIndex == GAME_INDEX_NONE)
+        {
+            gameIndex = 0;
+        }
     }
-    else
+    else if(gameIndex != GAME_INDEX_NONE)
     {
         char saveName[SAVE_NAME_LENGTH + 1];
         getSaveNameForIndex(saveName, gameIndex);
-        loadGame(saveName);
+        loadGame(saveName, &player);
     }
 
-    precalcGame(&player, &state, 1, invertY);
+    if(gameIndex == GAME_INDEX_NONE)
+    {
+        //No save stored, switch the menu from "continue" to "new game"
+        setMenuFlag(MENU_FLAG_NOSAVE);
+        gameIndex = 0;
+    }
+    manageGamesCursor = gameIndex;
+
+    precalcGame(&player, 1);
 
     //Register signal handler for SIGUSR1 (closing the console)
 	signal(SIGUSR1, handleSigusr1);
@@ -445,6 +362,7 @@ int main(int argc, char **argv)
 		tLastFrame = tNow;
     }
 
+    SaveResult sr;
     if(quickSaveAndPoweroff)
     {
         //Console is closed, perform instant play save
@@ -455,7 +373,7 @@ int main(int argc, char **argv)
         {
             pclose(fp);
 
-            saveGame(INSTANTPLAY_SAVE_NAME);
+            sr = saveGame(INSTANTPLAY_SAVE_NAME, &player);
 
             //Perform instant play save
             execlp(SHELL_CMD_INSTANT_PLAY, SHELL_CMD_INSTANT_PLAY, "save", programName, "-skipmenu", NULL);
@@ -467,11 +385,15 @@ int main(int argc, char **argv)
         //Normal exit, save game
         char saveName[SAVE_NAME_LENGTH + 1];
         getSaveNameForIndex(saveName, gameIndex);
-        saveGame(saveName);
+        sr = saveGame(saveName, &player);
     }
     //Save the game index so we know which save to load
     //In case of instant play, we also need the game index to know which game the instant play save belongs to
-    saveGameIndex(gameIndex);
+    if(sr == SR_OK)
+    {
+        saveGameIndex(gameIndex);
+    }
+    printf("%d\n", sr);
 
     //Cleanup
     quitWorld();

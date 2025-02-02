@@ -4,7 +4,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define SAVE_FOLDER           ".keycraft"
+#include "player.h"
+
+#define SAVE_FOLDER ".keycraft"
 
 //Save version: Last digit is minor (only additions, requires default values for old files),
 //              Front digits are major (requires old loading logic to migrate)
@@ -39,7 +41,23 @@ extern bool gamesPresent[NUM_SAVES];
 void getSaveNameForIndex(char* buffer, uint8_t index);
 void checkGamesPresent();
 
+#define GAME_INDEX_NONE 255
 void saveGameIndex(uint8_t gameIndex);
 uint8_t loadGameIndex();
+
+typedef enum {
+    SR_OK,
+    SR_FAIL_OPEN,
+    SR_NOCHANGE
+} SaveResult;
+
+typedef enum {
+    LR_OK,
+    LR_FAIL_OPEN,
+    LR_FAIL_SVC
+} LoadResult;
+
+SaveResult saveGame(char* name, Player* player);
+LoadResult loadGame(char* name, Player* player);
 
 #endif

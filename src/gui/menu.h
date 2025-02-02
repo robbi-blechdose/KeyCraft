@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "../gameloop.h"
+
 void scrollCursor(int8_t* cursor, int8_t dir, int8_t min, int8_t max);
 void drawTitle(const char* subtitle);
 
@@ -17,13 +19,13 @@ typedef enum {
 } MenuSelection;
 
 void drawMenu();
-void scrollMenu(int8_t dir);
-int8_t getMenuCursor();
 
 #define MENU_FLAG_NOSAVE   0b00000001
 #define MENU_FLAG_LOADFAIL 0b00000010
 
 void setMenuFlag(uint8_t flag);
+
+void calcFrameMenu(State* state, bool* running, Player* player, uint32_t newGameSeed, bool invertY);
 
 #define OPTIONS_SIZE 3
 #define OPTION_SELECTION_INVERTY 0
