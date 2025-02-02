@@ -78,7 +78,7 @@ void drawMenu()
 
     //Author notice
     glDrawTextCentered("2022 - 2025", 240 - 32, TEXT_WHITE);
-    glDrawTextCentered("Robbi Blechdose", 240 - 20, TEXT_WHITE);
+    glDrawTextCentered("robbi-blechdose", 240 - 20, TEXT_WHITE);
 }
 
 void scrollMenu(int8_t dir)
@@ -134,7 +134,7 @@ int8_t getOptionsCursor()
 
 const char* creditsLines[CREDITS_LINES] = {
     "Programming and Graphics:",
-    "Robbi Blechdose",
+    "robbi-blechdose",
     "Music:",
     "Curious Critters",
     "  by Matthew Pablo",

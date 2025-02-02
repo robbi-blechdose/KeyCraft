@@ -5,20 +5,9 @@
 
 #include "../fk-engine-core/video.h"
 #include "../fk-engine-core/image.h"
+#include "../fk-engine-core/text.h"
 
 #define UIBH 20
-
-//TODO: unify and move somewhere else
-
-/**
- * Macro for centering text
- * X is the length of the text
- * Note: X * 8 / 2 = X * 4
- **/
-#define CENTER(X) (WINX / 2 - (X) * 4)
-
-//Fixes warnings for string literals
-#define glDrawText(text, x, y, pixel) glDrawText((const GLubyte*) (text), (x), (y), (pixel))
 
 #define TEXT_PROGRAM          0x7BCE00
 #define TEXT_PROGRAM_SELECTED 0xEBDF00

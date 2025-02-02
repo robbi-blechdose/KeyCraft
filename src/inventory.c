@@ -4,6 +4,7 @@
 #include "fk-engine-core/video.h"
 #include "fk-engine-core/util.h"
 #include "fk-engine-core/savegame.h"
+#include "fk-engine-core/text.h"
 
 #define HOTBAR_SIZE 3
 
