@@ -23,6 +23,7 @@
 #include "gameloop.h"
 
 #include "saves.h"
+#include "gui/popup.h"
 
 #define MAX_FPS 50
 
@@ -49,9 +50,6 @@ bool invertY = true;
 //TODO: each save will have to save its own seed
 uint32_t newGameSeed = 0;
 uint8_t gameIndex = 0;
-
-//TODO: implement handling for load failures
-//TODO: implement "Continue" menu option having the save number ("Continue Game 02")
 
 void saveOptions()
 {
@@ -151,6 +149,15 @@ void calcFrame(uint32_t ticks)
         }
         case STATE_MANAGE_SELECTED_GAME:
         {
+            if(isPopupOpen())
+            {
+                if(keyUp(B_START) || keyUp(B_A) || keyUp(B_B))
+                {
+                    closePopup();
+                }
+                break;
+            }
+
             if(keyUp(B_UP))
             {
                 scrollManageSelectedGame(-1);
@@ -170,11 +177,21 @@ void calcFrame(uint32_t ticks)
 
                         char saveName[SAVE_NAME_LENGTH + 1];
                         getSaveNameForIndex(saveName, gameIndex);
-                        loadGame(saveName, &player);
-                        //TODO: we may have to do a little more work here?
-                        precalcGame(&player, 1);
+                        LoadResult lr = loadGame(saveName, &player);
+                        lr = 5;
+                        if(lr == LR_OK)
+                        {
+                            //TODO: we may have to do a little more work here?
+                            precalcGame(&player, 1);
+                            state = STATE_GAME;
+                        }
+                        else
+                        {
+                            //Load failure, display a message
+                            createPopup("Failed to load\n save.");
+                            //TODO: get back to a known good state!
+                        }
 
-                        state = STATE_GAME;
                         break;
                     }
                     case MSG_SELECTION_NEW_GAME:
@@ -299,18 +316,33 @@ int main(int argc, char **argv)
     if(argc > 1 && strcmp(argv[1], "-skipmenu") == 0)
     {
         state = STATE_GAME;
-        loadGame(INSTANTPLAY_SAVE_NAME, &player);
-        //If we have no save index but an instant play save, assume it's for game 0
-        if(gameIndex == GAME_INDEX_NONE)
+        if(loadGame(INSTANTPLAY_SAVE_NAME, &player) == LR_OK)
         {
-            gameIndex = 0;
+            //If we have no save index but an instant play save, assume it's for game 0
+            //This is because the "new game" option starts save 0, and the player must've used that if no game index save exists yet
+            if(gameIndex == GAME_INDEX_NONE)
+            {
+                gameIndex = 0;
+            }
+        }
+        else
+        {
+            //Instant play load failure - fall back to no loaded save (game index is still unset)
+            //But: display a message
+            createPopup("Failed to load\ninstant play save.");
         }
     }
     else if(gameIndex != GAME_INDEX_NONE)
     {
         char saveName[SAVE_NAME_LENGTH + 1];
         getSaveNameForIndex(saveName, gameIndex);
-        loadGame(saveName, &player);
+        if(loadGame(saveName, &player) != LR_OK)
+        {
+            //Load failure, display a message
+            createPopup("Failed to load\nsave.");
+            //Fall back to no loaded save
+            gameIndex = GAME_INDEX_NONE;
+        }
     }
 
     if(gameIndex == GAME_INDEX_NONE)
@@ -393,7 +425,6 @@ int main(int argc, char **argv)
     {
         saveGameIndex(gameIndex);
     }
-    printf("%d\n", sr);
 
     //Cleanup
     quitWorld();

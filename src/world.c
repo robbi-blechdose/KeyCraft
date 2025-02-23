@@ -666,6 +666,7 @@ void loadWorld(SaveVersionCompat svc)
     {
         seed = 0;
     }
-    //TODO: we probably should reinit the worldgen with the correct seed
-
+    //Reinit worldgen with the new seed
+    //This function allocates no memory so cleanup of the old worldgen isn't necessary
+    initWorldgen(seed);
 }

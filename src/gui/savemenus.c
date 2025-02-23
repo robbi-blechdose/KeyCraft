@@ -5,6 +5,7 @@
 #include "../fk-engine-core/input.h"
 
 #include "menu.h"
+#include "popup.h"
 
 int8_t manageGamesCursor = 0;
 int8_t manageSelectedGameCursor = 0;
@@ -76,6 +77,8 @@ const char* manageSelectedGameStrings[MSG_SIZE] = {
 
 void drawManageSelectedGameMenu()
 {
+    drawPopupIfActive();
+
     char subtitle[14 + 1];
     sprintf(subtitle, "Manage Save %02d", manageGamesCursor + 1);
     drawTitle(subtitle);

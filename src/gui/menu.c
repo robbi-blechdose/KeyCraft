@@ -11,6 +11,8 @@
 #include "../sfx.h"
 #include "../version.h"
 
+#include "popup.h"
+
 int8_t menuCursor = 0;
 int8_t optionsCursor = 0;
 
@@ -58,19 +60,11 @@ void drawMenu()
 {
     drawTitle(GAME_VERSION);
 
+    drawPopupIfActive();
+
     //Menu selections
     for(uint8_t i = 0; i < MENU_SIZE; i++)
     {
-        //TODO: remove old handling fully
-        /**
-        if(i == MENU_SELECTION_CONTINUE)
-        {
-            if(menuFlags & MENU_FLAG_LOADFAIL)
-            {
-                glDrawTextCentered("Failed to load save.", 96 + i * 16, TEXT_WHITE);
-                continue;
-            }
-        }**/
         if(i == MENU_SELECTION_CONTINUE && (menuFlags & MENU_FLAG_NOSAVE))
         {
             glDrawTextCentered(menuStringNewGame, 96 + i * 16, menuCursor == i ? TEXT_YELLOW : TEXT_WHITE);
@@ -89,14 +83,19 @@ void drawMenu()
 void setMenuFlag(uint8_t flag)
 {
     menuFlags |= flag;
-    if((flag == MENU_FLAG_NOSAVE || flag == MENU_FLAG_LOADFAIL) && menuCursor == 0)
-    {
-        menuCursor = 1;
-    }
 }
 
 void calcFrameMenu(State* state, bool* running, Player* player, uint32_t newGameSeed, bool invertY)
 {
+    if(isPopupOpen())
+    {
+        if(keyUp(B_START) || keyUp(B_A) || keyUp(B_B))
+        {
+            closePopup();
+        }
+        return;
+    }
+
     if(keyUp(B_UP))
     {
         scrollCursor(&menuCursor, -1, 0, MENU_SIZE - 1);
