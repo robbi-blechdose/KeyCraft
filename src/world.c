@@ -4,7 +4,7 @@
 #include "fk-engine-core/savegame.h"
 
 #include "chunk.h"
-#include "worldgen.h"
+#include "worldgen/worldgen.h"
 #include "blocks/blocklogic.h"
 #include "blocks/blockactions.h"
 #include "octree.h"
@@ -30,6 +30,7 @@ void initWorld(uint32_t pSeed)
     seed = pSeed;
     initWorldgen(pSeed);
 
+    //Initial worldgen
     for(uint8_t i = 0; i < VIEW_DISTANCE; i++)
     {
         for(uint8_t j = 0; j < VIEW_DISTANCE; j++)
@@ -42,6 +43,31 @@ void initWorld(uint32_t pSeed)
             }
         }
     }
+    //Propagate structure data
+    for(uint8_t i = 0; i < VIEW_DISTANCE; i++)
+    {
+        for(uint8_t j = 0; j < VIEW_DISTANCE; j++)
+        {
+            for(uint8_t k = 0; k < VIEW_DISTANCE; k++)
+            {
+                propagateChunkStructureData(VIEW_CHUNK(i, j, k), chunks, VIEW_DISTANCE * VIEW_DISTANCE * VIEW_DISTANCE);
+            }
+        }
+    }
+    //Generate structures
+    //If there are "source" structures outside the current view distance, the chunks within view distance won't be populated with structures (as in, will be missing parts)
+    //This is pretty unavoidable though, and also not really a problem
+    for(uint8_t i = 0; i < VIEW_DISTANCE; i++)
+    {
+        for(uint8_t j = 0; j < VIEW_DISTANCE; j++)
+        {
+            for(uint8_t k = 0; k < VIEW_DISTANCE; k++)
+            {
+                generateChunkStructures(VIEW_CHUNK(i, j, k));
+            }
+        }
+    }
+
     chunkPos = (ChunkPos) {0, 0, 0};
 
     modifiedChunks = createOctree((vec3) {0, VIEW_DISTANCE / 2, 0}, INT16_MAX * 2, NULL);
@@ -73,6 +99,12 @@ typedef enum {
 
 void swapChunks(SwapSide side, SwapDir direction)
 {
+    //We need these for structure propagation + generation
+    uint8_t newChunkIndex = 0;
+    Chunk* newChunks[VIEW_DISTANCE * VIEW_DISTANCE];
+    uint8_t adjacentChunkIndex = 0;
+    Chunk* adjacentChunks[VIEW_DISTANCE * VIEW_DISTANCE];
+
     uint8_t out, in;
     if(direction == SWP_FORE)
     {
@@ -183,24 +215,54 @@ void swapChunks(SwapSide side, SwapDir direction)
                 CHUNK_SET_FLAG(newChunk, CHUNK_MODIFIED);
             }
             
-            //Set new chunk, mark adjacent chunk to be rebuilt
+            //Grab adjacent chunk for structure propagation + generation, mark it to be rebuilt, set new chunk
             int8_t dir = direction == SWP_FORE ? -1 : 1;
             if(side == SWP_FB)
             {
+                adjacentChunks[adjacentChunkIndex++] = VIEW_CHUNK(in + dir, i, j);
                 CHUNK_SET_FLAG(VIEW_CHUNK(in + dir, i, j), CHUNK_MODIFIED);
                 VIEW_CHUNK(in, i, j) = newChunk;
             }
             else if(side == SWP_LR)
             {
+                adjacentChunks[adjacentChunkIndex++] = VIEW_CHUNK(i, j, in + dir);
                 CHUNK_SET_FLAG(VIEW_CHUNK(i, j, in + dir), CHUNK_MODIFIED);
                 VIEW_CHUNK(i, j, in) = newChunk;
             }
             else
             {
+                adjacentChunks[adjacentChunkIndex++] = VIEW_CHUNK(i, j, in + dir);
                 CHUNK_SET_FLAG(VIEW_CHUNK(i, j, in + dir), CHUNK_MODIFIED);
                 VIEW_CHUNK(i, j, in) = newChunk;
             }
+
+            //Grab new chunk for structure propagation + generation
+            newChunks[newChunkIndex++] = newChunk;
         }
+    }
+
+    //TODO: structures may reach more than one chunk - what do we do in that case???
+
+    //Propagate data into new chunks and from new chunks
+    for(uint8_t i = 0; i < adjacentChunkIndex; i++)
+    {
+        propagateChunkStructureData(adjacentChunks[i], newChunks, newChunkIndex);
+    }
+    //TODO: prevent duplication of structures here (if the newchunk already existed at some previous point, the structure will now be duplicated)
+    for(uint8_t i = 0; i < newChunkIndex; i++)
+    {
+        propagateChunkStructureData(newChunks[i], newChunks, newChunkIndex);
+        propagateChunkStructureData(newChunks[i], adjacentChunks, adjacentChunkIndex);
+    }
+
+    //Finally, generate structures in both of these
+    for(uint8_t i = 0; i < adjacentChunkIndex; i++)
+    {
+        generateChunkStructures(adjacentChunks[i]);
+    }
+    for(uint8_t i = 0; i < newChunkIndex; i++)
+    {
+        generateChunkStructures(newChunks[i]);
     }
 }
 
@@ -653,6 +715,7 @@ void loadWorld(SaveVersionCompat svc)
                     VIEW_CHUNK(i, j, k) = calloc(1, sizeof(Chunk));
                     VIEW_CHUNK(i, j, k)->position = pos;
                     generateChunk(VIEW_CHUNK(i, j, k));
+                    //TODO: handle structure propagation and generation!
                 }
             }
         }

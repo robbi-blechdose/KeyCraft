@@ -25,7 +25,6 @@ typedef struct {
     Block blocks[INVENTORY_SIZE_X * INVENTORY_SIZE_Y];
 } InventoryTab;
 
-
 const InventoryTab inventory[NUM_INVENTORY_TABS] = {
     {
         "Basic", 24, B(BLOCK_GRASS),

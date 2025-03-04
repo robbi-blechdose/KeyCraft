@@ -10,9 +10,11 @@
 #include "aabb.h"
 #include "blocks/blockutils.h"
 #include "computer.h"
+#include "worldgen/structures.h"
 
 #define CHUNK_SIZE 8
 #define NUM_COMPUTERS 8
+#define MAX_STRUCTURES 4
 
 typedef struct {
     AABB aabb;
@@ -22,6 +24,9 @@ typedef struct {
     GLuint drawList;
     //Flags
     uint8_t flags;
+    //Structure data (only relevant for chunk generation)
+    StructureData structureData[MAX_STRUCTURES];
+    uint8_t numStructures;
 } Chunk;
 
 #define CHUNK_BLOCK(chunk, i, j, k) chunk->blocks[(i) + ((j) * CHUNK_SIZE) + ((k) * CHUNK_SIZE * CHUNK_SIZE)]
@@ -30,9 +35,15 @@ typedef struct {
 #define CHUNK_SET_FLAG(chunk, flag) (chunk->flags |= (flag))
 #define CHUNK_CLEAR_FLAG(chunk, flag) (chunk->flags &= ~(flag))
 
+//Chunk contains no blocks
 #define CHUNK_IS_EMPTY         0b00000001
+//Chunk hasn't been modified from its generated state
 #define CHUNK_IS_INITIAL       0b00000010
+//Chunk hasn't had its geometry generation done yet
 #define CHUNK_NO_DRAW_DATA     0b00000100
+//Chunk has received new structure data
+#define CHUNK_NEW_STRUCT_DATA  0b00001000
+//Chunk has been modified in some way and requires geometry re-generation
 #define CHUNK_MODIFIED         0b01000000
 
 void calcChunk(Chunk* chunk);

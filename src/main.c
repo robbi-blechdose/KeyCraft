@@ -178,7 +178,6 @@ void calcFrame(uint32_t ticks)
                         char saveName[SAVE_NAME_LENGTH + 1];
                         getSaveNameForIndex(saveName, gameIndex);
                         LoadResult lr = loadGame(saveName, &player);
-                        lr = 5;
                         if(lr == LR_OK)
                         {
                             //TODO: we may have to do a little more work here?
@@ -278,6 +277,10 @@ void drawFrame()
 
     #ifdef DEBUG
     drawFPS(fps);
+    //Draw player pos
+    char buffer[32];
+	sprintf(buffer, "X: %2.1f Y: %2.1f Z: %2.1f", player.position.x + VIEW_TRANSLATION, player.position.y + VIEW_TRANSLATION, player.position.z + VIEW_TRANSLATION);
+	glDrawText(buffer, 2, 10, 0xFFFFFF);
     #endif
 
     flipFrame();

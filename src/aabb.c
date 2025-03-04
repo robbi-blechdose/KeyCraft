@@ -14,6 +14,13 @@ bool aabbIntersectsAABB(AABB* box1, AABB* box2)
             (box1->min.z <= box2->max.z && box1->max.z >= box2->min.z);
 }
 
+bool aabbInsideAABB(AABB* inner, AABB* outer)
+{
+    return (outer->min.x <= inner->min.x && outer->max.x >= inner->max.x) &&
+            (outer->min.y <= inner->min.y && outer->max.y >= inner->max.y) &&
+            (outer->min.z <= inner->min.z && outer->max.z >= inner->max.z);
+}
+
 //Based on this: https://gdbooks.gitbooks.io/3dcollisions/content/Chapter3/raycast_aabb.html
 AABBSide aabbIntersectsRay(AABB* box, vec3* origin, vec3* direction, float* distance)
 {
@@ -55,3 +62,16 @@ AABBSide aabbIntersectsRay(AABB* box, vec3* origin, vec3* direction, float* dist
     //if(tMin == t1.z || tMin == t2.z)
         return direction->z < 0 ? AABB_BACK : AABB_FRONT;
 }
+
+void moveAABB(AABB* aabb, vec3 offset)
+{
+    aabb->min = addv3(aabb->min, offset);
+    aabb->max = addv3(aabb->max, offset);
+}
+
+#ifdef DEBUG
+void printAABB(AABB* aabb)
+{
+    printf("AABB{.min={%f, %f, %f}, .max={%f, %f, %f}}\n", aabb->min.x, aabb->min.y, aabb->min.z, aabb->max.x, aabb->max.y, aabb->max.z);
+}
+#endif

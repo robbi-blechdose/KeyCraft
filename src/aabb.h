@@ -22,6 +22,13 @@ typedef enum {
 
 bool aabbIntersectsPoint(AABB* box, vec3* point);
 bool aabbIntersectsAABB(AABB* box1, AABB* box2);
+bool aabbInsideAABB(AABB* inner, AABB* outer);
 AABBSide aabbIntersectsRay(AABB* box, vec3* origin, vec3* direction, float* distance);
+
+void moveAABB(AABB* aabb, vec3 offset);
+
+#ifdef DEBUG
+void printAABB(AABB* aabb);
+#endif
 
 #endif

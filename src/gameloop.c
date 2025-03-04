@@ -308,7 +308,7 @@ void calcFrameInventory(State* state)
     }
     else if(keyUp(B_START))
     {
-        state = STATE_GAME;
+        *state = STATE_GAME;
     }
 }
 
