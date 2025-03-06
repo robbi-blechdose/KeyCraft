@@ -176,13 +176,13 @@ void saveOctree(Octree* octree)
     }
 }
 
-Octree* loadOctree()
+Octree* loadOctree(SaveVersionCompat svc)
 {
     Octree* octree = malloc(sizeof(Octree));
 
     readElement(&octree->aabb, sizeof(AABB));
     octree->chunk = calloc(1, sizeof(Chunk));
-    loadChunk(octree->chunk);
+    loadChunk(octree->chunk, svc);
     
     uint8_t count;
     readElement(&count, sizeof(uint8_t));
@@ -197,7 +197,7 @@ Octree* loadOctree()
     {
         uint8_t index;
         readElement(&index, sizeof(uint8_t));
-        octree->children[index] = loadOctree();
+        octree->children[index] = loadOctree(svc);
     }
 
     return octree;

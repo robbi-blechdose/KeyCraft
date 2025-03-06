@@ -68,7 +68,7 @@ void explodeTNT(ChunkPos chunk, uint8_t x, uint8_t y, uint8_t z)
     }
 }
 
-void tickBlock(Chunk* chunk, Block* block, uint8_t x, uint8_t y, uint8_t z)
+inline void tickBlock(Chunk* chunk, Block* block, uint8_t x, uint8_t y, uint8_t z)
 {
     switch(block->type)
     {

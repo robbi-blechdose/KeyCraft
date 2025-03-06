@@ -10,7 +10,7 @@
 
 //Save version: Last digit is minor (only additions, requires default values for old files),
 //              Front digits are major (requires old loading logic to migrate)
-#define SAVE_VERSION  41
+#define SAVE_VERSION  42
 
 typedef enum {
     SV_COMPAT_NONE = 0,

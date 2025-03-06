@@ -292,6 +292,7 @@ void handleSigusr1(int sig)
     quickSaveAndPoweroff = true;
 }
 
+//TODO: add ability to load save with old name into slot 0
 int main(int argc, char **argv)
 {
     //Save program name for instant play

@@ -54,5 +54,6 @@ typedef struct {
 extern StructureDefinition structureDefinitions[NUM_STRUCTURE_TYPES];
 
 AABB getAABBForStructure(StructureData* structure);
+bool isStructureDataEqual(StructureData* a, StructureData* b);
 
 #endif

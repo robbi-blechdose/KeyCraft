@@ -1,4 +1,7 @@
 #include "aabb.h"
+#ifdef DEBUG
+#include <stdio.h>
+#endif
 
 bool aabbIntersectsPoint(AABB* box, vec3* point)
 {

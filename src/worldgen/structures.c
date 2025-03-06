@@ -215,3 +215,12 @@ AABB getAABBForStructure(StructureData* structure)
     moveAABB(&aabb, (vec3) {structure->x, structure->y, structure->z});
     return aabb;
 }
+
+bool isStructureDataEqual(StructureData* a, StructureData* b)
+{
+    return a->isSource == b->isSource &&
+            a->type == b->type &&
+            a->x == b->x &&
+            a->y == b->y &&
+            a->z == b->z;
+}

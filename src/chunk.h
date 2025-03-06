@@ -12,6 +12,8 @@
 #include "computer.h"
 #include "worldgen/structures.h"
 
+#include "saves.h"
+
 #define CHUNK_SIZE 8
 #define NUM_COMPUTERS 8
 #define MAX_STRUCTURES 4
@@ -57,6 +59,6 @@ AABBSide intersectsRayChunk(Chunk* chunk, vec3* origin, vec3* direction, BlockPo
 bool intersectsAABBChunk(Chunk* chunk, AABB* aabb);
 
 void saveChunk(Chunk* chunk);
-void loadChunk(Chunk* chunk);
+void loadChunk(Chunk* chunk, SaveVersionCompat svc);
 
 #endif

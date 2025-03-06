@@ -295,9 +295,14 @@ void saveChunk(Chunk* chunk)
             saveComputer(chunk->computers[i]);
         }
     }
+    writeElement(&chunk->numStructures, sizeof(uint8_t));
+    for(uint8_t i = 0; i < chunk->numStructures; i++)
+    {
+        writeElement(&chunk->structureData[i], sizeof(StructureData));
+    }
 }
 
-void loadChunk(Chunk* chunk)
+void loadChunk(Chunk* chunk, SaveVersionCompat svc)
 {
     readElement(&chunk->position, sizeof(ChunkPos));
     readElement(&chunk->blocks, sizeof(Block) * CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE);
@@ -310,6 +315,19 @@ void loadChunk(Chunk* chunk)
         readElement(&index, sizeof(uint8_t));
         chunk->computers[i] = createComputer();
         loadComputer(chunk->computers[i]);
+    }
+
+    if(svc == SV_COMPAT_OK)
+    {
+        readElement(&chunk->numStructures, sizeof(uint8_t));
+        for(uint8_t i = 0; i < chunk->numStructures; i++)
+        {
+            readElement(&chunk->structureData[i], sizeof(StructureData));
+        }
+    }
+    else if(svc == SV_COMPAT_MINOR)
+    {
+        chunk->numStructures = 0;
     }
 
     //Since we loaded the chunk it's been player-modified (otherwise saving + loading doesn't take place)

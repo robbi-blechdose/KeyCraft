@@ -71,7 +71,6 @@ void generateLowBlocks(Chunk* chunk, uint8_t i, uint8_t j, uint8_t k, uint8_t bl
 {
     //Chunk position
     int16_t x = chunk->position.x;
-    int16_t y = chunk->position.y;
     int16_t z = chunk->position.z;
 
     if(blockWorldY == 0)
@@ -111,7 +110,6 @@ void generateChunkNormal(Chunk* chunk, uint8_t i, uint8_t j, uint8_t k, uint8_t 
 {
     //Chunk position
     int16_t x = chunk->position.x;
-    int16_t y = chunk->position.y;
     int16_t z = chunk->position.z;
     
     //Generate lakes
@@ -173,7 +171,6 @@ void generateChunkDesert(Chunk* chunk, uint8_t i, uint8_t j, uint8_t k, uint8_t 
 {
     //Chunk position
     int16_t x = chunk->position.x;
-    int16_t y = chunk->position.y;
     int16_t z = chunk->position.z;
 
     //Clamp to water level to prevent issues on biome transitions
@@ -212,7 +209,6 @@ void generateChunkBarren(Chunk* chunk, uint8_t i, uint8_t j, uint8_t k, uint8_t 
 {
     //Chunk position
     int16_t x = chunk->position.x;
-    int16_t y = chunk->position.y;
     int16_t z = chunk->position.z;
 
     //Clamp to water level to prevent issues on biome transitions
@@ -251,7 +247,6 @@ void generateChunkRocks(Chunk* chunk, uint8_t i, uint8_t j, uint8_t k, uint8_t h
 {
     //Chunk position
     int16_t x = chunk->position.x;
-    int16_t y = chunk->position.y;
     int16_t z = chunk->position.z;
     
     //Generate lakes
@@ -288,7 +283,6 @@ void generateChunkForest(Chunk* chunk, uint8_t i, uint8_t j, uint8_t k, uint8_t 
 {
     //Chunk position
     int16_t x = chunk->position.x;
-    int16_t y = chunk->position.y;
     int16_t z = chunk->position.z;
     
     //Clamp to water level to prevent issues on biome transitions
@@ -450,34 +444,47 @@ void propagateChunkStructureData(Chunk* sourceChunk, Chunk** adjacentChunks, uin
 
         for(uint8_t j = 0; j < numAdjacentChunks; j++)
         {
+            Chunk* adjacentChunk = adjacentChunks[j];
+
             //Skip the source chunk if it's in the list
             //Also skip any chunks that have been player-modified
-            if(adjacentChunks[j] == sourceChunk || !CHUNK_GET_FLAG(adjacentChunks[j], CHUNK_IS_INITIAL))
+            if(adjacentChunk == sourceChunk || !CHUNK_GET_FLAG(adjacentChunk, CHUNK_IS_INITIAL))
             {
                 continue;
             }
 
-            if(!aabbIntersectsAABB(&structureAABB, &adjacentChunks[j]->aabb))
+            //Skip this chunk if no part of the structure is inside it
+            if(!aabbIntersectsAABB(&structureAABB, &adjacentChunk->aabb))
             {
                 continue;
             }
-                
+
+            bool equal = false;
+            for(uint8_t k = 0; k < adjacentChunk->numStructures; k++)
+            {
+                if(isStructureDataEqual(&adjacentChunk->structureData[k], &sourceChunk->structureData[i]))
+                {
+                    equal = true;
+                    break;
+                }
+            }
+            
             //TODO: what do we do if this is already full? can we at least make that very unlikely?
-            if(adjacentChunks[j]->numStructures < MAX_STRUCTURES)
+            if(!equal && adjacentChunk->numStructures < MAX_STRUCTURES)
             {
-                adjacentChunks[j]->structureData[adjacentChunks[j]->numStructures].type = sourceChunk->structureData[i].type;
-                adjacentChunks[j]->structureData[adjacentChunks[j]->numStructures].isSource = false;
+                int16_t xDiff = (sourceChunk->position.x - adjacentChunk->position.x) * CHUNK_SIZE;
+                int16_t yDiff = (sourceChunk->position.y - adjacentChunk->position.y) * CHUNK_SIZE;
+                int16_t zDiff = (sourceChunk->position.z - adjacentChunk->position.z) * CHUNK_SIZE;
 
-                int16_t xDiff = (sourceChunk->position.x - adjacentChunks[j]->position.x) * CHUNK_SIZE;
-                int16_t yDiff = (sourceChunk->position.y - adjacentChunks[j]->position.y) * CHUNK_SIZE;
-                int16_t zDiff = (sourceChunk->position.z - adjacentChunks[j]->position.z) * CHUNK_SIZE;
+                adjacentChunk->structureData[adjacentChunk->numStructures++] = (StructureData) {
+                    .type = sourceChunk->structureData[i].type,
+                    .isSource = false,
+                    .x = sourceChunk->structureData[i].x + xDiff,
+                    .y = sourceChunk->structureData[i].y + yDiff,
+                    .z = sourceChunk->structureData[i].z + zDiff
+                };
 
-                adjacentChunks[j]->structureData[adjacentChunks[j]->numStructures].x = sourceChunk->structureData[i].x + xDiff;
-                adjacentChunks[j]->structureData[adjacentChunks[j]->numStructures].y = sourceChunk->structureData[i].y + yDiff;
-                adjacentChunks[j]->structureData[adjacentChunks[j]->numStructures].z = sourceChunk->structureData[i].z + zDiff;
-                adjacentChunks[j]->numStructures++;
-
-                CHUNK_SET_FLAG(adjacentChunks[j], CHUNK_NEW_STRUCT_DATA);
+                CHUNK_SET_FLAG(adjacentChunk, CHUNK_NEW_STRUCT_DATA);
             }
         }
     }

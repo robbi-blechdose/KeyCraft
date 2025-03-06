@@ -248,7 +248,6 @@ void swapChunks(SwapSide side, SwapDir direction)
     {
         propagateChunkStructureData(adjacentChunks[i], newChunks, newChunkIndex);
     }
-    //TODO: prevent duplication of structures here (if the newchunk already existed at some previous point, the structure will now be duplicated)
     for(uint8_t i = 0; i < newChunkIndex; i++)
     {
         propagateChunkStructureData(newChunks[i], newChunks, newChunkIndex);
@@ -332,7 +331,7 @@ void calcWorld(vec3* playerPos, uint32_t ticks)
 
     //Tick visible chunks
     worldTicks += ticks;
-    if(worldTicks > TICK_RATE)
+    if(worldTicks >= TICK_RATE)
     {
         worldTicks = 0;
 
@@ -689,7 +688,7 @@ void loadWorld(SaveVersionCompat svc)
         freeOctree(modifiedChunks);
     }
 
-    modifiedChunks = loadOctree();
+    modifiedChunks = loadOctree(svc);
 
     //Load chunks in
     for(uint8_t i = 0; i < VIEW_DISTANCE; i++)
@@ -717,6 +716,31 @@ void loadWorld(SaveVersionCompat svc)
                     generateChunk(VIEW_CHUNK(i, j, k));
                     //TODO: handle structure propagation and generation!
                 }
+            }
+        }
+    }
+    //TODO: this is the same code as in initWorld(), find some way to combine it?
+    //Propagate structure data
+    for(uint8_t i = 0; i < VIEW_DISTANCE; i++)
+    {
+        for(uint8_t j = 0; j < VIEW_DISTANCE; j++)
+        {
+            for(uint8_t k = 0; k < VIEW_DISTANCE; k++)
+            {
+                propagateChunkStructureData(VIEW_CHUNK(i, j, k), chunks, VIEW_DISTANCE * VIEW_DISTANCE * VIEW_DISTANCE);
+            }
+        }
+    }
+    //Generate structures
+    //If there are "source" structures outside the current view distance, the chunks within view distance won't be populated with structures (as in, will be missing parts)
+    //This is pretty unavoidable though, and also not really a problem
+    for(uint8_t i = 0; i < VIEW_DISTANCE; i++)
+    {
+        for(uint8_t j = 0; j < VIEW_DISTANCE; j++)
+        {
+            for(uint8_t k = 0; k < VIEW_DISTANCE; k++)
+            {
+                generateChunkStructures(VIEW_CHUNK(i, j, k));
             }
         }
     }

@@ -22,7 +22,7 @@ bool octreeEmpty(Octree* octree);
 void freeOctree(Octree* octree);
 
 void saveOctree(Octree* octree);
-Octree* loadOctree();
+Octree* loadOctree(SaveVersionCompat svc);
 
 #ifdef OCTREE_DEBUG
 void printOctree(Octree* octree, char* prefix);
