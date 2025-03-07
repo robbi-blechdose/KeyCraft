@@ -2,6 +2,7 @@
 #define BIOMES_H
 
 #include "structures.h"
+#include "../blocks/block.h"
 
 typedef enum {
     BIOME_NORMAL,
@@ -25,12 +26,15 @@ struct StructureSpawnData {
     float spawnChance;
 };
 
+typedef Block (*generateChunkFunction)(uint8_t, uint8_t, uint8_t);
+
 typedef struct {
     //If the biome random noise value is inside this interval, this biome is chosen
     struct Interval spawnChance;
     //Determines which structures spawn inside this biome
     uint8_t numStructureSpawnData;
     struct StructureSpawnData* structureSpawnData;
+    generateChunkFunction generator;
 } BiomeDefinition;
 
 extern BiomeDefinition biomeDefinitions[NUM_BIOME_TYPES];
