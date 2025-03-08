@@ -103,11 +103,11 @@ void generateChunk(Chunk* chunk)
 
         if(chunk->numStructures < MAX_STRUCTURES)
         {
-            chunk->structureData[chunk->numStructures++] = (StructureData) {.type = structureSpawnData->type,
-                                                                            .isSource = true,
-                                                                            .x = baseX,
-                                                                            .y = groundHeight + 1,
-                                                                            .z = baseZ};
+            chunk->structures[chunk->numStructures++] = (Structure) {.type = structureSpawnData->type,
+                                                                        .isSource = true,
+                                                                        .x = baseX,
+                                                                        .y = groundHeight + 1,
+                                                                        .z = baseZ};
         }
         //Max one structure per chunk
         break;
@@ -127,12 +127,12 @@ void propagateChunkStructureData(Chunk* sourceChunk, Chunk** adjacentChunks, uin
 {
     for(uint8_t i = 0; i < sourceChunk->numStructures; i++)
     {
-        if(!sourceChunk->structureData[i].isSource)
+        if(!sourceChunk->structures[i].isSource)
         {
             continue;
         }
 
-        AABB structureAABB = getAABBForStructure(&sourceChunk->structureData[i]);
+        AABB structureAABB = getAABBForStructure(&sourceChunk->structures[i]);
         moveAABB(&structureAABB, sourceChunk->aabb.min);
         
         if(aabbInsideAABB(&structureAABB, &sourceChunk->aabb))
@@ -161,7 +161,7 @@ void propagateChunkStructureData(Chunk* sourceChunk, Chunk** adjacentChunks, uin
             bool equal = false;
             for(uint8_t k = 0; k < adjacentChunk->numStructures; k++)
             {
-                if(isStructureDataEqual(&adjacentChunk->structureData[k], &sourceChunk->structureData[i]))
+                if(isStructureDataEqual(&adjacentChunk->structures[k], &sourceChunk->structures[i]))
                 {
                     equal = true;
                     break;
@@ -175,12 +175,12 @@ void propagateChunkStructureData(Chunk* sourceChunk, Chunk** adjacentChunks, uin
                 int16_t yDiff = (sourceChunk->position.y - adjacentChunk->position.y) * CHUNK_SIZE;
                 int16_t zDiff = (sourceChunk->position.z - adjacentChunk->position.z) * CHUNK_SIZE;
 
-                adjacentChunk->structureData[adjacentChunk->numStructures++] = (StructureData) {
-                    .type = sourceChunk->structureData[i].type,
+                adjacentChunk->structures[adjacentChunk->numStructures++] = (Structure) {
+                    .type = sourceChunk->structures[i].type,
                     .isSource = false,
-                    .x = sourceChunk->structureData[i].x + xDiff,
-                    .y = sourceChunk->structureData[i].y + yDiff,
-                    .z = sourceChunk->structureData[i].z + zDiff
+                    .x = sourceChunk->structures[i].x + xDiff,
+                    .y = sourceChunk->structures[i].y + yDiff,
+                    .z = sourceChunk->structures[i].z + zDiff
                 };
 
                 CHUNK_SET_FLAG(adjacentChunk, CHUNK_NEW_STRUCT_DATA);
@@ -189,7 +189,7 @@ void propagateChunkStructureData(Chunk* sourceChunk, Chunk** adjacentChunks, uin
     }
 }
 
-void generateStructurePart(Chunk* chunk, StructureData* structure)
+void generateStructurePart(Chunk* chunk, Structure* structure)
 {
     //Offset the starting point of the structure in general (where is the structure placed)
     vec3u8 offset;
@@ -283,7 +283,7 @@ void generateChunkStructures(Chunk* chunk)
     //Generate structure (parts) belonging to this chunk
     for(uint8_t i = 0; i < chunk->numStructures; i++)
     {
-        generateStructurePart(chunk, &chunk->structureData[i]);
+        generateStructurePart(chunk, &chunk->structures[i]);
     }
 
     //*Now* we're done with this chunk

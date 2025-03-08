@@ -45,7 +45,6 @@ typedef struct {
     uint8_t spawnOnBlockPosZ;
 } StructureDefinition;
 
-//TODO: rename: this is an actual placed structure in a chunk (maybe something like "placedStructure?")
 typedef struct {
     StructureType type;
     //The position stores the origin of the structure - with {0, 0, 0} being the origin of the current chunk
@@ -53,11 +52,11 @@ typedef struct {
     int8_t y;
     int8_t z;
     bool isSource;
-} StructureData;
+} Structure;
 
 extern StructureDefinition structureDefinitions[NUM_STRUCTURE_TYPES];
 
-AABB getAABBForStructure(StructureData* structure);
-bool isStructureDataEqual(StructureData* a, StructureData* b);
+AABB getAABBForStructure(Structure* structure);
+bool isStructureDataEqual(Structure* a, Structure* b);
 
 #endif

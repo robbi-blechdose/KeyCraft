@@ -27,7 +27,7 @@ typedef struct {
     //Flags
     uint8_t flags;
     //Structure data (only relevant for chunk generation)
-    StructureData structureData[MAX_STRUCTURES];
+    Structure structures[MAX_STRUCTURES];
     uint8_t numStructures;
 } Chunk;
 

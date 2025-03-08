@@ -297,7 +297,7 @@ void saveChunk(Chunk* chunk)
     writeElement(&chunk->numStructures, sizeof(uint8_t));
     for(uint8_t i = 0; i < chunk->numStructures; i++)
     {
-        writeElement(&chunk->structureData[i], sizeof(StructureData));
+        writeElement(&chunk->structures[i], sizeof(Structure));
     }
 }
 
@@ -321,7 +321,7 @@ void loadChunk(Chunk* chunk, SaveVersionCompat svc)
         readElement(&chunk->numStructures, sizeof(uint8_t));
         for(uint8_t i = 0; i < chunk->numStructures; i++)
         {
-            readElement(&chunk->structureData[i], sizeof(StructureData));
+            readElement(&chunk->structures[i], sizeof(Structure));
         }
     }
     else if(svc == SV_COMPAT_MINOR)

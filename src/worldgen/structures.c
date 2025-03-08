@@ -271,7 +271,7 @@ StructureDefinition structureDefinitions[NUM_STRUCTURE_TYPES] = {
     }
 };
 
-AABB getAABBForStructure(StructureData* structure)
+AABB getAABBForStructure(Structure* structure)
 {
     AABB aabb = {
         .min = (vec3) {0, 0, 0},
@@ -283,7 +283,7 @@ AABB getAABBForStructure(StructureData* structure)
     return aabb;
 }
 
-bool isStructureDataEqual(StructureData* a, StructureData* b)
+bool isStructureDataEqual(Structure* a, Structure* b)
 {
     return a->isSource == b->isSource &&
             a->type == b->type &&
