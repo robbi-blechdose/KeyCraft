@@ -1,6 +1,6 @@
 #!/bin/sh
 
-make oclean
+make clean
 make TARGET=funkey
 
 mkdir -p opk

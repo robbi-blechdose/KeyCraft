@@ -714,7 +714,6 @@ void loadWorld(SaveVersionCompat svc)
                     VIEW_CHUNK(i, j, k) = calloc(1, sizeof(Chunk));
                     VIEW_CHUNK(i, j, k)->position = pos;
                     generateChunk(VIEW_CHUNK(i, j, k));
-                    //TODO: handle structure propagation and generation!
                 }
             }
         }

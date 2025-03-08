@@ -120,7 +120,6 @@ void generateDrawData(Chunk* chunk)
                     CHUNK_CLEAR_FLAG(chunk, CHUNK_IS_EMPTY);
 
                     uint8_t occlusion = getOcclusionForBlock(chunk, i, j, k);
-
                     if(occlusion != BS_ALL)
                     {
                         drawBlock(&CHUNK_BLOCK(chunk, i, j, k), i, j, k, occlusion);

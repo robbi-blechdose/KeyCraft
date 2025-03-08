@@ -12,6 +12,12 @@ void initWorldNoise(uint32_t seed);
 void setNoisePosition(int16_t chunkX, int16_t chunkZ, uint8_t x, uint8_t z);
 
 float getNoiseRandScale(float y, float scale);
+
+/**
+ * Noise-based RNG - this means all values are reproducible based on the initial seed
+ * @param y Vertical coordinate for the 3d noise
+ * @return a random value
+ */
 float getNoiseRand(float y);
 
 float getNoiseBiome();

@@ -339,7 +339,18 @@ int main(int argc, char **argv)
     else if(gameIndex != GAME_INDEX_NONE)
     {
         char saveName[SAVE_NAME_LENGTH + 1];
-        getSaveNameForIndex(saveName, gameIndex);
+
+        //TOREMOVE: support for old saves from single-save system
+        if(gameIndex == GAME_INDEX_OLD)
+        {
+            strcpy(saveName, "game.sav");
+            gameIndex = 0;
+        }
+        else
+        {
+            getSaveNameForIndex(saveName, gameIndex);
+        }
+
         if(loadGame(saveName, &player) != LR_OK)
         {
             //Load failure, display a message

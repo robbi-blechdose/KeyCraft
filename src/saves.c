@@ -30,6 +30,8 @@ SaveVersionCompat readSaveVersionCompat()
     }
 }
 
+//TOREMOVE: support for old saves from single-save system
+bool oldGamePresent;
 bool gamesPresent[NUM_SAVES];
 
 bool doesGameExist(char* name)
@@ -55,6 +57,8 @@ void checkGamesPresent()
         getSaveNameForIndex(saveName, i);
         gamesPresent[i] = doesGameExist(saveName);
     }
+    //TOREMOVE: support for old saves from single-save system
+    oldGamePresent = doesGameExist("game.sav");
 }
 
 void saveGameIndex(uint8_t gameIndex)
@@ -68,6 +72,11 @@ void saveGameIndex(uint8_t gameIndex)
 
 uint8_t loadGameIndex()
 {
+    if(oldGamePresent)
+    {
+        return GAME_INDEX_OLD;
+    }
+
     if(openSave(SAVE_FOLDER, GAME_INDEX_NAME, false))
     {
         uint8_t gameIndex;

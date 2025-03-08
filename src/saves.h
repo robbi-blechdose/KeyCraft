@@ -41,6 +41,8 @@ extern bool gamesPresent[NUM_SAVES];
 void getSaveNameForIndex(char* buffer, uint8_t index);
 void checkGamesPresent();
 
+//TOREMOVE: support for old saves from single-save system
+#define GAME_INDEX_OLD 254
 #define GAME_INDEX_NONE 255
 void saveGameIndex(uint8_t gameIndex);
 uint8_t loadGameIndex();

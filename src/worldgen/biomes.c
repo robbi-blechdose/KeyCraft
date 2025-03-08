@@ -279,7 +279,7 @@ BiomeDefinition biomeDefinitions[NUM_BIOME_TYPES] = {
             {
                 .type = STRUCTURE_ROCK_PILE,
                 .randomNoiseY = 24,
-                .spawnChance = 0.5f
+                .spawnChance = 1
             }
         },
         .generator = generateBiomeBarren
