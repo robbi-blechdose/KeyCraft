@@ -67,16 +67,18 @@ void generateChunk(Chunk* chunk)
     BiomeType biome = getBiome(x, z, 4, 4);
     for(uint8_t i = 0; i < biomeDefinitions[biome].numStructureSpawnData; i++)
     {
+        struct StructureSpawnData* structureSpawnData = &biomeDefinitions[biome].structureSpawnData[i];
+
         setNoisePosition(x, z, 4, 4);
-        if(getNoiseRand(biomeDefinitions[biome].structureSpawnData->randomNoiseY) > biomeDefinitions[biome].structureSpawnData->spawnChance)
+        if(getNoiseRand(structureSpawnData->randomNoiseY) > structureSpawnData->spawnChance)
         {
             continue;
         }
 
         setNoisePosition(x, z, 0, 0);
-        uint8_t baseX = getNoiseRand(biomeDefinitions[biome].structureSpawnData->randomNoiseY) * CHUNK_SIZE;
+        uint8_t baseX = getNoiseRand(structureSpawnData->randomNoiseY) * CHUNK_SIZE;
         setNoisePosition(x, z, 8, 8);
-        uint8_t baseZ = getNoiseRand(biomeDefinitions[biome].structureSpawnData->randomNoiseY) * CHUNK_SIZE;
+        uint8_t baseZ = getNoiseRand(structureSpawnData->randomNoiseY) * CHUNK_SIZE;
 
         int16_t groundHeight = getHeight(x, z, baseX, baseZ) -  (y * CHUNK_SIZE) - 1; //-1 since the generators use this as the ground level
 
@@ -87,20 +89,21 @@ void generateChunk(Chunk* chunk)
             break;
         }
 
-        uint8_t spawnOnBlockX = structureDefinitions[biomeDefinitions[biome].structureSpawnData->type].spawnOnBlockPosX;
-        uint8_t spawnOnBlockZ = structureDefinitions[biomeDefinitions[biome].structureSpawnData->type].spawnOnBlockPosZ;
-        BlockType spawnOnBlockType = structureDefinitions[biomeDefinitions[biome].structureSpawnData->type].spawnOnBlockType;
+        uint8_t spawnOnBlockX = structureDefinitions[structureSpawnData->type].spawnOnBlockPosX;
+        uint8_t spawnOnBlockZ = structureDefinitions[structureSpawnData->type].spawnOnBlockPosZ;
+        BlockType spawnOnBlockType = structureDefinitions[structureSpawnData->type].spawnOnBlockType;
 
-        if(CHUNK_BLOCK(chunk, baseX + spawnOnBlockX, groundHeight, baseZ + spawnOnBlockZ).type != spawnOnBlockType)
+        if(spawnOnBlockType != BLOCK_AIR &&
+            CHUNK_BLOCK(chunk, baseX + spawnOnBlockX, groundHeight, baseZ + spawnOnBlockZ).type != spawnOnBlockType)
         {
-            //Block below isn't grass, skip
+            //Block below isn't correct, skip
             break;
         }
 
         //TODO: do we want to be able to place multiple structures?
         if(chunk->numStructures < MAX_STRUCTURES)
         {
-            chunk->structureData[chunk->numStructures++] = (StructureData) {.type = biomeDefinitions[biome].structureSpawnData->type,
+            chunk->structureData[chunk->numStructures++] = (StructureData) {.type = structureSpawnData->type,
                                                                             .isSource = true,
                                                                             .x = baseX,
                                                                             .y = groundHeight + 1,
