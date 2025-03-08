@@ -50,6 +50,7 @@ StructureDefinition structureDefinitions[NUM_STRUCTURE_TYPES] = {
             BA, BL, BL, BL, BA,
             BA, BA, BA, BA, BA
         },
+        .baseBlock = BLOCK_AIR,
         .spawnOnBlockType = BLOCK_GRASS,
         .spawnOnBlockPosX = 2,
         .spawnOnBlockPosZ = 2,
@@ -124,6 +125,7 @@ StructureDefinition structureDefinitions[NUM_STRUCTURE_TYPES] = {
             BA, BA, BA, BA, BA,
             BA, BA, BA, BA, BA
         },
+        .baseBlock = BLOCK_AIR,
         .spawnOnBlockType = BLOCK_GRASS,
         .spawnOnBlockPosX = 2,
         .spawnOnBlockPosZ = 2,
@@ -185,6 +187,7 @@ StructureDefinition structureDefinitions[NUM_STRUCTURE_TYPES] = {
             BA, BA, BA, BA, BA, BA, BA,
             BA, BA, BA, BA, BA, BA, BA
         },
+        .baseBlock = BB,
         .spawnOnBlockType = BLOCK_AIR
     },
 
@@ -200,6 +203,7 @@ StructureDefinition structureDefinitions[NUM_STRUCTURE_TYPES] = {
             BC, BC,
             BC, BA
         },
+        .baseBlock = BLOCK_AIR,
         .spawnOnBlockType = BLOCK_AIR
     }
 };

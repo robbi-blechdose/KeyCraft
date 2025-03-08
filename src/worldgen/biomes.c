@@ -26,9 +26,9 @@
 //TODO: we now use this in 3 places, unify!
 #define B(X) (Block) {(X), 0}
 
-Block generateLowBlocks(uint8_t j, uint8_t blockWorldY)
+Block generateLowBlocks(uint8_t j, uint8_t jWorld)
 {
-    if(blockWorldY == 0)
+    if(jWorld == 0)
     {
         return B(BLOCK_BEDROCK);
     }
@@ -59,14 +59,14 @@ Block generateLowBlocks(uint8_t j, uint8_t blockWorldY)
     }
 }
 
-Block generateBiomeNormal(uint8_t j, uint8_t height, uint8_t blockWorldY)
+Block generateBiomeNormal(uint8_t j, uint8_t height, uint8_t jWorld)
 {
     //Generate lakes
-    if(blockWorldY >= height && blockWorldY <= WATER_LEVEL)
+    if(jWorld >= height && jWorld <= WATER_LEVEL)
     {
         return B(BLOCK_WATER);
     }
-    else if(blockWorldY == height)
+    else if(jWorld == height)
     {
         float rand = getNoiseRand(RAND_FLOWER);
         if(rand < 0.01f)
@@ -82,32 +82,34 @@ Block generateBiomeNormal(uint8_t j, uint8_t height, uint8_t blockWorldY)
             return B(BLOCK_TALL_GRASS);
         }
     }
-    else if(blockWorldY == height - 1)
+    else if(jWorld == height - 1)
     {
-        return B(BLOCK_GRASS);
         //Generate lake surroundings
-        if(blockWorldY <= WATER_LEVEL)
+        if(jWorld <= WATER_LEVEL)
         {
             return B(BLOCK_SAND);
         }
+        else
+        {
+            return B(BLOCK_GRASS);
+        }
     }
-    else if(blockWorldY < height && blockWorldY >= height * 0.7f)
+    else if(jWorld < height && jWorld >= height * 0.7f)
     {
         return B(BLOCK_DIRT);
     }
-    else if(blockWorldY < height * 0.7f)
+    else if(jWorld < height * 0.7f)
     {
-        return generateLowBlocks(j, blockWorldY);
+        return generateLowBlocks(j, jWorld);
     }
 
-    //TODO: fix chance here
     //Generate sugar canes
-    if(blockWorldY > WATER_LEVEL)
+    if(jWorld > WATER_LEVEL)
     {
-        int8_t sugarcaneHeight = getNoiseRand(RAND_SUGARCANE) * 30 - 5;
+        int8_t sugarcaneHeight = getNoiseRandScale(RAND_SUGARCANE, 50) * 35 - 27;
         sugarcaneHeight = sugarcaneHeight <= MAX_SUGAR_CANE_HEIGHT ? sugarcaneHeight : MAX_SUGAR_CANE_HEIGHT;
 
-        if(blockWorldY <= WATER_LEVEL + sugarcaneHeight && blockWorldY >= height && height == WATER_LEVEL + 1) //&& blockWorldY > WATER_LEVEL
+        if(jWorld <= WATER_LEVEL + sugarcaneHeight && jWorld >= height && height == WATER_LEVEL + 1) //&& jWorld > WATER_LEVEL
         {
             return B(BLOCK_SUGAR_CANE);
         }
@@ -116,7 +118,7 @@ Block generateBiomeNormal(uint8_t j, uint8_t height, uint8_t blockWorldY)
     return B(BLOCK_AIR);
 }
 
-Block generateBiomeDesert(uint8_t j, uint8_t height, uint8_t blockWorldY)
+Block generateBiomeDesert(uint8_t j, uint8_t height, uint8_t jWorld)
 {
     //Clamp to water level to prevent issues on biome transitions
     if(height <= WATER_LEVEL)
@@ -124,27 +126,27 @@ Block generateBiomeDesert(uint8_t j, uint8_t height, uint8_t blockWorldY)
         height = WATER_LEVEL + 1;
     }
 
-    if(blockWorldY == height)
+    if(jWorld == height)
     {
         if(getNoiseRand(RAND_FLOWER) < 0.08f)
         {
             return B(BLOCK_DEAD_SHRUB);
         }
     }
-    else if(blockWorldY < height && blockWorldY >= height * 0.7f)
+    else if(jWorld < height && jWorld >= height * 0.7f)
     {
         return B(BLOCK_SAND);
     }
-    else if(blockWorldY < height * 0.7f)
+    else if(jWorld < height * 0.7f)
     {
-        return generateLowBlocks(j, blockWorldY);
+        return generateLowBlocks(j, jWorld);
     }
 
     //Generate cacti
     int8_t cactusHeight = getNoiseRandScale(RAND_CACTUS, 50) * 35 - 30;
     cactusHeight = cactusHeight <= MAX_CACTUS_HEIGHT ? cactusHeight : MAX_CACTUS_HEIGHT;
 
-    if(blockWorldY >= height && blockWorldY < height + cactusHeight)
+    if(jWorld >= height && jWorld < height + cactusHeight)
     {
         return B(BLOCK_CACTUS);
     }
@@ -152,7 +154,7 @@ Block generateBiomeDesert(uint8_t j, uint8_t height, uint8_t blockWorldY)
     return B(BLOCK_AIR);
 }
 
-Block generateBiomeBarren(uint8_t j, uint8_t height, uint8_t blockWorldY)
+Block generateBiomeBarren(uint8_t j, uint8_t height, uint8_t jWorld)
 {
     //Clamp to water level to prevent issues on biome transitions
     if(height <= WATER_LEVEL)
@@ -160,7 +162,7 @@ Block generateBiomeBarren(uint8_t j, uint8_t height, uint8_t blockWorldY)
         height = WATER_LEVEL + 1;
     }
 
-    if(blockWorldY == height)
+    if(jWorld == height)
     {
         float rand = getNoiseRand(RAND_FLOWER);
         if(rand < 0.15f)
@@ -176,26 +178,26 @@ Block generateBiomeBarren(uint8_t j, uint8_t height, uint8_t blockWorldY)
             return B(BLOCK_MUSHROOM);
         }
     }
-    else if(blockWorldY < height && blockWorldY >= height * 0.8f)
+    else if(jWorld < height && jWorld >= height * 0.8f)
     {
         return B(BLOCK_DIRT);
     }
-    else if(blockWorldY < height * 0.8f)
+    else if(jWorld < height * 0.8f)
     {
-        return generateLowBlocks(j, blockWorldY);
+        return generateLowBlocks(j, jWorld);
     }
 
     return B(BLOCK_AIR);
 }
 
-Block generateBiomeRocks(uint8_t j, uint8_t height, uint8_t blockWorldY)
+Block generateBiomeRocks(uint8_t j, uint8_t height, uint8_t jWorld)
 {
     //Generate lakes
-    if(blockWorldY >= height && blockWorldY <= WATER_LEVEL)
+    if(jWorld >= height && jWorld <= WATER_LEVEL)
     {
         return B(BLOCK_LAVA);
     }
-    else if(blockWorldY == height)
+    else if(jWorld == height)
     {
         float rand = getNoiseRand(RAND_FLOWER);
         if(rand < 0.4f)
@@ -203,7 +205,7 @@ Block generateBiomeRocks(uint8_t j, uint8_t height, uint8_t blockWorldY)
             return B(BLOCK_MOSS);
         }
     }
-    else if(blockWorldY < height && blockWorldY >= height * 0.7f)
+    else if(jWorld < height && jWorld >= height * 0.7f)
     {
         if(getNoiseRand(RAND_ROCKS) < 0.1f)
         {
@@ -214,15 +216,15 @@ Block generateBiomeRocks(uint8_t j, uint8_t height, uint8_t blockWorldY)
             return B(BLOCK_COBBLESTONE);
         }
     }
-    else if(blockWorldY < height * 0.7f)
+    else if(jWorld < height * 0.7f)
     {
-        return generateLowBlocks(j, blockWorldY);
+        return generateLowBlocks(j, jWorld);
     }
 
     return B(BLOCK_AIR);
 }
 
-Block generateBiomeForest(uint8_t j, uint8_t height, uint8_t blockWorldY)
+Block generateBiomeForest(uint8_t j, uint8_t height, uint8_t jWorld)
 {
     //Clamp to water level to prevent issues on biome transitions
     if(height <= WATER_LEVEL)
@@ -231,24 +233,24 @@ Block generateBiomeForest(uint8_t j, uint8_t height, uint8_t blockWorldY)
     }
 
     //Generate lakes
-    if(blockWorldY == height)
+    if(jWorld == height)
     {
         if(getNoiseRand(RAND_TALLGRASS) < 0.4f)
         {
             return B(BLOCK_TALL_GRASS);
         }
     }
-    else if(blockWorldY == height - 1)
+    else if(jWorld == height - 1)
     {
         return B(BLOCK_GRASS);
     }
-    else if(blockWorldY < height && blockWorldY >= height * 0.7f)
+    else if(jWorld < height && jWorld >= height * 0.7f)
     {
         return B(BLOCK_DIRT);
     }
-    else if(blockWorldY < height * 0.7f)
+    else if(jWorld < height * 0.7f)
     {
-        return generateLowBlocks(j, blockWorldY);
+        return generateLowBlocks(j, jWorld);
     }
 
     return B(BLOCK_AIR);
@@ -279,7 +281,7 @@ BiomeDefinition biomeDefinitions[NUM_BIOME_TYPES] = {
             {
                 .type = STRUCTURE_ROCK_PILE,
                 .randomNoiseY = 24,
-                .spawnChance = 1
+                .spawnChance = 0.5f
             }
         },
         .generator = generateBiomeBarren
@@ -291,7 +293,7 @@ BiomeDefinition biomeDefinitions[NUM_BIOME_TYPES] = {
             {
                 .type = STRUCTURE_VOLCANO,
                 .randomNoiseY = 16,
-                .spawnChance = 1
+                .spawnChance = 0.2f
             }
         },
         .generator = generateBiomeRocks

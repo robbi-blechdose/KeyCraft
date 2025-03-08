@@ -55,9 +55,10 @@ void generateChunk(Chunk* chunk)
 
             for(uint8_t j = 0; j < CHUNK_SIZE; j++)
             {
-                uint8_t blockWorldY = j + (y * CHUNK_SIZE);
+                //j is in chunk-local space, jWorld is the same coordinate in world space
+                uint8_t jWorld = j + (y * CHUNK_SIZE);
                 BiomeType biome = getBiome(x, z, i, k);
-                CHUNK_BLOCK(chunk, i, j, k) = biomeDefinitions[biome].generator(j, height, blockWorldY);
+                CHUNK_BLOCK(chunk, i, j, k) = biomeDefinitions[biome].generator(j, height, jWorld);
             }
         }
     }
@@ -187,7 +188,6 @@ void propagateChunkStructureData(Chunk* sourceChunk, Chunk** adjacentChunks, uin
     }
 }
 
-//TODO: add option to generate "base plate" below structure! (necessary for volcanoes, possibly others)
 void generateStructurePart(Chunk* chunk, StructureData* structure)
 {
     //Offset the starting point of the structure in general (where is the structure placed)
@@ -207,6 +207,33 @@ void generateStructurePart(Chunk* chunk, StructureData* structure)
 
     //Grab definition
     StructureDefinition structureDef = structureDefinitions[structure->type];
+
+    //Generate a "base plate" if necessary
+    //This will not extend down past this single chunk, but hopefully that's good enough
+    //TODO: is it good enough?
+    if(structureDef.baseBlock.type != BLOCK_AIR)
+    {
+        for(uint8_t j = 0; j < offset.y; j++)
+        {
+            for(uint8_t i = start.x; i < structureDef.size.x; i++)
+            {
+                uint8_t x = offset.x + i - start.x;
+                if(x >= CHUNK_SIZE)
+                {
+                    continue;
+                }
+                for(uint8_t k = start.z; k < structureDef.size.z; k++)
+                {
+                    uint8_t z = offset.z + k - start.z;
+                    if(z >= CHUNK_SIZE)
+                    {
+                        continue;
+                    }
+                    CHUNK_BLOCK(chunk, x, j, z) = structureDef.baseBlock;
+                }
+            }
+        }
+    }
 
     //Copy relevant part of structure into chunk
     for(uint8_t j = start.y; j < structureDef.size.y; j++)
