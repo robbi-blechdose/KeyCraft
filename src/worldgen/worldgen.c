@@ -101,7 +101,6 @@ void generateChunk(Chunk* chunk)
             break;
         }
 
-        //TODO: do we want to be able to place multiple structures?
         if(chunk->numStructures < MAX_STRUCTURES)
         {
             chunk->structureData[chunk->numStructures++] = (StructureData) {.type = structureSpawnData->type,
@@ -110,6 +109,8 @@ void generateChunk(Chunk* chunk)
                                                                             .y = groundHeight + 1,
                                                                             .z = baseZ};
         }
+        //Max one structure per chunk
+        break;
     }
     
     //Calculate basic AABB

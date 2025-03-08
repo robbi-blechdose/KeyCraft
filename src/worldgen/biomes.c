@@ -207,7 +207,7 @@ Block generateBiomeRocks(uint8_t j, uint8_t height, uint8_t jWorld)
     }
     else if(jWorld < height && jWorld >= height * 0.7f)
     {
-        if(getNoiseRand(RAND_ROCKS) < 0.1f)
+        if(getNoiseRandScale(RAND_ROCKS, 0.25f) < 0.2f)
         {
             return B(BLOCK_STONE);
         }
@@ -264,7 +264,7 @@ BiomeDefinition biomeDefinitions[NUM_BIOME_TYPES] = {
             {
                 .type = STRUCTURE_TREE,
                 .randomNoiseY = 16,
-                .spawnChance = 1
+                .spawnChance = 0.7f
             }
         },
         .generator = generateBiomeNormal
@@ -300,8 +300,13 @@ BiomeDefinition biomeDefinitions[NUM_BIOME_TYPES] = {
     },
     [BIOME_FOREST] = {
         .spawnChance = {.start = 0.4f, .end = 0.5f},
-        .numStructureSpawnData = 1,
+        .numStructureSpawnData = 2,
         .structureSpawnData = (struct StructureSpawnData[]) {
+            {
+                .type = STRUCTURE_TREE_WIDE,
+                .randomNoiseY = 16,
+                .spawnChance = 0.5f
+            },
             {
                 .type = STRUCTURE_TREE_TALL,
                 .randomNoiseY = 16,

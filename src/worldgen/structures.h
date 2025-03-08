@@ -18,6 +18,7 @@
 typedef enum {
     STRUCTURE_TREE,
     STRUCTURE_TREE_TALL,
+    STRUCTURE_TREE_WIDE,
     STRUCTURE_VOLCANO,
     STRUCTURE_ROCK_PILE,
     NUM_STRUCTURE_TYPES
@@ -36,6 +37,7 @@ typedef struct {
     Block* blocks;
     //If this is set to a non-BLOCK_AIR, this block will be generated as a "base plate" to ensure the structure isn't flying
     Block baseBlock;
+    //TODO: specify size for base (instead of whole structure size)
     //Spawn prerequisites
     //If the block type is set to BLOCK_AIR, the structure may spawn anywhere
     BlockType spawnOnBlockType;
