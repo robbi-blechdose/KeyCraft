@@ -180,7 +180,6 @@ void calcFrame(uint32_t ticks)
                         LoadResult lr = loadGame(saveName, &player);
                         if(lr == LR_OK)
                         {
-                            //TODO: we may have to do a little more work here?
                             precalcGame(&player, 1);
                             state = STATE_GAME;
                         }
@@ -292,7 +291,6 @@ void handleSigusr1(int sig)
     quickSaveAndPoweroff = true;
 }
 
-//TODO: add ability to load save with old name into slot 0
 int main(int argc, char **argv)
 {
     //Save program name for instant play

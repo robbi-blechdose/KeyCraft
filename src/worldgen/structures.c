@@ -55,6 +55,12 @@ StructureDefinition structureDefinitions[NUM_STRUCTURE_TYPES] = {
         .spawnOnBlockPosX = 2,
         .spawnOnBlockPosZ = 2,
     },
+
+#undef BW
+#define BW {BLOCK_WOOD, BLOCK_DATA_TEXTURE1}
+#undef BL
+#define BL {BLOCK_LEAVES, BLOCK_DATA_TEXTURE1}
+
     [STRUCTURE_TREE_TALL] = {
         .size = {5, 11, 5},
         .blocks = (Block[]) {
@@ -130,6 +136,12 @@ StructureDefinition structureDefinitions[NUM_STRUCTURE_TYPES] = {
         .spawnOnBlockPosX = 2,
         .spawnOnBlockPosZ = 2,
     },
+
+#undef BW
+#define BW B(BLOCK_WOOD)
+#undef BL
+#define BL B(BLOCK_LEAVES)
+
     [STRUCTURE_TREE_WIDE] = {
         .size = {8, 6, 8},
         .blocks = (Block[]) {

@@ -149,6 +149,10 @@ vec2 getInventoryTextureForBlock(Block block)
         {
             return getBlockTexture(block.type, 3);
         }
+        case BLOCK_WOOD:
+        {
+            return getBlockTexture(block.type, (block.data & BLOCK_DATA_TEXTURE) * 6);   
+        }
         case BLOCK_LEVER:
         {
             return (vec2) {64, 0};

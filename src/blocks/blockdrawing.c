@@ -38,19 +38,23 @@ const vec2i* const blockTextures[] = {
     [BLOCK_SAND] =       (vec2i[1]) {{2, 0}},
     [BLOCK_DIRT] =       (vec2i[1]) {{3, 0}},
     [BLOCK_GRASS] =      (vec2i[6]) {{4, 0}, {4, 0}, {4, 0}, {4, 0}, {5, 0}, {3, 0}},
-    [BLOCK_WOOD] =       (vec2i[6]) {{6, 0}, {6, 0}, {6, 0}, {6, 0}, {7, 0}, {7, 0}},
-
+    [BLOCK_WOOD] =       (vec2i[12]) {{6, 0}, {6, 0}, {6, 0}, {6, 0}, {7, 0}, {7, 0},
+                                        {2, 8}, {2, 8}, {2, 8}, {2, 8}, {3, 8}, {3, 8}},
     [BLOCK_PLANKS] =     (vec2i[1]) {{0, 1}},
     [BLOCK_COAL_ORE] =   (vec2i[1]) {{1, 1}},
     [BLOCK_IRON_ORE] =   (vec2i[1]) {{2, 1}},
     [BLOCK_GOLD_ORE] =   (vec2i[1]) {{3, 1}},
     [BLOCK_REDSTONE_ORE] = (vec2i[1]) {{4, 1}},
     [BLOCK_DIAMOND_ORE] = (vec2i[1]) {{5, 1}},
-    [BLOCK_FLOWER] =     (vec2i[4]) {{6, 1}, {7, 1}, {3, 7}, {4, 7}},
+    [BLOCK_FLOWER] =     (vec2i[4]) {{6, 1},
+                                        {7, 1},
+                                        {3, 7},
+                                        {4, 7}},
 
     [BLOCK_TALL_GRASS] = (vec2i[1]) {{0, 2}},
     [BLOCK_GLASS] =      (vec2i[1]) {{1, 2}},
-    [BLOCK_LEAVES] =     (vec2i[1]) {{2, 2}},
+    [BLOCK_LEAVES] =     (vec2i[2]) {{2, 2},
+                                        {4, 8}},
     [BLOCK_BOOKSHELF] =  (vec2i[6]) {{3, 2}, {3, 2}, {3, 2}, {3, 2}, {0, 1}, {0, 1}},
     [BLOCK_WHEAT] =      (vec2i[4]) {{4, 2}, {5, 2}, {6, 2}, {7, 2}},
 
@@ -168,7 +172,7 @@ void drawMultitexBlock(Block* block, uint8_t x, uint8_t y, uint8_t z, uint8_t oc
     vec2 tex[6];
     for(uint8_t i = 0; i < 6; i++)
     {
-        tex[i] = getBlockTexture(block->type, i);
+        tex[i] = getBlockTexture(block->type, i + (block->data & BLOCK_DATA_TEXTURE) * 6);
     }
 
     uint8_t occlusionCheck = BS_FRONT;
