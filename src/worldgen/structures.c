@@ -263,6 +263,8 @@ StructureDefinition structureDefinitions[NUM_STRUCTURE_TYPES] = {
             BA, BA, BA, BA, BA, BA, BA
         },
         .baseBlock = BB,
+        .basePos = {0, 0},
+        .baseSize = {7, 7},
         .spawnOnBlockType = BLOCK_AIR
     },
 

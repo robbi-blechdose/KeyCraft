@@ -32,12 +32,18 @@ typedef struct {
 } vec3u8;
 
 typedef struct {
+    uint8_t x;
+    uint8_t z;
+} vec2u8;
+
+typedef struct {
     vec3u8 size;
     //Block data is laid out in X-Z "slices" (with each slice being made up of Z rows in the X direction), the 0th slice being the bottom one
     Block* blocks;
     //If this is set to a non-BLOCK_AIR, this block will be generated as a "base plate" to ensure the structure isn't flying
     Block baseBlock;
-    //TODO: specify size for base (instead of whole structure size)
+    vec2u8 basePos;
+    vec2u8 baseSize;
     //Spawn prerequisites
     //If the block type is set to BLOCK_AIR, the structure may spawn anywhere
     BlockType spawnOnBlockType;

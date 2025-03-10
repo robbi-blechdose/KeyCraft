@@ -167,9 +167,13 @@ void propagateChunkStructureData(Chunk* sourceChunk, Chunk** adjacentChunks, uin
                     break;
                 }
             }
+
+            if(equal)
+            {
+                continue;
+            }
             
-            //TODO: what do we do if this is already full? can we at least make that very unlikely?
-            if(!equal && adjacentChunk->numStructures < MAX_STRUCTURES)
+            if(adjacentChunk->numStructures < MAX_STRUCTURES)
             {
                 int16_t xDiff = (sourceChunk->position.x - adjacentChunk->position.x) * CHUNK_SIZE;
                 int16_t yDiff = (sourceChunk->position.y - adjacentChunk->position.y) * CHUNK_SIZE;
@@ -185,6 +189,12 @@ void propagateChunkStructureData(Chunk* sourceChunk, Chunk** adjacentChunks, uin
 
                 CHUNK_SET_FLAG(adjacentChunk, CHUNK_NEW_STRUCT_DATA);
             }
+            #ifdef DEBUG
+            else
+            {
+                printf("Failed to propagate structure data into chunk (%d %d %d).\n", adjacentChunk->position.x, adjacentChunk->position.y, adjacentChunk->position.z);
+            }
+            #endif
         }
     }
 }
@@ -211,19 +221,22 @@ void generateStructurePart(Chunk* chunk, Structure* structure)
 
     //Generate a "base plate" if necessary
     //This will not extend down past this single chunk, but hopefully that's good enough
-    //TODO: is it good enough?
+    vec2u8 baseStart = {start.x < structureDef.basePos.x ? structureDef.basePos.x : start.x,
+                        start.z < structureDef.basePos.z ? structureDef.basePos.z : start.z};
+    vec2u8 baseEnd = {structureDef.basePos.x + structureDef.baseSize.x,
+                        structureDef.basePos.z + structureDef.baseSize.z};
     if(structureDef.baseBlock.type != BLOCK_AIR)
     {
         for(uint8_t j = 0; j < offset.y; j++)
         {
-            for(uint8_t i = start.x; i < structureDef.size.x; i++)
+            for(uint8_t i = baseStart.x; i < baseEnd.x; i++)
             {
                 uint8_t x = offset.x + i - start.x;
                 if(x >= CHUNK_SIZE)
                 {
                     continue;
                 }
-                for(uint8_t k = start.z; k < structureDef.size.z; k++)
+                for(uint8_t k = baseStart.z; k < baseEnd.z; k++)
                 {
                     uint8_t z = offset.z + k - start.z;
                     if(z >= CHUNK_SIZE)
