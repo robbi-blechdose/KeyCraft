@@ -16,6 +16,7 @@
  */
 
 typedef enum {
+    STRUCTURE_SHRUB,
     STRUCTURE_TREE,
     STRUCTURE_TREE_TALL,
     STRUCTURE_TREE_WIDE,

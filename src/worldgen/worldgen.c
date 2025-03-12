@@ -120,6 +120,8 @@ void generateChunk(Chunk* chunk)
     CHUNK_SET_FLAG(chunk, CHUNK_NEW_STRUCT_DATA);
     //Mark chunk as initial - has been generated, no player-made modifications
     CHUNK_SET_FLAG(chunk, CHUNK_IS_INITIAL);
+    //We know the chunk was only just created, so it has no draw data yet
+    CHUNK_SET_FLAG(chunk, CHUNK_NO_DRAW_DATA);
     //Don't mark the chunk to be built yet - we're not done!
 }
 
@@ -274,7 +276,6 @@ void generateStructurePart(Chunk* chunk, Structure* structure)
                     continue;
                 }
 
-                //TODO: check if the multiplications here work for non-square structures!
                 Block newBlock = structureDef.blocks[j * structureDef.size.x * structureDef.size.z + k * structureDef.size.x + i];
                 //Don't clear out terrain around structures
                 if(newBlock.type != BLOCK_AIR)
@@ -304,7 +305,6 @@ void generateChunkStructures(Chunk* chunk)
     CHUNK_CLEAR_FLAG(chunk, CHUNK_NEW_STRUCT_DATA);
     //Mark chunk geometry to be built
     CHUNK_SET_FLAG(chunk, CHUNK_MODIFIED);
-    CHUNK_SET_FLAG(chunk, CHUNK_NO_DRAW_DATA);
     //Mark chunk as initial - has been generated, no player-made modifications
     CHUNK_SET_FLAG(chunk, CHUNK_IS_INITIAL);
 }

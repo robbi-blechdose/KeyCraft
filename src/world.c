@@ -25,24 +25,8 @@ GLuint terrainTexture;
 
 uint32_t worldTicks;
 
-void initWorld(uint32_t pSeed)
+void initWorldStructures()
 {
-    seed = pSeed;
-    initWorldgen(pSeed);
-
-    //Initial worldgen
-    for(uint8_t i = 0; i < VIEW_DISTANCE; i++)
-    {
-        for(uint8_t j = 0; j < VIEW_DISTANCE; j++)
-        {
-            for(uint8_t k = 0; k < VIEW_DISTANCE; k++)
-            {
-                VIEW_CHUNK(i, j, k) = calloc(1, sizeof(Chunk));
-                VIEW_CHUNK(i, j, k)->position = (ChunkPos) {i, j, k};
-                generateChunk(VIEW_CHUNK(i, j, k));
-            }
-        }
-    }
     //Propagate structure data
     for(uint8_t i = 0; i < VIEW_DISTANCE; i++)
     {
@@ -67,6 +51,28 @@ void initWorld(uint32_t pSeed)
             }
         }
     }
+}
+
+void initWorld(uint32_t pSeed)
+{
+    seed = pSeed;
+    initWorldgen(pSeed);
+
+    //Initial worldgen
+    for(uint8_t i = 0; i < VIEW_DISTANCE; i++)
+    {
+        for(uint8_t j = 0; j < VIEW_DISTANCE; j++)
+        {
+            for(uint8_t k = 0; k < VIEW_DISTANCE; k++)
+            {
+                VIEW_CHUNK(i, j, k) = calloc(1, sizeof(Chunk));
+                VIEW_CHUNK(i, j, k)->position = (ChunkPos) {i, j, k};
+                generateChunk(VIEW_CHUNK(i, j, k));
+            }
+        }
+    }
+
+    initWorldStructures();
 
     chunkPos = (ChunkPos) {0, 0, 0};
 
@@ -718,31 +724,8 @@ void loadWorld(SaveVersionCompat svc)
             }
         }
     }
-    //TODO: this is the same code as in initWorld(), find some way to combine it?
-    //Propagate structure data
-    for(uint8_t i = 0; i < VIEW_DISTANCE; i++)
-    {
-        for(uint8_t j = 0; j < VIEW_DISTANCE; j++)
-        {
-            for(uint8_t k = 0; k < VIEW_DISTANCE; k++)
-            {
-                propagateChunkStructureData(VIEW_CHUNK(i, j, k), chunks, VIEW_DISTANCE * VIEW_DISTANCE * VIEW_DISTANCE);
-            }
-        }
-    }
-    //Generate structures
-    //If there are "source" structures outside the current view distance, the chunks within view distance won't be populated with structures (as in, will be missing parts)
-    //This is pretty unavoidable though, and also not really a problem
-    for(uint8_t i = 0; i < VIEW_DISTANCE; i++)
-    {
-        for(uint8_t j = 0; j < VIEW_DISTANCE; j++)
-        {
-            for(uint8_t k = 0; k < VIEW_DISTANCE; k++)
-            {
-                generateChunkStructures(VIEW_CHUNK(i, j, k));
-            }
-        }
-    }
+    
+    initWorldStructures();
 
     if(svc == SV_COMPAT_OK)
     {

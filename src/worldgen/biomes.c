@@ -300,8 +300,13 @@ BiomeDefinition biomeDefinitions[NUM_BIOME_TYPES] = {
     },
     [BIOME_FOREST] = {
         .spawnChance = {.start = 0.4f, .end = 0.5f},
-        .numStructureSpawnData = 2,
+        .numStructureSpawnData = 3,
         .structureSpawnData = (struct StructureSpawnData[]) {
+            {
+                .type = STRUCTURE_SHRUB,
+                .randomNoiseY = 16,
+                .spawnChance = 0.2f,
+            },
             {
                 .type = STRUCTURE_TREE_WIDE,
                 .randomNoiseY = 16,

@@ -10,6 +10,21 @@ StructureDefinition structureDefinitions[NUM_STRUCTURE_TYPES] = {
 #define BW B(BLOCK_WOOD)
 #define BL B(BLOCK_LEAVES)
 
+    [STRUCTURE_SHRUB] = {
+        .size = {3, 2, 2},
+        .blocks = (Block[]) {
+            //0th slice
+            BL, BL, BL,
+            BL, BL, BL,
+            //1st slice
+            BA, BL, BA,
+            BA, BL, BA
+        },
+        .baseBlock = BLOCK_AIR,
+        .spawnOnBlockType = BLOCK_GRASS,
+        .spawnOnBlockPosX = 1,
+        .spawnOnBlockPosZ = 0
+    },
     [STRUCTURE_TREE] = {
         .size = {5, 6, 5},
         .blocks = (Block[]) {
