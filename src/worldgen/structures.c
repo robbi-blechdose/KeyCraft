@@ -70,93 +70,6 @@ StructureDefinition structureDefinitions[NUM_STRUCTURE_TYPES] = {
         .spawnOnBlockPosX = 2,
         .spawnOnBlockPosZ = 2,
     },
-
-#undef BW
-#define BW {BLOCK_WOOD, BLOCK_DATA_TEXTURE1}
-#undef BL
-#define BL {BLOCK_LEAVES, BLOCK_DATA_TEXTURE1}
-
-    [STRUCTURE_TREE_TALL] = {
-        .size = {5, 11, 5},
-        .blocks = (Block[]) {
-            //0th slice
-            BA, BA, BA, BA, BA,
-            BA, BA, BA, BA, BA,
-            BA, BA, BW, BA, BA,
-            BA, BA, BA, BA, BA,
-            BA, BA, BA, BA, BA,
-            //1st slice
-            BA, BA, BA, BA, BA,
-            BA, BA, BA, BA, BA,
-            BA, BA, BW, BA, BA,
-            BA, BA, BA, BA, BA,
-            BA, BA, BA, BA, BA,
-            //2nd slice
-            BA, BA, BA, BA, BA,
-            BA, BA, BA, BA, BA,
-            BA, BA, BW, BA, BA,
-            BA, BA, BA, BA, BA,
-            BA, BA, BA, BA, BA,
-            //3rd slice (leaves start)
-            BA, BL, BL, BL, BA,
-            BL, BL, BL, BL, BL,
-            BL, BL, BW, BL, BL,
-            BL, BL, BL, BL, BL,
-            BA, BL, BL, BL, BA,
-            //4th slice
-            BA, BL, BL, BL, BA,
-            BL, BL, BL, BL, BL,
-            BL, BL, BW, BL, BL,
-            BL, BL, BL, BL, BL,
-            BA, BL, BL, BL, BA,
-            //5th slice
-            BA, BL, BL, BL, BA,
-            BL, BL, BL, BL, BL,
-            BL, BL, BW, BL, BL,
-            BL, BL, BL, BL, BL,
-            BA, BL, BL, BL, BA,
-            //6th slice (smaller leaves)
-            BA, BA, BA, BA, BA,
-            BA, BL, BL, BL, BA,
-            BA, BL, BL, BL, BA,
-            BA, BL, BL, BL, BA,
-            BA, BA, BA, BA, BA,
-            //7th slice
-            BA, BA, BA, BA, BA,
-            BA, BL, BL, BL, BA,
-            BA, BL, BL, BL, BA,
-            BA, BL, BL, BL, BA,
-            BA, BA, BA, BA, BA,
-            //8th slice
-            BA, BA, BA, BA, BA,
-            BA, BL, BL, BL, BA,
-            BA, BL, BL, BL, BA,
-            BA, BL, BL, BL, BA,
-            BA, BA, BA, BA, BA,
-            //9th slice (thin top leaves)
-            BA, BA, BA, BA, BA,
-            BA, BA, BA, BA, BA,
-            BA, BA, BL, BA, BA,
-            BA, BA, BA, BA, BA,
-            BA, BA, BA, BA, BA,
-            //10th slice
-            BA, BA, BA, BA, BA,
-            BA, BA, BA, BA, BA,
-            BA, BA, BL, BA, BA,
-            BA, BA, BA, BA, BA,
-            BA, BA, BA, BA, BA
-        },
-        .baseBlock = BLOCK_AIR,
-        .spawnOnBlockType = BLOCK_GRASS,
-        .spawnOnBlockPosX = 2,
-        .spawnOnBlockPosZ = 2,
-    },
-
-#undef BW
-#define BW B(BLOCK_WOOD)
-#undef BL
-#define BL B(BLOCK_LEAVES)
-
     [STRUCTURE_TREE_WIDE] = {
         .size = {8, 6, 8},
         .blocks = (Block[]) {
@@ -220,7 +133,137 @@ StructureDefinition structureDefinitions[NUM_STRUCTURE_TYPES] = {
         .spawnOnBlockPosX = 2,
         .spawnOnBlockPosZ = 2,
     },
+    [STRUCTURE_TREE_FLAT] = {
+        .size = {7, 5, 7},
+        .blocks = (Block[]) {
+            //0th slice
+            BA, BA, BA, BA, BA, BA, BA,
+            BA, BA, BA, BA, BA, BA, BA,
+            BA, BA, BA, BA, BA, BA, BA,
+            BA, BA, BA, BW, BA, BA, BA,
+            BA, BA, BA, BA, BA, BA, BA,
+            BA, BA, BA, BA, BA, BA, BA,
+            BA, BA, BA, BA, BA, BA, BA,
+            //1st slice
+            BA, BA, BA, BA, BA, BA, BA,
+            BA, BA, BA, BA, BA, BA, BA,
+            BA, BA, BA, BA, BA, BA, BA,
+            BA, BA, BA, BW, BA, BA, BA,
+            BA, BA, BA, BA, BA, BA, BA,
+            BA, BA, BA, BA, BA, BA, BA,
+            BA, BA, BA, BA, BA, BA, BA,
+            //2nd slice
+            BA, BA, BA, BA, BA, BA, BA,
+            BA, BA, BA, BA, BA, BA, BA,
+            BA, BA, BW, BA, BW, BA, BA,
+            BA, BA, BA, BA, BA, BA, BA,
+            BA, BA, BA, BW, BA, BA, BA,
+            BA, BA, BA, BA, BA, BA, BA,
+            BA, BA, BA, BA, BA, BA, BA,
+            //3rd slice
+            BA, BL, BL, BL, BL, BL, BA,
+            BL, BL, BL, BL, BL, BL, BL,
+            BL, BL, BL, BL, BL, BL, BL,
+            BL, BL, BL, BL, BL, BL, BL,
+            BL, BL, BL, BL, BL, BL, BL,
+            BL, BL, BL, BL, BL, BL, BL,
+            BA, BL, BL, BL, BL, BL, BA,
+            //4th slice
+            BA, BA, BA, BA, BA, BA, BA,
+            BA, BA, BL, BL, BL, BA, BA,
+            BA, BL, BL, BL, BL, BL, BA,
+            BA, BL, BL, BL, BL, BL, BA,
+            BA, BL, BL, BL, BL, BL, BA,
+            BA, BA, BL, BL, BL, BA, BA,
+            BA, BA, BA, BA, BA, BA, BA
+        },
+        .baseBlock = BLOCK_AIR,
+        .spawnOnBlockType = BLOCK_GRASS,
+        .spawnOnBlockPosX = 3,
+        .spawnOnBlockPosZ = 3,
+    },
 
+#undef BW
+#define BW {BLOCK_WOOD, BLOCK_DATA_TEXTURE1}
+#undef BL
+#define BL {BLOCK_LEAVES, BLOCK_DATA_TEXTURE1}
+    
+        [STRUCTURE_TREE_TALL_DARK] = {
+            .size = {5, 11, 5},
+            .blocks = (Block[]) {
+                //0th slice
+                BA, BA, BA, BA, BA,
+                BA, BA, BA, BA, BA,
+                BA, BA, BW, BA, BA,
+                BA, BA, BA, BA, BA,
+                BA, BA, BA, BA, BA,
+                //1st slice
+                BA, BA, BA, BA, BA,
+                BA, BA, BA, BA, BA,
+                BA, BA, BW, BA, BA,
+                BA, BA, BA, BA, BA,
+                BA, BA, BA, BA, BA,
+                //2nd slice
+                BA, BA, BA, BA, BA,
+                BA, BA, BA, BA, BA,
+                BA, BA, BW, BA, BA,
+                BA, BA, BA, BA, BA,
+                BA, BA, BA, BA, BA,
+                //3rd slice (leaves start)
+                BA, BL, BL, BL, BA,
+                BL, BL, BL, BL, BL,
+                BL, BL, BW, BL, BL,
+                BL, BL, BL, BL, BL,
+                BA, BL, BL, BL, BA,
+                //4th slice
+                BA, BL, BL, BL, BA,
+                BL, BL, BL, BL, BL,
+                BL, BL, BW, BL, BL,
+                BL, BL, BL, BL, BL,
+                BA, BL, BL, BL, BA,
+                //5th slice
+                BA, BL, BL, BL, BA,
+                BL, BL, BL, BL, BL,
+                BL, BL, BW, BL, BL,
+                BL, BL, BL, BL, BL,
+                BA, BL, BL, BL, BA,
+                //6th slice (smaller leaves)
+                BA, BA, BA, BA, BA,
+                BA, BL, BL, BL, BA,
+                BA, BL, BL, BL, BA,
+                BA, BL, BL, BL, BA,
+                BA, BA, BA, BA, BA,
+                //7th slice
+                BA, BA, BA, BA, BA,
+                BA, BL, BL, BL, BA,
+                BA, BL, BL, BL, BA,
+                BA, BL, BL, BL, BA,
+                BA, BA, BA, BA, BA,
+                //8th slice
+                BA, BA, BA, BA, BA,
+                BA, BL, BL, BL, BA,
+                BA, BL, BL, BL, BA,
+                BA, BL, BL, BL, BA,
+                BA, BA, BA, BA, BA,
+                //9th slice (thin top leaves)
+                BA, BA, BA, BA, BA,
+                BA, BA, BA, BA, BA,
+                BA, BA, BL, BA, BA,
+                BA, BA, BA, BA, BA,
+                BA, BA, BA, BA, BA,
+                //10th slice
+                BA, BA, BA, BA, BA,
+                BA, BA, BA, BA, BA,
+                BA, BA, BL, BA, BA,
+                BA, BA, BA, BA, BA,
+                BA, BA, BA, BA, BA
+            },
+            .baseBlock = BLOCK_AIR,
+            .spawnOnBlockType = BLOCK_GRASS,
+            .spawnOnBlockPosX = 2,
+            .spawnOnBlockPosZ = 2,
+        },
+    
 #define BB B(BLOCK_BASALT)
 #undef BL
 #define BL B(BLOCK_LAVA)

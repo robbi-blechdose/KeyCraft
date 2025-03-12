@@ -300,21 +300,26 @@ BiomeDefinition biomeDefinitions[NUM_BIOME_TYPES] = {
     },
     [BIOME_FOREST] = {
         .spawnChance = {.start = 0.4f, .end = 0.5f},
-        .numStructureSpawnData = 3,
+        .numStructureSpawnData = 4,
         .structureSpawnData = (struct StructureSpawnData[]) {
             {
                 .type = STRUCTURE_SHRUB,
                 .randomNoiseY = 16,
-                .spawnChance = 0.2f,
+                .spawnChance = 0.3f,
+            },
+            {
+                .type = STRUCTURE_TREE_FLAT,
+                .randomNoiseY = 17,
+                .spawnChance = 0.4f,
             },
             {
                 .type = STRUCTURE_TREE_WIDE,
-                .randomNoiseY = 16,
+                .randomNoiseY = 18,
                 .spawnChance = 0.5f
             },
             {
-                .type = STRUCTURE_TREE_TALL,
-                .randomNoiseY = 16,
+                .type = STRUCTURE_TREE_TALL_DARK,
+                .randomNoiseY = 19,
                 .spawnChance = 1
             }
         },

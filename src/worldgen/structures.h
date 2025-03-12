@@ -5,6 +5,7 @@
 
 #include "../aabb.h"
 #include "../blocks/block.h"
+#include "../vectors.h"
 
 /**
  * Structure system: Allows generating structures larger than a single chunk without requiring all adjacent chunks to be loaded
@@ -18,24 +19,13 @@
 typedef enum {
     STRUCTURE_SHRUB,
     STRUCTURE_TREE,
-    STRUCTURE_TREE_TALL,
     STRUCTURE_TREE_WIDE,
+    STRUCTURE_TREE_FLAT,
+    STRUCTURE_TREE_TALL_DARK,
     STRUCTURE_VOLCANO,
     STRUCTURE_ROCK_PILE,
     NUM_STRUCTURE_TYPES
 } StructureType;
-
-//TODO: possibly move somewhere better?
-typedef struct {
-    uint8_t x;
-    uint8_t y;
-    uint8_t z;
-} vec3u8;
-
-typedef struct {
-    uint8_t x;
-    uint8_t z;
-} vec2u8;
 
 typedef struct {
     vec3u8 size;

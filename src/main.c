@@ -187,7 +187,8 @@ void calcFrame(uint32_t ticks)
                         {
                             //Load failure, display a message
                             createPopup("Failed to load\n save.");
-                            //TODO: get back to a known good state!
+                            //Destroy old game, initialize new one so we're back to a known good state
+                            newGame(&player, newGameSeed);
                         }
 
                         break;
