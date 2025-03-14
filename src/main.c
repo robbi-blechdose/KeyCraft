@@ -47,7 +47,6 @@ Player player;
 
 //Options
 bool invertY = true;
-//TODO: each save will have to save its own seed
 uint32_t newGameSeed = 0;
 uint8_t gameIndex = 0;
 

@@ -254,7 +254,6 @@ inline void tickBlock(Chunk* chunk, Block* block, uint8_t x, uint8_t y, uint8_t 
             }
             break;
         }
-        //TODO: shorten noteblock audio further?
         case BLOCK_NOTEBLOCK:
         {
             bool adjacentPower = hasAdjacentPower(chunk->position, x, y, z, false);

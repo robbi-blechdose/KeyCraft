@@ -13,8 +13,6 @@ extern int8_t manageGamesCursor;
 void drawManageGamesMenu();
 void calcFrameManageGamesMenu(State* state);
 
-//TODO: maybe move the seed here too?
-
 typedef enum {
     MSG_SELECTION_LOAD_GAME = 0,
     MSG_SELECTION_NEW_GAME,
